@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker — Live Demo</title>
+    <style>
+        :root {
+            --bg: #f4f5f7; --card: #ffffff; --text: #1a1a1a;
+            --text-muted: #6b7280; --accent: #2c3e50; --border: #e5e7eb;
+            --high: #ef4444; --medium: #f59e0b; --low: #10b981;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.5; padding: 2rem 1rem;
+        }
+        .container { max-width: 640px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 0.5rem; }
+        h1 { font-size: 2rem; color: var(--accent); }
+        .subtitle { color: var(--text-muted); font-size: 0.9rem; }
+        .demo-note {
+            background: #fef3c7; border: 1px solid #f59e0b; color: #92400e;
+            border-radius: 6px; padding: 0.6rem 0.9rem; font-size: 0.85rem;
+            text-align: center; margin: 1rem 0 1.5rem;
+        }
+        .stats { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card {
+            flex: 1; background: var(--card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 1rem; text-align: center;
+            display: flex; flex-direction: column;
+        }
+        .stat-number { font-size: 1.75rem; font-weight: 700; color: var(--accent); }
+        .stat-label {
+            font-size: 0.8rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .task-form { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .task-form input[type="text"] {
+            flex: 1; min-width: 140px; padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem;
+        }
+        .task-form select {
+            padding: 0.6rem; border: 1px solid var(--border);
+            border-radius: 6px; background: var(--card);
+        }
+        .task-form button, .filter-btn {
+            padding: 0.6rem 1.2rem; border: none; border-radius: 6px;
+            background: var(--accent); color: white; cursor: pointer;
+            font-size: 0.95rem; transition: opacity 0.15s;
+        }
+        .task-form button:hover { opacity: 0.9; }
+        .filters { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .filter-btn {
+            background: var(--card); color: var(--text-muted); border: 1px solid var(--border);
+        }
+        .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .task-item {
+            display: flex; align-items: center; gap: 0.75rem;
+            background: var(--card); border: 1px solid var(--border);
+            border-left: 4px solid var(--border); border-radius: 8px;
+            padding: 0.8rem 1rem; margin-bottom: 0.5rem;
+        }
+        .task-item.priority-high { border-left-color: var(--high); }
+        .task-item.priority-medium { border-left-color: var(--medium); }
+        .task-item.priority-low { border-left-color: var(--low); }
+        .task-item.completed .task-title { text-decoration: line-through; color: var(--text-muted); }
+        .task-content { flex: 1; display: flex; flex-direction: column; }
+        .task-title { font-weight: 500; }
+        .task-desc { font-size: 0.85rem; color: var(--text-muted); }
+        .task-priority {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--text-muted); padding: 0.2rem 0.5rem;
+            border: 1px solid var(--border); border-radius: 4px;
+        }
+        .delete-btn {
+            background: none; border: none; color: var(--text-muted);
+            font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0 0.25rem;
+        }
+        .delete-btn:hover { color: var(--high); }
+        .task-check { width: 18px; height: 18px; cursor: pointer; }
+        .empty { text-align: center; color: var(--text-muted); padding: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Task Tracker</h1>
+            <p class="subtitle">A full-stack task management app</p>
+        </header>
+
+        <div class="demo-note">
+            ⓘ This is a standalone browser demo (data resets on refresh).
+            The full version runs on a Flask + SQLite backend — see the README.
+        </div>
+
+        <section class="stats">
+            <div class="stat-card">
+                <span class="stat-number" id="stat-total">0</span>
+                <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="stat-pending">0</span>
+                <span class="stat-label">Pending</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="stat-completed">0</span>
+                <span class="stat-label">Completed</span>
+            </div>
+        </section>
+
+        <section class="task-form">
+            <input type="text" id="task-title" placeholder="Task title..." maxlength="120">
+            <input type="text" id="task-description" placeholder="Description (optional)...">
+            <select id="task-priority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+            </select>
+            <button id="add-btn">Add Task</button>
+        </section>
+
+        <section class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pending">Pending</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+        </section>
+
+        <section class="task-list" id="task-list"></section>
+    </div>
+
+    <script>
+        /*
+         * Standalone demo logic.
+         * Instead of calling a backend, this keeps tasks in a JavaScript array
+         * in memory. The full project (app.py) replaces this with real REST API
+         * calls to a Flask server backed by SQLite.
+         */
+        let tasks = [
+            { id: 1, title: "Review pull request", description: "Check the new API changes", priority: "high", completed: false },
+            { id: 2, title: "Update documentation", description: "", priority: "medium", completed: false },
+            { id: 3, title: "Set up project repo", description: "Push to GitHub", priority: "low", completed: true },
+        ];
+        let nextId = 4;
+        let currentFilter = "all";
+
+        function getFilteredTasks() {
+            if (currentFilter === "pending") return tasks.filter(t => !t.completed);
+            if (currentFilter === "completed") return tasks.filter(t => t.completed);
+            return tasks;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function render() {
+            const list = document.getElementById("task-list");
+            const filtered = getFilteredTasks();
+            list.innerHTML = "";
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<p class="empty">No tasks here. Add one above!</p>';
+            } else {
+                filtered.forEach(task => {
+                    const item = document.createElement("div");
+                    item.className = `task-item priority-${task.priority}` + (task.completed ? " completed" : "");
+                    item.innerHTML = `
+                        <input type="checkbox" class="task-check" ${task.completed ? "checked" : ""}>
+                        <div class="task-content">
+                            <span class="task-title">${escapeHtml(task.title)}</span>
+                            ${task.description ? `<span class="task-desc">${escapeHtml(task.description)}</span>` : ""}
+                        </div>
+                        <span class="task-priority">${task.priority}</span>
+                        <button class="delete-btn">&times;</button>
+                    `;
+                    item.querySelector(".task-check").addEventListener("change", (e) => {
+                        task.completed = e.target.checked;
+                        render();
+                    });
+                    item.querySelector(".delete-btn").addEventListener("click", () => {
+                        tasks = tasks.filter(t => t.id !== task.id);
+                        render();
+                    });
+                    list.appendChild(item);
+                });
+            }
+
+            document.getElementById("stat-total").textContent = tasks.length;
+            document.getElementById("stat-pending").textContent = tasks.filter(t => !t.completed).length;
+            document.getElementById("stat-completed").textContent = tasks.filter(t => t.completed).length;
+        }
+
+        document.getElementById("add-btn").addEventListener("click", () => {
+            const titleInput = document.getElementById("task-title");
+            const descInput = document.getElementById("task-description");
+            const priorityInput = document.getElementById("task-priority");
+            const title = titleInput.value.trim();
+            if (!title) { alert("Please enter a task title."); return; }
+            tasks.unshift({
+                id: nextId++, title: title,
+                description: descInput.value.trim(),
+                priority: priorityInput.value, completed: false,
+            });
+            titleInput.value = ""; descInput.value = ""; priorityInput.value = "medium";
+            render();
+        });
+
+        document.getElementById("task-title").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") document.getElementById("add-btn").click();
+        });
+
+        document.querySelectorAll(".filter-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                currentFilter = btn.dataset.filter;
+                render();
+            });
+        });
+
+        render();
+    </script>
+</body>
+</html>
