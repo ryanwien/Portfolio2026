@@ -25,6 +25,3 @@ machine learning (DeepLearning.AI).
 
 - Email: ryanwien3d@gmail.com
 - LinkedIn: [linkedin.com/in/ryanwien3d](https://www.linkedin.com/in/ryanwien3d)
-add this file as README.md inside it, and it will appear on your profile page.
-Replace ryanwien in the project links above with your actual GitHub username.
--->
