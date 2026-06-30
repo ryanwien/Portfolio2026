@@ -1,0 +1,14 @@
+# Database (created at runtime)
+*.db
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
