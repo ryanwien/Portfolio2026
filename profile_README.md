@@ -17,7 +17,7 @@ machine learning (DeepLearning.AI).
 
 ## 📌 Featured projects
 
-- **[Task Tracker](https://github.com/ryanwien/Portfolio2026/tree/main/file-organizer)** — a full-stack task management app (Flask REST API + SQLite + vanilla JS frontend) with full CRUD, input validation, and SQL-injection protection.
+- **[Task Tracker](https://github.com/ryanwien/Portfolio2026/tree/main/task-tracker)** — a full-stack task management app (Flask REST API + SQLite + vanilla JS frontend) with full CRUD, input validation, and SQL-injection protection.
 - **[House Price Prediction](https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing)** — a supervised ML regression project predicting prices with 94% accuracy (R² = 0.94), covering the full workflow from data exploration to evaluation.
 - **[File Organizer](https://github.com/ryanwien/Portfolio2026/tree/main/file-organizer)** — a command-line tool that sorts files by type, with dry-run preview, collision-safe renaming, and full undo support.
 
