@@ -24,6 +24,3 @@ machine learning (DeepLearning.AI).
 ## 📫 Reach me
 - LinkedIn: linkedin.com/in/ryanwien3d
 - LinkedIn: [linkedin.com/in/ryanwien3d](https://www.linkedin.com/in/ryanwien3d)
-
-- LinkedIn: linkedin.com/in/ryanwien3d
-- LinkedIn: [linkedin.com/in/ryanwien3d](https://www.linkedin.com/in/ryanwien3d)
