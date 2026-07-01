@@ -24,6 +24,3 @@ machine learning (DeepLearning.AI).
 ## 📫 Reach me
 - Email: ryanwien3d@gmail.com
 - LinkedIn: [linkedin.com/in/ryanwien3d](https://www.linkedin.com/in/ryanwien3d)
-
-- Email: ryanwien3d@gmail.com
-- LinkedIn: [linkedin.com/in/ryanwien3d](https://www.linkedin.com/in/ryanwien3d)
