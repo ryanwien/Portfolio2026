@@ -4,9 +4,6 @@ A command-line tool that automatically sorts the files in a folder into
 subfolders by type — images, documents, audio, video, archives, code, and
 more. Built as a practical Python automation utility.
 
-![Python](https://img.shields.io/badge/python-3.12-blue)
-![No dependencies](https://img.shields.io/badge/dependencies-none-success)
-
 ## What it does
 
 Point it at a messy folder (like a Downloads directory) and it moves every
