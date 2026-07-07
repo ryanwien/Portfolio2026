@@ -2,7 +2,7 @@
 
 Software engineer with a background in tools development and technical
 problem-solving. I build full-stack applications, automation tools, and
-data-driven programs — and I care about writing clean, well-documented code.
+data-driven programs, and I care about writing clean, well-documented code.
 
 🔭 **Currently:** building out my software projects and sharpening my
 full-stack and machine-learning skills.
