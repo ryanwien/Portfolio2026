@@ -12,7 +12,7 @@ machine learning (DeepLearning.AI).
 
 ## 🛠️ Tech I work with
 
-**Languages:** Python · JavaScript · C# · SQL · HTML/CSS
+**Languages:** Python · JavaScript · C++ · C# · SQL · HTML/CSS
 **Frameworks & tools:** Flask · scikit-learn · pandas · NumPy · REST APIs · SQLite · Git
 
 ## 📌 Featured projects
