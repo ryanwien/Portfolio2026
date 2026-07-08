@@ -1,6 +1,6 @@
 # Limit Order Book & Matching Engine
 
-A price-time-priority matching engine — the core of any exchange. Incoming
+A price-time-priority matching engine is the core of any exchange. Incoming
 orders match against the opposite side of the book best-price-first, and ties
 at a price are broken by arrival time (FIFO). Written to be read: the design
 choices below are the point.
