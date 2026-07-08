@@ -15,7 +15,7 @@ each with a title, description, and priority level. The app shows live summary
 statistics and supports filtering by completion status.
 
 It is intentionally built **without frontend frameworks** so that every part of
-the data flow — HTTP requests, JSON handling, DOM updates — is explicit and
+the data flow HTTP requests, JSON handling, and DOM updates is explicit and
 easy to follow.
 
 ## Architecture
