@@ -4,6 +4,8 @@ A command-line tool that automatically sorts the files in a folder into
 subfolders by type — images, documents, audio, video, archives, code, and
 more. Built as a practical Python automation utility.
 
+**▶ [Live demo](https://ryanwien.github.io/Portfolio2026/file-organizer/demo.html)** — an interactive, in-browser walkthrough running the real algorithm: dry-run preview, collision-safe renaming, and undo.
+
 ## What it does
 
 Point it at a messy folder (like a Downloads directory) and it moves every
