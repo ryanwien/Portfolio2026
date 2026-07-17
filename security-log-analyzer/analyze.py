@@ -146,13 +146,13 @@ def detect_brute_force(events, cfg):
                 alerts.append(alert(
                     "CRITICAL", "Brute-force success (likely compromise)", "T1110",
                     ip, f"{len(best)} failed logins then a SUCCESS as '{success['user']}' "
-                        f"({success['service']}) from {ip} ({best[0]['country']})",
+                        f"({success['service']}) from {ip} ({best[0].get('country', '?')})",
                     len(best) + 1, best[0]["ts"], success["ts"]))
             else:
                 alerts.append(alert(
                     "HIGH", "Brute force", "T1110", ip,
                     f"{len(best)} failed logins in {cfg['bf_window']}s targeting "
-                    f"{', '.join(users)} from {ip} ({best[0]['country']})",
+                    f"{', '.join(users)} from {ip} ({best[0].get('country', '?')})",
                     len(best), best[0]["ts"], best[-1]["ts"]))
     return alerts
 
@@ -172,7 +172,7 @@ def detect_password_spray(events, cfg):
             evs = sorted(evs_by_ip[ip], key=lambda e: e["_dt"])
             alerts.append(alert(
                 "HIGH", "Password spraying", "T1110.003", ip,
-                f"{len(users)} distinct users targeted from {ip} ({evs[0]['country']}): "
+                f"{len(users)} distinct users targeted from {ip} ({evs[0].get('country', '?')}): "
                 f"{', '.join(sorted(users))}",
                 len(evs), evs[0]["ts"], evs[-1]["ts"]))
     return alerts
@@ -199,7 +199,7 @@ def detect_port_scan(events, cfg):
         if len(ports) >= cfg["scan_ports"]:
             alerts.append(alert(
                 "MEDIUM", "Port scan / service discovery", "T1046", ip,
-                f"{len(ports)} ports probed from {ip} ({best[0]['country']}): "
+                f"{len(ports)} ports probed from {ip} ({best[0].get('country', '?')}): "
                 f"{', '.join(str(p) for p in ports)}",
                 len(best), best[0]["ts"], best[-1]["ts"]))
     return alerts
@@ -210,7 +210,10 @@ def detect_impossible_travel(events, cfg):
     alerts = []
     by_user = defaultdict(list)
     for e in events:
-        if e.get("action") == "login" and e.get("status") == "success":
+        # Geo-velocity needs coordinates; real host logs often lack them, so
+        # only consider successful logins that carry lat/lon.
+        if (e.get("action") == "login" and e.get("status") == "success"
+                and e.get("lat") is not None and e.get("lon") is not None):
             by_user[e["user"]].append(e)
 
     for user, logins in by_user.items():

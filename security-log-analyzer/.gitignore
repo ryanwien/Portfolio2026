@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 alerts.json
 .venv/
+
+# Real logs collected from your own machine — never commit personal data.
+data/windows_events.jsonl
+data/*_events_local.jsonl

@@ -36,6 +36,31 @@ python analyze.py --bf-threshold 5       # tune brute-force sensitivity
 
 No installation needed — Python standard library only.
 
+## Run it on your own machine (Windows)
+
+The bundled log is synthetic, but you can point the analyzer at your **real
+Windows logon history**. `collect_windows.ps1` pulls your logon events into the
+JSON Lines format and writes them locally — nothing is uploaded:
+
+```powershell
+# From the security-log-analyzer folder:
+powershell -ExecutionPolicy Bypass -File collect_windows.ps1 -Hours 168
+python analyze.py data/windows_events.jsonl
+```
+
+It reads two sources, in order:
+
+1. The **Security log** (Event IDs 4624 / 4625) — the canonical SOC source,
+   including *failed* logons, so the brute-force and spraying detections fire.
+   Run PowerShell **as administrator** for this (the Security log is protected).
+2. **TerminalServices session logons** (no admin needed) — successful
+   console/RDP sessions only.
+
+A clean run with **no alerts is the expected, healthy result** for a personal
+machine. To see detections fire on real data, run elevated on a host that has
+seen failed logons (e.g. an internet-exposed RDP server). Your collected log is
+git-ignored, so it never leaves your machine.
+
 ## Sample output
 
 ```text
