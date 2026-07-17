@@ -8,6 +8,8 @@ operations, and frontend–backend integration.
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![Flask](https://img.shields.io/badge/flask-3.0-lightgrey)
 
+**▶ [Live demo](https://ryanwien.github.io/Portfolio2026/task-tracker/demo.html)** — a self-contained, in-browser walkthrough of the UI (no backend required).
+
 ## Overview
 
 Task Tracker lets a user create, view, update, complete, and delete tasks,
