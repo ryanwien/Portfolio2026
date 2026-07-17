@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ryan Wien — Portfolio 2026</title>
+<meta name="description" content="Software engineer. Full-stack apps, ML, and systems — with two live, in-browser demos." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#E7EAEE; --surface:#FFFFFF; --ink:#131922; --muted:#616B78;
+    --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
+    --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0E1218; --surface:#151B24; --ink:#EAEEF3; --muted:#8A95A3;
+      --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-ink:#0E1218;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--body); background:var(--bg); color:var(--ink);
+    line-height:1.5; padding:clamp(1.5rem,5vw,4rem) 1.25rem 3rem;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px;margin:0 auto}
+
+  /* ---- header ---- */
+  .eyebrow{
+    font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center;
+  }
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--line-strong)}
+  h1{
+    font-family:var(--display); font-weight:700; line-height:1.02;
+    font-size:clamp(2.6rem,9vw,4.4rem); letter-spacing:-.02em; margin:.7rem 0 .5rem;
+  }
+  .lead{font-size:clamp(1rem,2.6vw,1.15rem); color:var(--muted); max-width:34em}
+  .lead strong{color:var(--ink); font-weight:600}
+
+  /* ---- section label ---- */
+  .section-label{
+    font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--muted);
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin:clamp(2.5rem,6vw,3.5rem) 0 .25rem; padding-bottom:.6rem;
+    border-bottom:1px solid var(--line-strong);
+  }
+
+  /* ---- project rows ---- */
+  .proj{
+    display:grid; grid-template-columns:1fr auto; gap:.4rem 1.5rem;
+    padding:1.4rem 0; border-bottom:1px solid var(--line); align-items:start;
+  }
+  .proj-head{display:flex; align-items:baseline; gap:.75rem; flex-wrap:wrap}
+  .proj-title{font-family:var(--display); font-weight:600; font-size:1.4rem; letter-spacing:-.01em}
+  .tag{
+    font-family:var(--mono); font-size:.66rem; font-weight:500; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--muted);
+    border:1px solid var(--line-strong); border-radius:2px; padding:.15rem .4rem;
+  }
+  .proj-desc{color:var(--muted); font-size:.95rem; margin-top:.35rem; max-width:42em; grid-column:1}
+  .proj-meta{font-family:var(--mono); font-size:.75rem; color:var(--muted); margin-top:.55rem; grid-column:1}
+
+  .actions{grid-column:2; grid-row:1 / span 3; display:flex; flex-direction:column; gap:.5rem; align-items:stretch}
+  .btn{
+    font-family:var(--mono); font-size:.78rem; font-weight:600; letter-spacing:.02em;
+    text-decoration:none; text-align:center; padding:.5rem .9rem; border-radius:3px;
+    white-space:nowrap; transition:transform .12s ease, background .12s ease, border-color .12s ease;
+  }
+  .btn-demo{background:var(--accent); color:var(--accent-ink); border:1px solid var(--accent)}
+  .btn-demo:hover{transform:translateY(-1px)}
+  .btn-src{background:transparent; color:var(--ink); border:1px solid var(--line-strong)}
+  .btn-src:hover{border-color:var(--ink)}
+  .runs-local{font-family:var(--mono); font-size:.68rem; color:var(--muted); text-align:center; letter-spacing:.04em}
+
+  /* ---- footer ---- */
+  footer{margin-top:2.75rem; display:flex; flex-wrap:wrap; gap:.4rem 1.5rem; align-items:center}
+  footer a{font-family:var(--mono); font-size:.82rem; color:var(--ink); text-decoration:none; border-bottom:1px solid var(--accent); padding-bottom:1px}
+  footer a:hover{color:var(--accent)}
+  .foot-note{font-family:var(--mono); font-size:.72rem; color:var(--muted); margin-left:auto}
+
+  a:focus-visible,.btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
+
+  @media (max-width:560px){
+    .proj{grid-template-columns:1fr; gap:.3rem}
+    .actions{grid-column:1; grid-row:auto; flex-direction:row; flex-wrap:wrap; margin-top:.9rem}
+    .btn{flex:1 1 auto}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">Portfolio — 2026</div>
+      <h1>Ryan Wien</h1>
+      <p class="lead">Software engineer building <strong>full-stack applications</strong>, <strong>automation tools</strong>, and <strong>data-driven programs</strong> — with an eye for clean, well-documented code. Two projects below run live, right in your browser.</p>
+    </header>
+
+    <main>
+      <div class="section-label"><span>Projects</span><span>04</span></div>
+
+      <!-- Task Tracker -->
+      <article class="proj">
+        <div class="proj-head">
+          <span class="proj-title">Task Tracker</span>
+          <span class="tag">full-stack</span>
+        </div>
+        <p class="proj-desc">A task management app with full CRUD, input validation, and SQL-injection protection. Create, filter, and complete tasks with live summary stats.</p>
+        <p class="proj-meta">Flask · REST API · SQLite · vanilla JS</p>
+        <div class="actions">
+          <a class="btn btn-demo" href="task-tracker/demo.html">Launch demo &#8599;</a>
+          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/task-tracker">Source</a>
+        </div>
+      </article>
+
+      <!-- Matching Engine -->
+      <article class="proj">
+        <div class="proj-head">
+          <span class="proj-title">Order Book Matching Engine</span>
+          <span class="tag">systems</span>
+        </div>
+        <p class="proj-desc">A price-time-priority limit order book with limit/market orders, partial fills, and O(1) cancels — wired to a live depth-ladder terminal and an order-flow simulator.</p>
+        <p class="proj-meta">Python core · zero-backend JS terminal</p>
+        <div class="actions">
+          <a class="btn btn-demo" href="matching-engine/orderbook_terminal.html">Launch demo &#8599;</a>
+          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/matching-engine">Source</a>
+        </div>
+      </article>
+
+      <!-- House Price Prediction -->
+      <article class="proj">
+        <div class="proj-head">
+          <span class="proj-title">House Price Prediction</span>
+          <span class="tag">machine-learning</span>
+        </div>
+        <p class="proj-desc">A supervised regression project predicting home prices at 94% accuracy (R² = 0.94), covering the full workflow from data exploration through evaluation.</p>
+        <p class="proj-meta">scikit-learn · pandas · NumPy</p>
+        <div class="actions">
+          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">View source &#8599;</a>
+          <span class="runs-local">notebook</span>
+        </div>
+      </article>
+
+      <!-- File Organizer -->
+      <article class="proj">
+        <div class="proj-head">
+          <span class="proj-title">File Organizer</span>
+          <span class="tag">tooling</span>
+        </div>
+        <p class="proj-desc">A command-line tool that sorts files by type, with dry-run preview, collision-safe renaming, and full undo support.</p>
+        <p class="proj-meta">Python · CLI</p>
+        <div class="actions">
+          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/file-organizer">View source &#8599;</a>
+          <span class="runs-local">runs locally</span>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <a href="mailto:ryanwien3d@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/ryanwien3d">LinkedIn</a>
+      <a href="https://github.com/ryanwien/Portfolio2026">GitHub</a>
+      <span class="foot-note">ryanwien.github.io</span>
+    </footer>
+  </div>
+</body>
+</html>
