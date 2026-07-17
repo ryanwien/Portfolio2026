@@ -4,5 +4,9 @@ alerts.json
 .venv/
 
 # Real logs collected from your own machine — never commit personal data.
+# (The synthetic sample, data/auth_events.jsonl, is intentionally NOT ignored.)
 data/windows_events.jsonl
 data/*_events_local.jsonl
+events.jsonl
+mac_events.jsonl
+linux_events.jsonl

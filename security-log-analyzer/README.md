@@ -38,30 +38,41 @@ python analyze.py --bf-threshold 5       # tune brute-force sensitivity
 
 No installation needed — Python standard library only.
 
-## Run it on your own machine (Windows)
+## Run it on your own logs (Windows · macOS · Linux)
 
-The bundled log is synthetic, but you can point the analyzer at your **real
-Windows logon history**. `collect_windows.ps1` pulls your logon events into the
-JSON Lines format and writes them locally — nothing is uploaded:
+The bundled log is synthetic, but you can analyze your **own machine's real
+logs** — two ways, both fully local (nothing is ever uploaded):
 
-```powershell
-# From the security-log-analyzer folder:
+**In the browser** — the [live demo](https://ryanwien.github.io/Portfolio2026/security-log-analyzer/demo.html)
+detects your OS and browser, shows the exact export command, and has a **Load
+your own log** button. It reads JSON Lines (from the collectors below) or a raw
+Linux/macOS `sshd` auth log directly, and runs the same detections client-side.
+
+**On the command line** — collect your logs to JSON Lines, then analyze:
+
+```bash
+# Windows (elevated PowerShell for the Security log's failed logons):
 powershell -ExecutionPolicy Bypass -File collect_windows.ps1 -Hours 168
 python analyze.py data/windows_events.jsonl
+
+# Linux (sshd auth log):
+bash collect_linux.sh /var/log/auth.log > events.jsonl
+python3 analyze.py events.jsonl
+
+# macOS (sshd events from the unified log):
+bash collect_macos.sh > events.jsonl
+python3 analyze.py events.jsonl
 ```
 
-It reads two sources, in order:
-
-1. The **Security log** (Event IDs 4624 / 4625) — the canonical SOC source,
-   including *failed* logons, so the brute-force and spraying detections fire.
-   Run PowerShell **as administrator** for this (the Security log is protected).
-2. **TerminalServices session logons** (no admin needed) — successful
-   console/RDP sessions only.
+The **Windows** collector reads the Security log (Event IDs 4624/4625 — the
+canonical source with failed logons; needs admin), or falls back to
+TerminalServices session logons (no admin, successful logons only). **Linux**
+and **macOS** collectors parse `sshd` auth events.
 
 A clean run with **no alerts is the expected, healthy result** for a personal
-machine. To see detections fire on real data, run elevated on a host that has
-seen failed logons (e.g. an internet-exposed RDP server). Your collected log is
-git-ignored, so it never leaves your machine.
+machine — the detections fire on hosts that have actually seen attacks (e.g. an
+internet-exposed SSH/RDP server). Any log you collect is git-ignored, so it
+never leaves your machine.
 
 ## Sample output
 
