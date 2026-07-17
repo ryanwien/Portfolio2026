@@ -6,6 +6,8 @@ operations, and frontend–backend integration.
 
 **▶ [Live demo](https://ryanwien.github.io/Portfolio2026/task-tracker/demo.html)** — a self-contained, in-browser walkthrough of the UI (no backend required).
 
+![Task Tracker demo](screenshot.png)
+
 ## Overview
 
 Task Tracker lets a user create, view, update, complete, and delete tasks,

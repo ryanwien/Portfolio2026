@@ -7,6 +7,8 @@ choices below are the point.
 
 **▶ [Live demo](https://ryanwien.github.io/Portfolio2026/matching-engine/orderbook_terminal.html)** — an interactive, zero-backend trading terminal with a live depth ladder and order-flow simulator.
 
+![Order book trading terminal](screenshot.png)
+
 ## Quick start
 
 ```bash

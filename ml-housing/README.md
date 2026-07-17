@@ -6,6 +6,8 @@ Learning: Regression and Classification* course to a fresh dataset.
 
 **▶ [Live demo](https://ryanwien.github.io/Portfolio2026/ml-housing/demo.html)** — an interactive predictor running the real trained model in your browser: drag the property features and watch the price update, with model metrics and an actual-vs-predicted plot.
 
+![House Price Prediction demo](screenshot.png)
+
 ## What it does
 
 Given six features of a house — square footage, bedrooms, bathrooms, age,
