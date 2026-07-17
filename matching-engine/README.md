@@ -5,6 +5,8 @@ orders match against the opposite side of the book best-price-first, and ties
 at a price are broken by arrival time (FIFO). Written to be read: the design
 choices below are the point.
 
+**▶ [Live demo](https://ryanwien.github.io/Portfolio2026/matching-engine/orderbook_terminal.html)** — an interactive, zero-backend trading terminal with a live depth ladder and order-flow simulator.
+
 ## Quick start
 
 ```bash
