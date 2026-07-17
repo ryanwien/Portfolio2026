@@ -95,7 +95,7 @@
 {"ts":"2026-07-14T09:50:39Z","src_ip":"10.0.2.98","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"vpn","port":1194,"action":"login","status":"success"}
 {"ts":"2026-07-14T09:55:04Z","src_ip":"10.0.2.104","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"}
 {"ts":"2026-07-14T09:58:14Z","src_ip":"10.0.3.54","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"success"}
-{"ts":"2026-07-14T10:02:00Z","src_ip":"10.0.2.55","country":"US","lat":40.71,"lon":-74.01,"user":"j.martinez","service":"vpn","port":1194,"action":"login","status":"success"}
+{"ts":"2026-07-14T10:02:00Z","src_ip":"192.0.2.55","country":"US","lat":40.71,"lon":-74.01,"user":"j.martinez","service":"vpn","port":1194,"action":"login","status":"success"}
 {"ts":"2026-07-14T10:07:42Z","src_ip":"10.0.4.122","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"ssh","port":22,"action":"login","status":"success"}
 {"ts":"2026-07-14T10:11:54Z","src_ip":"10.0.4.76","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"https","port":443,"action":"login","status":"success"}
 {"ts":"2026-07-14T10:12:25Z","src_ip":"10.0.3.195","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"rdp","port":3389,"action":"login","status":"success"}
@@ -116,7 +116,7 @@
 {"ts":"2026-07-14T11:24:56Z","src_ip":"10.0.3.220","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"success"}
 {"ts":"2026-07-14T11:32:27Z","src_ip":"10.0.4.83","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"ssh","port":22,"action":"login","status":"success"}
 {"ts":"2026-07-14T11:39:04Z","src_ip":"10.0.3.184","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"vpn","port":1194,"action":"login","status":"success"}
-{"ts":"2026-07-14T11:42:00Z","src_ip":"91.203.5.12","country":"RU","lat":55.75,"lon":37.62,"user":"j.martinez","service":"vpn","port":1194,"action":"login","status":"success"}
+{"ts":"2026-07-14T11:42:00Z","src_ip":"198.51.100.77","country":"RU","lat":55.75,"lon":37.62,"user":"j.martinez","service":"vpn","port":1194,"action":"login","status":"success"}
 {"ts":"2026-07-14T11:42:41Z","src_ip":"10.0.2.170","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"}
 {"ts":"2026-07-14T11:45:48Z","src_ip":"10.0.3.52","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"vpn","port":1194,"action":"login","status":"success"}
 {"ts":"2026-07-14T11:57:13Z","src_ip":"10.0.4.196","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"rdp","port":3389,"action":"login","status":"success"}
