@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>House Price Prediction — Live Demo</title>
+<meta name="description" content="An interactive house-price predictor running the real trained linear-regression model (R²=0.94) in your browser — drag the features and watch the prediction update." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
+    --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-soft:rgba(45,78,245,.14); --accent-ink:#FFFFFF;
+    --pos:#2D4EF5; --neg:#E8622C;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
+    --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0E1218; --surface:#151B24; --sunken:#10151C; --ink:#EAEEF3; --muted:#8A95A3;
+      --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-soft:rgba(110,134,255,.18); --accent-ink:#0E1218;
+      --pos:#6E86FF; --neg:#FB8C5E;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--body); background:var(--bg); color:var(--ink); line-height:1.5;
+    padding:clamp(1.25rem,4vw,2.75rem) 1.25rem 3rem; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto}
+
+  .eyebrow{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center}
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--line-strong)}
+  .eyebrow a{color:var(--muted); text-decoration:none; border-bottom:1px solid transparent}
+  .eyebrow a:hover{color:var(--ink); border-bottom-color:var(--accent)}
+  h1{font-family:var(--display); font-weight:700; line-height:1.03;
+    font-size:clamp(2rem,6vw,3rem); letter-spacing:-.02em; margin:.6rem 0 .4rem}
+  .lead{font-size:clamp(.95rem,2.4vw,1.08rem); color:var(--muted); max-width:54em}
+  .lead b{color:var(--ink); font-weight:600}
+
+  .section-label{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted); margin:2.2rem 0 .9rem; padding-bottom:.55rem; border-bottom:1px solid var(--line-strong);
+    display:flex; justify-content:space-between; align-items:baseline; gap:1rem}
+
+  .panel{background:var(--surface); border:1px solid var(--line); border-radius:10px}
+
+  /* predictor */
+  .predict{display:grid; grid-template-columns:1.3fr 1fr; gap:0; overflow:hidden}
+  .sliders{padding:1.2rem 1.3rem}
+  .frow{margin:0 0 1.05rem}
+  .frow:last-child{margin-bottom:.2rem}
+  .frow-top{display:flex; justify-content:space-between; align-items:baseline; gap:1rem; margin-bottom:.4rem}
+  .frow-name{font-family:var(--display); font-weight:600; font-size:1rem}
+  .frow-val{font-family:var(--mono); font-size:.9rem; color:var(--accent); font-weight:600}
+  .frow-val .u{color:var(--muted); font-weight:400; font-size:.82em}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:6px;
+    background:var(--sunken); border:1px solid var(--line); outline:none; cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--accent); border:2px solid var(--surface); box-shadow:0 1px 3px rgba(0,0,0,.25); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border:2px solid var(--surface); border-radius:50%; background:var(--accent); cursor:pointer}
+  input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+  .frow-scale{display:flex; justify-content:space-between; font-family:var(--mono); font-size:.66rem; color:var(--muted); margin-top:.28rem}
+
+  .result{background:var(--accent); color:var(--accent-ink); padding:1.4rem 1.3rem; display:flex; flex-direction:column; justify-content:center; gap:.15rem}
+  .result .rlabel{font-family:var(--mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; opacity:.85}
+  .result .price{font-family:var(--display); font-weight:700; font-size:clamp(2.1rem,6vw,3rem); letter-spacing:-.02em; line-height:1.05}
+  .result .range{font-family:var(--mono); font-size:.78rem; opacity:.9; margin-top:.35rem}
+  .result .vs{font-family:var(--mono); font-size:.74rem; opacity:.9; margin-top:.7rem; border-top:1px solid rgba(255,255,255,.25); padding-top:.6rem}
+  .result .eqn{font-family:var(--mono); font-size:.68rem; opacity:.8; margin-top:.5rem; line-height:1.5; word-break:break-word}
+
+  /* metric tiles */
+  .metrics{display:grid; grid-template-columns:repeat(4,1fr); gap:.75rem}
+  .tile{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:.9rem 1rem}
+  .tile .m{font-family:var(--display); font-weight:700; font-size:1.6rem; letter-spacing:-.01em}
+  .tile .k{font-family:var(--mono); font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:.15rem}
+  .tile .d{font-size:.78rem; color:var(--muted); margin-top:.35rem}
+
+  /* influence bars */
+  .infl{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:1.1rem 1.2rem}
+  .brow{display:grid; grid-template-columns:130px 1fr 132px; gap:.7rem; align-items:center; margin:.55rem 0}
+  .brow .bname{font-family:var(--mono); font-size:.8rem}
+  .btrack{position:relative; height:12px; background:var(--sunken); border:1px solid var(--line); border-radius:6px}
+  .btrack .center{position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--line-strong)}
+  .bfill{position:absolute; top:0; bottom:0; border-radius:6px}
+  .bfill.pos{background:var(--pos); left:50%}
+  .bfill.neg{background:var(--neg); right:50%}
+  .bval{font-family:var(--mono); font-size:.75rem; color:var(--muted); text-align:right}
+  .infl-note{font-family:var(--mono); font-size:.72rem; color:var(--muted); margin-top:.7rem; line-height:1.55}
+
+  /* scatter */
+  .scatter-wrap{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:1rem 1.1rem}
+  .scatter-wrap svg{display:block; width:100%; height:auto}
+  .sc-axis{stroke:var(--line-strong); stroke-width:1}
+  .sc-grid{stroke:var(--line); stroke-width:1}
+  .sc-diag{stroke:var(--muted); stroke-width:1.2; stroke-dasharray:4 4}
+  .sc-pt{fill:var(--accent); fill-opacity:.5}
+  .sc-tick{font-family:var(--mono); font-size:9px; fill:var(--muted)}
+  .sc-title{font-family:var(--mono); font-size:10px; fill:var(--muted)}
+  .caption{font-family:var(--mono); font-size:.72rem; color:var(--muted); margin-top:.7rem; line-height:1.55}
+
+  .note{font-family:var(--mono); font-size:.74rem; color:var(--muted); margin-top:1.3rem; line-height:1.65}
+  .note b{color:var(--ink); font-weight:600}
+  a:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+
+  @media (max-width:640px){
+    .predict{grid-template-columns:1fr}
+    .metrics{grid-template-columns:repeat(2,1fr)}
+    .brow{grid-template-columns:96px 1fr 96px; gap:.5rem}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow"><a href="../index.html">&#8592; Portfolio</a> · House Price Prediction</div>
+  <h1>House Price Prediction</h1>
+  <p class="lead">A supervised <b>linear-regression</b> model trained on 2,000 homes to predict sale price from six features. This page runs the <b>real trained model</b> — the exact learned weights — right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b>.</p>
+
+  <div class="section-label"><span>Try the model</span><span>Live prediction</span></div>
+  <div class="panel predict">
+    <div class="sliders" id="sliders"></div>
+    <div class="result">
+      <span class="rlabel">Predicted price</span>
+      <span class="price" id="price">$0</span>
+      <span class="range" id="range"></span>
+      <span class="vs" id="vs"></span>
+      <span class="eqn">price = intercept + Σ (weight × feature)</span>
+    </div>
+  </div>
+
+  <div class="section-label"><span>Model performance</span><span>held-out test set</span></div>
+  <div class="metrics">
+    <div class="tile"><div class="m" id="mR2">—</div><div class="k">R² score</div><div class="d">variance explained</div></div>
+    <div class="tile"><div class="m" id="mRMSE">—</div><div class="k">RMSE</div><div class="d">typical error</div></div>
+    <div class="tile"><div class="m" id="mMAE">—</div><div class="k">MAE</div><div class="d">avg. abs. error</div></div>
+    <div class="tile"><div class="m" id="mSplit">—</div><div class="k">Train / Test</div><div class="d">80 / 20 split</div></div>
+  </div>
+
+  <div class="section-label"><span>What the model learned</span><span>effect on price</span></div>
+  <div class="infl" id="infl"></div>
+
+  <div class="section-label"><span>Actual vs. predicted</span><span>400 test homes</span></div>
+  <div class="scatter-wrap">
+    <div id="scatter"></div>
+    <p class="caption">Each dot is a test home the model never saw during training. The dashed line is a perfect prediction — the tighter the cloud hugs it, the better the fit. Here it explains <b>94%</b> of the variance in price.</p>
+  </div>
+
+  <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways — gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>) — and evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
+</div>
+
+<script>
+(function(){
+  var M = {"features":["sqft","bedrooms","bathrooms","age","garage","location_score"],"intercept":5748.7,"coef":{"sqft":148.1702,"bedrooms":7369.2014,"bathrooms":12063.1812,"age":-784.327,"garage":6012.0577,"location_score":14627.1836},"importance":{"sqft":86777,"bedrooms":10443,"bathrooms":9789,"age":-18297,"garage":4978,"location_score":37789},"correlations":{"sqft":0.859,"bedrooms":0.092,"bathrooms":0.103,"age":-0.16,"garage":0.079,"location_score":0.356},"featStats":{"sqft":{"min":500,"max":4112,"mean":1829.9,"median":1826,"std":585.66},"bedrooms":{"min":1,"max":5,"mean":3,"median":3,"std":1.42},"bathrooms":{"min":1,"max":3,"mean":2,"median":2,"std":0.81},"age":{"min":0,"max":79,"mean":39.8,"median":39,"std":23.33},"garage":{"min":0,"max":2,"mean":1,"median":1,"std":0.83},"location_score":{"min":1,"max":10,"mean":5.5,"median":5.5,"std":2.58}},"priceStats":{"min":64630,"max":736121,"mean":379011,"median":377961},"metrics":{"test":{"r2":0.9433339101134568,"rmse":24273.230037931462,"mae":19843.567450378323,"n":400},"train":{"r2":0.9359758665450976,"rmse":25050.46748173881,"mae":20123.598654399604,"n":1600},"all":{"r2":0.9375265093100814,"rmse":24896.96118279878,"mae":20067.59241359534,"n":2000}},"nTotal":2000,"scatter":[{"actual":297471,"predicted":322216},{"actual":298470,"predicted":334995},{"actual":393774,"predicted":364863},{"actual":300539,"predicted":323262},{"actual":397168,"predicted":439313},{"actual":339141,"predicted":363448},{"actual":312914,"predicted":342173},{"actual":243340,"predicted":229193},{"actual":184220,"predicted":217938},{"actual":541276,"predicted":506013},{"actual":270394,"predicted":297317},{"actual":507873,"predicted":490205},{"actual":370933,"predicted":366226},{"actual":279192,"predicted":296702},{"actual":366533,"predicted":367613},{"actual":400315,"predicted":401758},{"actual":519497,"predicted":498973},{"actual":215763,"predicted":206727},{"actual":443695,"predicted":469369},{"actual":396702,"predicted":375720},{"actual":277704,"predicted":304389},{"actual":288986,"predicted":293128},{"actual":352611,"predicted":367935},{"actual":322640,"predicted":317121},{"actual":365484,"predicted":385535},{"actual":363990,"predicted":326612},{"actual":218311,"predicted":237215},{"actual":430738,"predicted":440850},{"actual":442170,"predicted":421206},{"actual":412043,"predicted":422742},{"actual":261584,"predicted":283625},{"actual":424343,"predicted":430679},{"actual":414428,"predicted":344079},{"actual":439886,"predicted":393847},{"actual":278045,"predicted":269979},{"actual":502540,"predicted":500863},{"actual":315228,"predicted":339740},{"actual":296266,"predicted":271138},{"actual":229810,"predicted":270519},{"actual":422887,"predicted":441268},{"actual":484880,"predicted":459862},{"actual":352062,"predicted":359311},{"actual":549868,"predicted":537536},{"actual":320015,"predicted":303234},{"actual":249394,"predicted":259670},{"actual":291193,"predicted":295335},{"actual":415627,"predicted":391121},{"actual":233083,"predicted":255384},{"actual":326572,"predicted":342829},{"actual":323941,"predicted":320908},{"actual":449224,"predicted":467470},{"actual":320422,"predicted":334617},{"actual":237003,"predicted":249609},{"actual":487855,"predicted":466196},{"actual":244879,"predicted":239521},{"actual":431156,"predicted":445611},{"actual":462737,"predicted":463945},{"actual":338589,"predicted":329309},{"actual":298005,"predicted":306495},{"actual":508727,"predicted":495232},{"actual":357574,"predicted":341332},{"actual":568359,"predicted":574473},{"actual":436372,"predicted":426269},{"actual":417343,"predicted":375587},{"actual":410125,"predicted":403911},{"actual":341454,"predicted":312510},{"actual":253098,"predicted":277128},{"actual":478654,"predicted":496878},{"actual":479428,"predicted":465232},{"actual":549444,"predicted":520265},{"actual":319042,"predicted":320614},{"actual":351590,"predicted":399701},{"actual":628524,"predicted":651591},{"actual":388356,"predicted":416138},{"actual":330391,"predicted":304910},{"actual":335631,"predicted":340146},{"actual":431393,"predicted":416935},{"actual":240661,"predicted":216348},{"actual":443725,"predicted":407828},{"actual":385316,"predicted":377596},{"actual":411969,"predicted":422063},{"actual":383356,"predicted":348308},{"actual":406439,"predicted":399017},{"actual":342852,"predicted":351106},{"actual":300210,"predicted":285875},{"actual":268504,"predicted":325744},{"actual":184567,"predicted":178008},{"actual":339633,"predicted":326828},{"actual":508696,"predicted":486624},{"actual":431290,"predicted":399114},{"actual":339040,"predicted":360837},{"actual":418801,"predicted":457148},{"actual":407335,"predicted":407228},{"actual":351220,"predicted":325472},{"actual":504227,"predicted":548280},{"actual":537448,"predicted":535894},{"actual":397843,"predicted":422292},{"actual":243252,"predicted":261958},{"actual":205213,"predicted":220771},{"actual":328246,"predicted":331107},{"actual":478427,"predicted":449704},{"actual":348692,"predicted":321149},{"actual":270331,"predicted":279692},{"actual":441674,"predicted":434535},{"actual":425188,"predicted":449341},{"actual":332343,"predicted":309774},{"actual":542274,"predicted":559015},{"actual":649078,"predicted":683775},{"actual":298725,"predicted":285980},{"actual":630235,"predicted":606118},{"actual":331452,"predicted":365734},{"actual":203610,"predicted":212774},{"actual":539115,"predicted":536106},{"actual":261674,"predicted":266308},{"actual":308839,"predicted":302741},{"actual":255140,"predicted":269937},{"actual":438597,"predicted":449913},{"actual":499025,"predicted":483804},{"actual":187905,"predicted":163512},{"actual":416663,"predicted":422426},{"actual":347210,"predicted":383629},{"actual":64630,"predicted":72278},{"actual":243262,"predicted":200909},{"actual":360082,"predicted":366182},{"actual":499813,"predicted":506232},{"actual":429035,"predicted":459404},{"actual":257465,"predicted":225270},{"actual":270798,"predicted":279543},{"actual":406290,"predicted":411727},{"actual":281658,"predicted":300806},{"actual":417473,"predicted":427481},{"actual":486763,"predicted":469423},{"actual":471503,"predicted":502162},{"actual":318040,"predicted":315451},{"actual":267056,"predicted":285391},{"actual":257719,"predicted":272535},{"actual":625796,"predicted":577685},{"actual":424943,"predicted":449820},{"actual":273064,"predicted":261725},{"actual":487171,"predicted":474405},{"actual":358011,"predicted":352093},{"actual":580158,"predicted":591493},{"actual":381618,"predicted":405253},{"actual":379384,"predicted":432911},{"actual":350994,"predicted":351209},{"actual":373780,"predicted":381915},{"actual":315411,"predicted":297957},{"actual":263424,"predicted":274189},{"actual":238212,"predicted":253996},{"actual":265861,"predicted":250050}]};
+
+  var META = {
+    sqft:          { label:"Square footage", unit:"sq ft",   step:10,  def:1800, fmt:function(v){return Math.round(v).toLocaleString();} },
+    bedrooms:      { label:"Bedrooms",       unit:"",         step:1,   def:3,    fmt:function(v){return v;} },
+    bathrooms:     { label:"Bathrooms",      unit:"",         step:1,   def:2,    fmt:function(v){return v;} },
+    age:           { label:"Age",            unit:"years",    step:1,   def:40,   fmt:function(v){return v;} },
+    garage:        { label:"Garage spaces",  unit:"",         step:1,   def:1,    fmt:function(v){return v;} },
+    location_score:{ label:"Location score", unit:"/ 10",     step:0.1, def:5.5,  fmt:function(v){return (+v).toFixed(1);} }
+  };
+
+  function usd(n){ return "$" + Math.round(n).toLocaleString("en-US"); }
+  function usdK(n){ return "$" + Math.round(n/1000) + "k"; }
+
+  var state = {};
+  var touched = false;
+  M.features.forEach(function(f){ state[f] = META[f].def; });
+
+  function predict(){
+    var p = M.intercept;
+    M.features.forEach(function(f){ p += M.coef[f] * state[f]; });
+    return p;
+  }
+
+  function buildSliders(){
+    var host = document.getElementById("sliders");
+    host.innerHTML = M.features.map(function(f){
+      var s = M.featStats[f], m = META[f];
+      return '<div class="frow">'+
+        '<div class="frow-top"><span class="frow-name">'+m.label+'</span>'+
+        '<span class="frow-val"><span id="v_'+f+'"></span> <span class="u">'+m.unit+'</span></span></div>'+
+        '<input type="range" id="s_'+f+'" min="'+s.min+'" max="'+s.max+'" step="'+m.step+'" value="'+state[f]+'" '+
+        'autocomplete="off" aria-label="'+m.label+'" />'+
+        '<div class="frow-scale"><span>'+m.fmt(s.min)+'</span><span>'+m.fmt(s.max)+'</span></div>'+
+        '</div>';
+    }).join("");
+    M.features.forEach(function(f){
+      var input = document.getElementById("s_"+f);
+      input.value = state[f];
+      input.addEventListener("input", function(){ touched = true; state[f] = parseFloat(input.value); update(); });
+    });
+  }
+
+  function update(){
+    M.features.forEach(function(f){ document.getElementById("v_"+f).textContent = META[f].fmt(state[f]); });
+    var p = predict();
+    document.getElementById("price").textContent = usd(p);
+    var rmse = M.metrics.test.rmse;
+    document.getElementById("range").textContent = "typical range " + usd(p - rmse) + " – " + usd(p + rmse);
+    var med = M.priceStats.median;
+    var diff = p - med, pct = Math.round(Math.abs(diff)/med*100);
+    document.getElementById("vs").textContent = diff >= 0
+      ? "≈ " + pct + "% above the dataset median (" + usd(med) + ")"
+      : "≈ " + pct + "% below the dataset median (" + usd(med) + ")";
+  }
+
+  function buildMetrics(){
+    var t = M.metrics.test;
+    document.getElementById("mR2").textContent = t.r2.toFixed(3);
+    document.getElementById("mRMSE").textContent = usdK(t.rmse);
+    document.getElementById("mMAE").textContent = usdK(t.mae);
+    document.getElementById("mSplit").textContent = M.metrics.train.n + " / " + t.n;
+  }
+
+  function buildInfluence(){
+    var maxAbs = 0;
+    M.features.forEach(function(f){ maxAbs = Math.max(maxAbs, Math.abs(M.importance[f])); });
+    var order = M.features.slice().sort(function(a,b){ return Math.abs(M.importance[b]) - Math.abs(M.importance[a]); });
+    var host = document.getElementById("infl");
+    host.innerHTML = order.map(function(f){
+      var imp = M.importance[f], frac = Math.abs(imp)/maxAbs*50, pos = imp >= 0;
+      var coef = M.coef[f];
+      var per = (coef >= 0 ? "+" : "−") + "$" + Math.round(Math.abs(coef)).toLocaleString() + " / " +
+        (f==="sqft" ? "sq ft" : f==="age" ? "year" : f==="location_score" ? "point" : f==="garage" ? "space" : f.replace(/s$/,""));
+      return '<div class="brow">'+
+        '<span class="bname">'+META[f].label+'</span>'+
+        '<span class="btrack"><span class="center"></span>'+
+        '<span class="bfill '+(pos?"pos":"neg")+'" style="width:'+frac.toFixed(1)+'%"></span></span>'+
+        '<span class="bval">'+per+'</span></div>';
+    }).join("");
+    host.insertAdjacentHTML("beforeend",
+      '<p class="infl-note">Bars show each feature\'s effect per one standard deviation, so they\'re directly comparable. '+
+      '<b style="color:var(--ink)">Square footage</b> dominates; <b style="color:var(--ink)">age</b> is the only one that pushes price down. '+
+      'Values on the right are the raw per-unit weights the model learned.</p>');
+  }
+
+  function buildScatter(){
+    var W = 470, H = 448, padL = 70, padB = 50, padR = 16, padT = 14;
+    var pts = M.scatter;
+    var lo = M.priceStats.min, hi = M.priceStats.max;
+    // round bounds to nearest 100k for clean ticks
+    lo = Math.floor(lo/100000)*100000; hi = Math.ceil(hi/100000)*100000;
+    function x(v){ return padL + (v - lo)/(hi - lo) * (W - padL - padR); }
+    function y(v){ return (H - padB) - (v - lo)/(hi - lo) * (H - padB - padT); }
+    var svg = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Scatter plot of actual versus predicted price">';
+    // gridlines + ticks
+    for(var t=lo; t<=hi; t+=100000){
+      svg += '<line class="sc-grid" x1="'+x(t)+'" y1="'+y(lo)+'" x2="'+x(t)+'" y2="'+y(hi)+'"/>';
+      svg += '<line class="sc-grid" x1="'+x(lo)+'" y1="'+y(t)+'" x2="'+x(hi)+'" y2="'+y(t)+'"/>';
+      svg += '<text class="sc-tick" x="'+x(t)+'" y="'+(H-padB+16)+'" text-anchor="middle">'+usdK(t)+'</text>';
+      svg += '<text class="sc-tick" x="'+(padL-9)+'" y="'+(y(t)+3)+'" text-anchor="end">'+usdK(t)+'</text>';
+    }
+    // perfect-prediction diagonal
+    svg += '<line class="sc-diag" x1="'+x(lo)+'" y1="'+y(lo)+'" x2="'+x(hi)+'" y2="'+y(hi)+'"/>';
+    // axes
+    svg += '<line class="sc-axis" x1="'+x(lo)+'" y1="'+y(lo)+'" x2="'+x(hi)+'" y2="'+y(lo)+'"/>';
+    svg += '<line class="sc-axis" x1="'+x(lo)+'" y1="'+y(lo)+'" x2="'+x(lo)+'" y2="'+y(hi)+'"/>';
+    // points
+    pts.forEach(function(p){ svg += '<circle class="sc-pt" cx="'+x(p.actual).toFixed(1)+'" cy="'+y(p.predicted).toFixed(1)+'" r="3"/>'; });
+    // axis titles
+    svg += '<text class="sc-title" x="'+((x(lo)+x(hi))/2)+'" y="'+(H-8)+'" text-anchor="middle">Actual price →</text>';
+    svg += '<text class="sc-title" transform="translate(16,'+((y(lo)+y(hi))/2)+') rotate(-90)" text-anchor="middle">Predicted price →</text>';
+    svg += '</svg>';
+    document.getElementById("scatter").innerHTML = svg;
+  }
+
+  // Force sliders back to defaults, unless the user has already dragged one.
+  // Defeats the browser's async range-value restoration after (re)load.
+  function applyDefaults(){
+    if(touched) return;
+    M.features.forEach(function(f){ document.getElementById("s_"+f).value = state[f]; });
+    update();
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    buildSliders(); buildMetrics(); buildInfluence(); buildScatter(); applyDefaults();
+    requestAnimationFrame(applyDefaults);
+    setTimeout(applyDefaults, 60);   // catch late async range-value restoration
+  });
+  window.addEventListener("load", applyDefaults);
+  window.addEventListener("pageshow", function(){ requestAnimationFrame(applyDefaults); });
+})();
+</script>
+</body>
+</html>

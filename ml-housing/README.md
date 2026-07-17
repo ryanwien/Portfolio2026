@@ -8,6 +8,8 @@ Learning: Regression and Classification* course to a fresh dataset.
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-orange)
 ![R²](https://img.shields.io/badge/R²-0.94-success)
 
+**▶ [Live demo](https://ryanwien.github.io/Portfolio2026/ml-housing/demo.html)** — an interactive predictor running the real trained model in your browser: drag the property features and watch the price update, with model metrics and an actual-vs-predicted plot.
+
 ## What it does
 
 Given six features of a house — square footage, bedrooms, bathrooms, age,
