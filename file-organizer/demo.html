@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>File Organizer — Live Demo</title>
+<meta name="description" content="An in-browser demo of a Python CLI that sorts a folder by file type — dry-run, collision-safe renaming, and undo, running the real algorithm." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
+    --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
+    --term-bg:#141A24; --term-ink:#D6DEE8; --term-muted:#7C8A9C; --term-green:#4FB477; --term-blue:#7CA0FF;
+    --c-images:#2D4EF5; --c-documents:#0E9F6E; --c-audio:#9333EA; --c-video:#E8622C;
+    --c-archives:#B45309; --c-code:#0891B2; --c-other:#6B7280;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
+    --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0E1218; --surface:#151B24; --sunken:#10151C; --ink:#EAEEF3; --muted:#8A95A3;
+      --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-ink:#0E1218;
+      --term-bg:#0A0E14; --term-ink:#D6DEE8;
+      --c-images:#6E86FF; --c-documents:#34D399; --c-audio:#C084FC; --c-video:#FB8C5E;
+      --c-archives:#F0A83C; --c-code:#22D3EE; --c-other:#94A3B8;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--body); background:var(--bg); color:var(--ink); line-height:1.5;
+    padding:clamp(1.25rem,4vw,2.75rem) 1.25rem 3rem; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto}
+
+  .eyebrow{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center}
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--line-strong)}
+  .eyebrow a{color:var(--muted); text-decoration:none; border-bottom:1px solid transparent}
+  .eyebrow a:hover{color:var(--ink); border-bottom-color:var(--accent)}
+  h1{font-family:var(--display); font-weight:700; line-height:1.03;
+    font-size:clamp(2rem,6vw,3rem); letter-spacing:-.02em; margin:.6rem 0 .4rem}
+  .lead{font-size:clamp(.95rem,2.4vw,1.08rem); color:var(--muted); max-width:52em}
+  .lead code{font-family:var(--mono); font-size:.86em; background:var(--sunken); padding:.05em .35em; border-radius:3px; color:var(--ink)}
+
+  /* controls */
+  .controls{display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin:1.6rem 0 1.2rem}
+  .btn{font-family:var(--mono); font-size:.8rem; font-weight:600; letter-spacing:.01em;
+    border-radius:4px; padding:.55rem 1rem; cursor:pointer; border:1px solid var(--line-strong);
+    background:var(--surface); color:var(--ink); transition:transform .1s ease, border-color .1s ease, background .1s ease}
+  .btn:hover:not(:disabled){transform:translateY(-1px)}
+  .btn:disabled{opacity:.4; cursor:not-allowed}
+  .btn-primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .btn-ghost{background:transparent}
+  .toggle{display:inline-flex; align-items:center; gap:.5rem; font-family:var(--mono);
+    font-size:.78rem; color:var(--muted); cursor:pointer; user-select:none; margin-left:.2rem}
+  .toggle input{position:absolute;opacity:0;width:0;height:0}
+  .switch{width:34px; height:19px; border-radius:20px; background:var(--line-strong); position:relative; transition:background .15s ease}
+  .switch::after{content:""; position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%;
+    background:#fff; transition:transform .15s ease; box-shadow:0 1px 2px rgba(0,0,0,.3)}
+  .toggle input:checked + .switch{background:var(--accent)}
+  .toggle input:checked + .switch::after{transform:translateX(15px)}
+  .toggle input:focus-visible + .switch{outline:2px solid var(--accent); outline-offset:2px}
+
+  /* panels */
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start}
+  .panel{background:var(--surface); border:1px solid var(--line); border-radius:8px; overflow:hidden}
+  .panel-head{font-family:var(--mono); font-size:.72rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted); padding:.7rem .9rem; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; gap:.5rem}
+  .panel-head .path{color:var(--ink); text-transform:none; letter-spacing:0; font-weight:500}
+
+  /* folder view */
+  .folder-body{padding:.6rem; min-height:220px}
+  .file{display:inline-flex; align-items:center; gap:.45rem; font-family:var(--mono); font-size:.78rem;
+    background:var(--sunken); border:1px solid var(--line); border-radius:5px; padding:.32rem .55rem; margin:.22rem;
+    animation:pop .22s ease}
+  .file .dot{width:8px; height:8px; border-radius:2px; flex:none}
+  .file .ext{color:var(--muted)}
+  @keyframes pop{from{opacity:0; transform:scale(.9)} to{opacity:1; transform:scale(1)}}
+
+  .subfolder{border:1px solid var(--line); border-radius:6px; margin:.4rem .22rem; overflow:hidden; animation:pop .28s ease}
+  .subfolder-head{display:flex; align-items:center; gap:.5rem; font-family:var(--mono); font-size:.76rem; font-weight:600;
+    padding:.45rem .6rem; background:var(--sunken); border-bottom:1px solid var(--line)}
+  .subfolder-head .count{margin-left:auto; color:var(--muted); font-weight:400}
+  .subfolder-head .swatch{width:10px; height:10px; border-radius:3px}
+  .subfolder-body{padding:.35rem .5rem .5rem}
+  .empty-note{font-family:var(--mono); font-size:.78rem; color:var(--muted); padding:1.5rem .6rem; text-align:center}
+
+  /* terminal */
+  .term{background:var(--term-bg); border:1px solid var(--line); border-radius:8px; overflow:hidden}
+  .term-head{display:flex; align-items:center; gap:.5rem; padding:.6rem .8rem; border-bottom:1px solid rgba(255,255,255,.07)}
+  .term-head .tdot{width:11px; height:11px; border-radius:50%}
+  .term-head .label{font-family:var(--mono); font-size:.72rem; color:var(--term-muted); margin-left:.4rem}
+  .term-body{font-family:var(--mono); font-size:.76rem; line-height:1.65; color:var(--term-ink);
+    padding:.8rem .9rem; white-space:pre-wrap; word-break:break-word; min-height:220px; max-height:520px; overflow:auto}
+  .term-body .prompt{color:var(--term-green)}
+  .term-body .flag{color:var(--term-blue)}
+  .term-body .rule{color:var(--term-muted)}
+  .term-body .head{color:#fff; font-weight:600}
+  .term-body .cat{color:var(--term-blue)}
+  .term-body .warn{color:#F5A623}
+  .term-body .log{color:var(--term-green)}
+  .term-body .cursor{display:inline-block; width:8px; height:1em; background:var(--term-ink); vertical-align:text-bottom; animation:blink 1.1s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  .legend{display:flex; flex-wrap:wrap; gap:.5rem 1rem; margin:1.1rem 0 0; font-family:var(--mono); font-size:.72rem; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:.4rem}
+  .legend .dot{width:9px; height:9px; border-radius:2px}
+
+  .note{font-family:var(--mono); font-size:.74rem; color:var(--muted); margin-top:1.1rem; line-height:1.6}
+  .note b{color:var(--ink); font-weight:600}
+
+  a:focus-visible,.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+  @media (max-width:720px){ .grid{grid-template-columns:1fr} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow"><a href="../index.html">&#8592; Portfolio</a> · File Organizer</div>
+  <h1>File Organizer</h1>
+  <p class="lead">A Python CLI that sorts a messy folder into subfolders by file type. This demo runs the <b>real algorithm</b> in your browser — the same categorization, <code>--dry-run</code> preview, collision-safe renaming, and undo. The terminal on the right mirrors the actual script's output.</p>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="run">Organize</button>
+    <label class="toggle"><input type="checkbox" id="dry" /><span class="switch"></span>Dry run</label>
+    <button class="btn btn-ghost" id="undo" disabled>Undo last run</button>
+    <button class="btn btn-ghost" id="add">Add new downloads</button>
+    <button class="btn btn-ghost" id="reset">Reset</button>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-head"><span>Folder</span><span class="path" id="path">~/Downloads</span></div>
+      <div class="folder-body" id="folder"></div>
+    </div>
+    <div class="term">
+      <div class="term-head">
+        <span class="tdot" style="background:#F6584C"></span>
+        <span class="tdot" style="background:#F5BE31"></span>
+        <span class="tdot" style="background:#43C654"></span>
+        <span class="label">organize.py</span>
+      </div>
+      <div class="term-body" id="term"></div>
+    </div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <p class="note"><b>Try this:</b> flip on <b>Dry run</b> and hit Organize — nothing moves, you just see the plan. Turn it off to sort for real, then <b>Add new downloads</b> (which drops in a file whose name is already taken) and Organize again to watch collision-safe renaming (<code style="font-family:var(--mono)">vacation_1.jpg</code>) in action. <b>Undo</b> reverses the last real run using its logged moves — exactly like the CLI.</p>
+</div>
+
+<script>
+(function(){
+  // --- Real categorization rules, ported 1:1 from organize.py ---
+  var CATEGORIES = {
+    Images:    [".jpg",".jpeg",".png",".gif",".bmp",".svg",".webp",".tiff"],
+    Documents: [".pdf",".doc",".docx",".txt",".rtf",".odt",".md",".xlsx",".csv"],
+    Audio:     [".mp3",".wav",".flac",".aac",".ogg",".m4a"],
+    Video:     [".mp4",".mov",".avi",".mkv",".webm",".flv"],
+    Archives:  [".zip",".tar",".gz",".rar",".7z",".bz2"],
+    Code:      [".py",".js",".html",".css",".java",".cpp",".c",".json",".sh"]
+  };
+  var OTHER = "Other";
+  var ORDER = ["Images","Documents","Audio","Video","Archives","Code",OTHER];
+  var COLORVAR = {
+    Images:"--c-images", Documents:"--c-documents", Audio:"--c-audio", Video:"--c-video",
+    Archives:"--c-archives", Code:"--c-code", Other:"--c-other"
+  };
+  var PATH = "/Users/ryan/Downloads";
+
+  var INITIAL = [
+    "vacation.jpg","screenshot.png","logo.svg",
+    "resume.pdf","budget.xlsx","meeting-notes.md",
+    "interview.mp3","demo-reel.mp4","project-backup.zip",
+    "organize.py","app.js","keyfile.dat"
+  ];
+  // Deterministic batch added by "Add new downloads" (vacation.jpg forces a collision).
+  var EXTRA = ["vacation.jpg","tax-return.pdf","riff.flac"];
+
+  var root, folders, lastLog;
+
+  function ext(name){
+    var i = name.lastIndexOf(".");
+    return i < 0 ? "" : name.slice(i).toLowerCase();
+  }
+  function categorize(name){
+    var e = ext(name);
+    for(var c in CATEGORIES){ if(CATEGORIES[c].indexOf(e) >= 0) return c; }
+    return OTHER;
+  }
+  // Mirrors resolve_collision: report.pdf -> report_1.pdf -> report_2.pdf
+  function resolveCollision(taken, name){
+    if(taken.indexOf(name) < 0) return name;
+    var dot = name.lastIndexOf(".");
+    var stem = dot < 0 ? name : name.slice(0, dot);
+    var suf  = dot < 0 ? "" : name.slice(dot);
+    var n = 1, cand;
+    do { cand = stem + "_" + n + suf; n++; } while(taken.indexOf(cand) >= 0);
+    return cand;
+  }
+  function stamp(){
+    var d = new Date();
+    function p(x){ return (x<10?"0":"")+x; }
+    return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds());
+  }
+
+  function reset(){
+    root = INITIAL.slice();
+    folders = {};
+    lastLog = null;
+    render();
+    termClear();
+    print('<span class="prompt">$</span> <span class="head">python organize.py ~/Downloads</span>');
+    print('<span class="rule">A messy folder with '+root.length+' files. Press <b class="head">Organize</b> to sort them.</span>');
+    document.getElementById("undo").disabled = true;
+  }
+
+  // --- Core operation, mirroring organize.py's organize() ---
+  function organize(dryRun){
+    if(root.length === 0){ flash("No files to organize."); return; }
+    var moves = [], pending = {}, summary = {};
+    root.forEach(function(name){
+      var cat = categorize(name);
+      var taken = (folders[cat] || []).concat(pending[cat] || []);
+      var dest = resolveCollision(taken, name);
+      (pending[cat] = pending[cat] || []).push(dest);
+      moves.push({from:name, cat:cat, to:dest});
+      summary[cat] = (summary[cat]||0) + 1;
+    });
+
+    termClear();
+    print('<span class="prompt">$</span> <span class="head">python organize.py ~/Downloads'+(dryRun?' <span class="flag">--dry-run</span>':'')+'</span>');
+    print("");
+    print('<span class="head">'+(dryRun?"DRY RUN — no changes made":"Organizing")+':</span> '+PATH);
+    print('<span class="rule">'+dash()+'</span>');
+    moves.forEach(function(m){
+      var renamed = m.to !== m.from;
+      var line = "  " + padName(m.from) + " -> <span class=\"cat\">" + m.cat + "/</span>";
+      if(renamed) line += ' <span class="warn">(name taken → ' + m.to + ')</span>';
+      print(line);
+    });
+    print('<span class="rule">'+dash()+'</span>');
+    print('<span class="head">Summary:</span>');
+    ORDER.forEach(function(c){
+      if(summary[c]) print("  " + pad(c,12) + summary[c] + " file(s)");
+    });
+    print("  " + pad("Total",12) + moves.length + " file(s)");
+
+    if(!dryRun){
+      // apply moves
+      moves.forEach(function(m){
+        (folders[m.cat] = folders[m.cat] || []).push(m.to);
+      });
+      root = [];
+      lastLog = moves.map(function(m){ return {from:PATH+"/"+m.from, to:PATH+"/"+m.cat+"/"+m.to}; });
+      var logName = "organize_log_" + stamp() + ".json";
+      print("");
+      print('<span class="log">Log saved to: '+logName+'</span>');
+      print('<span class="rule">To undo: python organize.py ~/Downloads <span class="flag">--undo</span> '+logName+'</span>');
+      document.getElementById("undo").disabled = false;
+    } else {
+      print("");
+      print('<span class="rule">Nothing was moved. Turn off <b class="head">Dry run</b> to sort for real.</span>');
+    }
+    render();
+  }
+
+  // Mirrors undo(): reverse each logged move
+  function undo(){
+    if(!lastLog){ return; }
+    termClear();
+    print('<span class="prompt">$</span> <span class="head">python organize.py ~/Downloads <span class="flag">--undo</span> organize_log.json</span>');
+    print('<span class="head">Undoing '+lastLog.length+' move(s)...</span>');
+    print('<span class="rule">'+dash()+'</span>');
+    lastLog.forEach(function(entry){
+      var cat = entry.to.split("/").slice(-2)[0];
+      var current = entry.to.split("/").pop();
+      var original = entry.from.split("/").pop();
+      // remove from its category folder
+      if(folders[cat]){
+        var idx = folders[cat].indexOf(current);
+        if(idx >= 0) folders[cat].splice(idx,1);
+        if(folders[cat].length === 0) delete folders[cat];
+      }
+      var back = resolveCollision(root, original);
+      root.push(back);
+      print("  " + current + " -> back to original location");
+    });
+    print('<span class="rule">'+dash()+'</span>');
+    print('<span class="head">Undo complete.</span>');
+    lastLog = null;
+    document.getElementById("undo").disabled = true;
+    render();
+  }
+
+  function addDownloads(){
+    EXTRA.forEach(function(name){
+      root.push(resolveCollision(root, name));
+    });
+    render();
+    flash("Added "+EXTRA.length+" new files to ~/Downloads. Organize to sort them.");
+  }
+
+  // --- rendering ---
+  function fileEl(name){
+    var cat = categorize(name);
+    var e = ext(name) || "—";
+    var dot = name.lastIndexOf(".");
+    var stem = dot < 0 ? name : name.slice(0,dot);
+    var d = document.createElement("span");
+    d.className = "file";
+    d.innerHTML = '<span class="dot" style="background:var('+COLORVAR[cat]+')"></span>'+
+      esc(stem)+'<span class="ext">'+esc(e)+'</span>';
+    return d;
+  }
+  function render(){
+    var host = document.getElementById("folder");
+    host.innerHTML = "";
+    // root files first
+    root.forEach(function(n){ host.appendChild(fileEl(n)); });
+    // then category subfolders in canonical order
+    var any = false;
+    ORDER.forEach(function(cat){
+      var files = folders[cat];
+      if(!files || !files.length) return;
+      any = true;
+      var sf = document.createElement("div");
+      sf.className = "subfolder";
+      var body = files.map(function(n){ return fileEl(n).outerHTML; }).join("");
+      sf.innerHTML =
+        '<div class="subfolder-head"><span class="swatch" style="background:var('+COLORVAR[cat]+')"></span>'+
+        cat+'/<span class="count">'+files.length+'</span></div>'+
+        '<div class="subfolder-body">'+body+'</div>';
+      host.appendChild(sf);
+    });
+    if(root.length === 0 && !any){
+      host.innerHTML = '<div class="empty-note">Folder is empty.</div>';
+    }
+  }
+
+  // --- terminal helpers ---
+  var termEl;
+  function termClear(){ termEl.innerHTML = ""; }
+  function print(html){
+    var line = document.createElement("div");
+    line.innerHTML = html === "" ? "&nbsp;" : html;
+    termEl.appendChild(line);
+    termEl.scrollTop = termEl.scrollHeight;
+  }
+  function flash(msg){
+    print('<span class="rule">'+esc(msg)+'</span>');
+    termEl.scrollTop = termEl.scrollHeight;
+  }
+  function dash(){ return "------------------------------------------------------------"; }
+  function pad(s,n){ s = String(s); while(s.length < n) s += " "; return s; }
+  function padName(s){ return pad(s, 34); }
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  function buildLegend(){
+    var el = document.getElementById("legend");
+    el.innerHTML = ORDER.map(function(c){
+      return '<span><span class="dot" style="background:var('+COLORVAR[c]+')"></span>'+c+'</span>';
+    }).join("");
+  }
+
+  // --- wire up ---
+  document.addEventListener("DOMContentLoaded", function(){
+    termEl = document.getElementById("term");
+    buildLegend();
+    document.getElementById("run").addEventListener("click", function(){
+      organize(document.getElementById("dry").checked);
+    });
+    document.getElementById("undo").addEventListener("click", undo);
+    document.getElementById("add").addEventListener("click", addDownloads);
+    document.getElementById("reset").addEventListener("click", reset);
+    reset();
+  });
+})();
+</script>
+</body>
+</html>
