@@ -42,6 +42,9 @@
     font-size:clamp(2rem,6vw,3rem); letter-spacing:-.02em; margin:.6rem 0 .4rem}
   .lead{font-size:clamp(.95rem,2.4vw,1.08rem); color:var(--muted); max-width:52em}
   .lead code{font-family:var(--mono); font-size:.86em; background:var(--sunken); padding:.05em .35em; border-radius:3px; color:var(--ink)}
+  .sandbox{display:flex; gap:.55rem; align-items:baseline; font-size:.82rem; color:var(--muted); margin-top:.75rem; max-width:56em; line-height:1.55}
+  .pill{flex:none; font-family:var(--mono); font-size:.64rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--accent); border-radius:3px; padding:.14rem .42rem}
 
   /* controls */
   .controls{display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin:1.6rem 0 1.2rem}
@@ -53,7 +56,7 @@
   .btn-primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
   .btn-ghost{background:transparent}
   .toggle{display:inline-flex; align-items:center; gap:.5rem; font-family:var(--mono);
-    font-size:.78rem; color:var(--muted); cursor:pointer; user-select:none; margin-left:.2rem}
+    font-size:.78rem; color:var(--muted); cursor:pointer; -webkit-user-select:none; user-select:none; margin-left:.2rem}
   .toggle input{position:absolute;opacity:0;width:0;height:0}
   .switch{width:34px; height:19px; border-radius:20px; background:var(--line-strong); position:relative; transition:background .15s ease}
   .switch::after{content:""; position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%;
@@ -121,6 +124,7 @@
   <div class="eyebrow"><a href="../index.html">&#8592; Portfolio</a> · File Organizer</div>
   <h1>File Organizer</h1>
   <p class="lead">A Python CLI that sorts a messy folder into subfolders by file type. This demo runs the <b>real algorithm</b> in your browser — the same categorization, <code>--dry-run</code> preview, collision-safe renaming, and undo. The terminal on the right mirrors the actual script's output.</p>
+  <p class="sandbox"><span class="pill">Sandbox</span> The folder below is a made-up sample. This page never reads, moves, or touches any files on your computer — the real CLI does that when you run it locally on a folder you point it at.</p>
 
   <div class="controls">
     <button class="btn btn-primary" id="run">Organize</button>
