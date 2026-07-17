@@ -4,10 +4,6 @@ A full-stack task management web application with a REST API backend and a
 vanilla-JavaScript frontend. Built to practice clean API design, database
 operations, and frontend–backend integration.
 
-![Status](https://img.shields.io/badge/status-complete-success)
-![Python](https://img.shields.io/badge/python-3.12-blue)
-![Flask](https://img.shields.io/badge/flask-3.0-lightgrey)
-
 **▶ [Live demo](https://ryanwien.github.io/Portfolio2026/task-tracker/demo.html)** — a self-contained, in-browser walkthrough of the UI (no backend required).
 
 ## Overview
