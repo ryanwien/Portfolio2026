@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Security Log Analyzer — Live Demo</title>
+<meta name="description" content="A SIEM-style SOC console that turns raw auth logs into MITRE ATT&CK-tagged alerts — brute force, password spraying, impossible travel, port scans — running the real detection engine in your browser." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
+    --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
+    --crit:#DC2626; --high:#EA580C; --med:#D97706; --low:#2563EB;
+    --ok:#0E9F6E;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
+    --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0E1218; --surface:#151B24; --sunken:#10151C; --ink:#EAEEF3; --muted:#8A95A3;
+      --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-ink:#0E1218;
+      --crit:#F87171; --high:#FB923C; --med:#FBBF24; --low:#60A5FA; --ok:#34D399;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--body); background:var(--bg); color:var(--ink); line-height:1.5;
+    padding:clamp(1.25rem,4vw,2.75rem) 1.25rem 3rem; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto}
+
+  .eyebrow{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center}
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--line-strong)}
+  .eyebrow a{color:var(--muted); text-decoration:none; border-bottom:1px solid transparent}
+  .eyebrow a:hover{color:var(--ink); border-bottom-color:var(--accent)}
+  h1{font-family:var(--display); font-weight:700; line-height:1.03;
+    font-size:clamp(2rem,6vw,3rem); letter-spacing:-.02em; margin:.6rem 0 .4rem}
+  .lead{font-size:clamp(.95rem,2.4vw,1.08rem); color:var(--muted); max-width:56em}
+  .lead b{color:var(--ink); font-weight:600}
+  .lead code{font-family:var(--mono); font-size:.86em; background:var(--sunken); padding:.05em .35em; border-radius:3px; color:var(--ink)}
+
+  .section-label{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted); margin:1.8rem 0 .9rem; padding-bottom:.55rem; border-bottom:1px solid var(--line-strong);
+    display:flex; justify-content:space-between; align-items:baseline; gap:1rem}
+
+  .tiles{display:grid; grid-template-columns:repeat(5,1fr); gap:.7rem; margin-bottom:1.1rem}
+  .tile{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:.75rem .85rem}
+  .tile .m{font-family:var(--display); font-weight:700; font-size:1.7rem; line-height:1}
+  .tile .k{font-family:var(--mono); font-size:.64rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:.3rem}
+  .tile.crit .m{color:var(--crit)} .tile.high .m{color:var(--high)} .tile.med .m{color:var(--med)} .tile.low .m{color:var(--low)}
+
+  .tune{display:flex; align-items:center; gap:1rem; flex-wrap:wrap; background:var(--surface); border:1px solid var(--line);
+    border-radius:8px; padding:.8rem 1rem; margin-bottom:1.2rem}
+  .tune label{font-family:var(--mono); font-size:.78rem; color:var(--ink); white-space:nowrap}
+  .tune label b{color:var(--accent)}
+  .tune input[type=range]{-webkit-appearance:none; appearance:none; flex:1; min-width:160px; height:6px; border-radius:6px;
+    background:var(--sunken); border:1px solid var(--line); cursor:pointer}
+  .tune input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:17px; height:17px; border-radius:50%; background:var(--accent); border:2px solid var(--surface); cursor:pointer}
+  .tune input[type=range]::-moz-range-thumb{width:15px; height:15px; border-radius:50%; background:var(--accent); border:2px solid var(--surface); cursor:pointer}
+  .tune .hint{font-family:var(--mono); font-size:.7rem; color:var(--muted); flex-basis:100%}
+
+  .grid{display:grid; grid-template-columns:1.15fr .85fr; gap:1rem; align-items:start}
+
+  .alerts{display:flex; flex-direction:column; gap:.7rem}
+  .alert{background:var(--surface); border:1px solid var(--line); border-left-width:4px; border-radius:8px; padding:.8rem .9rem; cursor:pointer; transition:transform .1s ease, box-shadow .1s ease}
+  .alert:hover{transform:translateY(-1px); box-shadow:0 3px 12px rgba(0,0,0,.07)}
+  .alert.sel{box-shadow:0 0 0 2px var(--accent)}
+  .alert.crit{border-left-color:var(--crit)} .alert.high{border-left-color:var(--high)}
+  .alert.med{border-left-color:var(--med)} .alert.low{border-left-color:var(--low)}
+  .alert-top{display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.35rem}
+  .sev{font-family:var(--mono); font-size:.62rem; font-weight:600; letter-spacing:.06em; padding:.13rem .4rem; border-radius:3px; color:#fff}
+  .sev.crit{background:var(--crit)} .sev.high{background:var(--high)} .sev.med{background:var(--med)} .sev.low{background:var(--low)}
+  .atk{font-family:var(--mono); font-size:.64rem; color:var(--muted); border:1px solid var(--line-strong); border-radius:3px; padding:.12rem .38rem; margin-left:auto}
+  .alert-title{font-family:var(--display); font-weight:600; font-size:1.02rem}
+  .alert-detail{font-size:.85rem; color:var(--muted); margin-top:.2rem; word-break:break-word}
+  .alert-meta{font-family:var(--mono); font-size:.68rem; color:var(--muted); margin-top:.45rem}
+
+  .stream{background:var(--sunken); border:1px solid var(--line); border-radius:8px; overflow:hidden; position:sticky; top:1rem}
+  .stream-head{display:flex; justify-content:space-between; align-items:center; padding:.6rem .8rem; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+  .stream-head button{font-family:var(--mono); font-size:.66rem; color:var(--accent); background:none; border:1px solid var(--line-strong); border-radius:3px; padding:.15rem .45rem; cursor:pointer}
+  .stream-head button:hover{border-color:var(--accent)}
+  .log{font-family:var(--mono); font-size:.7rem; line-height:1.45; max-height:560px; overflow:auto; padding:.35rem 0}
+  .logrow{display:grid; grid-template-columns:58px 1fr auto; gap:.5rem; padding:.12rem .8rem; white-space:nowrap; color:var(--muted)}
+  .logrow .t{color:var(--muted)}
+  .logrow .who{color:var(--ink); overflow:hidden; text-overflow:ellipsis}
+  .logrow .st{font-weight:600; text-align:right}
+  .logrow .st.success{color:var(--ok)} .logrow .st.fail{color:var(--high)} .logrow .st.blocked{color:var(--muted)}
+  .logrow.hot{background:color-mix(in srgb, var(--high) 16%, transparent)}
+  .log.filtered .logrow:not(.hot){opacity:.25}
+
+  .chips{display:flex; flex-wrap:wrap; gap:.5rem}
+  .chip{font-family:var(--mono); font-size:.72rem; color:var(--ink); background:var(--surface); border:1px solid var(--line-strong); border-radius:5px; padding:.3rem .55rem}
+  .chip b{color:var(--accent)}
+  .note{font-family:var(--mono); font-size:.74rem; color:var(--muted); margin-top:1.4rem; line-height:1.65}
+  .note b{color:var(--ink); font-weight:600} .note code{font-family:var(--mono)}
+  a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+
+  @media (max-width:760px){ .grid{grid-template-columns:1fr} .tiles{grid-template-columns:repeat(5,1fr)} .stream{position:static} }
+  @media (max-width:520px){ .tiles{grid-template-columns:repeat(2,1fr)} }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow"><a href="../index.html">&#8592; Portfolio</a> · Security Log Analyzer</div>
+  <h1>Security Log Analyzer</h1>
+  <p class="lead">A SIEM-style detection engine that turns raw authentication logs into ranked, <b>MITRE ATT&amp;CK</b>-tagged alerts — the core of a SOC analyst's day. This page runs the <b>real detection rules</b> in your browser over a sample day of <b id="evCount">…</b> synthetic log events. Adjust the detection threshold and watch the alerts recompute, then click an alert to trace it back to the raw events.</p>
+
+  <div class="section-label"><span>Triage summary</span><span id="range">…</span></div>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="tune">
+    <label>Brute-force sensitivity: <b><span id="bfVal">8</span></b> failed logins</label>
+    <input type="range" id="bf" min="3" max="20" step="1" value="8" autocomplete="off" aria-label="Brute-force threshold" />
+    <span class="hint">Lower = more sensitive (catches slower attacks, risks noise) · Higher = fewer alerts. This is real alert tuning.</span>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="section-label" style="margin-top:0"><span>Alerts</span><span>most severe first</span></div>
+      <div class="alerts" id="alerts"></div>
+    </div>
+    <div>
+      <div class="section-label" style="margin-top:0"><span>Event stream</span><span id="streamCount"></span></div>
+      <div class="stream">
+        <div class="stream-head"><span id="streamLabel">all events</span><button id="clearSel">clear</button></div>
+        <div class="log" id="log"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label"><span>ATT&amp;CK coverage</span><span>techniques observed</span></div>
+  <div class="chips" id="chips"></div>
+
+  <p class="note"><b>How it works:</b> the same rules run here and in the Python CLI (<code>analyze.py</code>) — brute force and its success (compromise), password spraying, port scanning, impossible travel (geo-velocity), and off-hours privileged access — each mapped to a MITRE ATT&amp;CK technique. Logs are synthetic; no real data is involved. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/security-log-analyzer">source and detection write-up</a>.</p>
+</div>
+
+<script>
+(function(){
+  var EVENTS = [{"ts":"2026-07-14T01:08:20Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":21,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:21Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":22,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:23Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":23,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:25Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":25,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:26Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":53,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:28Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":80,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:29Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":110,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:30Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":143,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:32Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":443,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:35Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":445,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:36Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":993,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:39Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":1433,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:42Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":3306,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:45Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":3389,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:46Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":5432,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T01:08:50Z","src_ip":"203.0.113.88","country":"CN","lat":39.9,"lon":116.4,"user":"-","service":"probe","port":8080,"action":"port_probe","status":"blocked"},{"ts":"2026-07-14T02:00:11Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:00:17Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:00:20Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:00:24Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:00:26Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:00:35Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:00:38Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:00:47Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:00:55Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:00:59Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:04Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:12Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:20Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:24Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:28Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:36Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:39Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:42Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:44Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:48Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:01:55Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:04Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:06Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:08Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:14Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:17Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:23Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:30Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:32Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:36Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:44Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:52Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:02:58Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:03:07Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:03:14Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:03:20Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:03:24Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:03:31Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:03:33Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:03:41Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:03:50Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:03:53Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:04:00Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T02:04:14Z","src_ip":"198.51.100.7","country":"RU","lat":55.75,"lon":37.62,"user":"admin","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T03:03:20Z","src_ip":"203.0.113.44","country":"CN","lat":39.9,"lon":116.4,"user":"a.chen","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T03:04:10Z","src_ip":"203.0.113.44","country":"CN","lat":39.9,"lon":116.4,"user":"j.martinez","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T03:04:38Z","src_ip":"203.0.113.44","country":"CN","lat":39.9,"lon":116.4,"user":"s.patel","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T03:05:34Z","src_ip":"203.0.113.44","country":"CN","lat":39.9,"lon":116.4,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T03:05:59Z","src_ip":"203.0.113.44","country":"CN","lat":39.9,"lon":116.4,"user":"m.rossi","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T03:06:52Z","src_ip":"203.0.113.44","country":"CN","lat":39.9,"lon":116.4,"user":"d.nguyen","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T03:07:26Z","src_ip":"203.0.113.44","country":"CN","lat":39.9,"lon":116.4,"user":"r.kowalski","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T03:08:24Z","src_ip":"203.0.113.44","country":"CN","lat":39.9,"lon":116.4,"user":"t.johnson","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T04:15:00Z","src_ip":"10.0.1.20","country":"US","lat":40.71,"lon":-74.01,"user":"svc_backup","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T08:10:05Z","src_ip":"10.0.1.160","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T08:10:31Z","src_ip":"10.0.2.212","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T08:13:12Z","src_ip":"10.0.2.51","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T08:23:59Z","src_ip":"10.0.2.92","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T08:32:04Z","src_ip":"10.0.1.75","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T08:45:10Z","src_ip":"10.0.2.109","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T08:50:53Z","src_ip":"10.0.3.55","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T08:55:47Z","src_ip":"10.0.3.109","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T08:57:59Z","src_ip":"10.0.3.75","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T09:00:04Z","src_ip":"10.0.3.200","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T09:00:53Z","src_ip":"10.0.2.33","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T09:13:44Z","src_ip":"10.0.3.47","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T09:15:50Z","src_ip":"10.0.1.46","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T09:17:10Z","src_ip":"10.0.1.172","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T09:30:24Z","src_ip":"10.0.3.28","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T09:31:20Z","src_ip":"10.0.2.105","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T09:34:53Z","src_ip":"10.0.3.141","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T09:38:00Z","src_ip":"10.0.3.108","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T09:38:06Z","src_ip":"10.0.4.100","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T09:41:47Z","src_ip":"10.0.3.19","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T09:45:38Z","src_ip":"10.0.1.116","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T09:47:05Z","src_ip":"10.0.4.121","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T09:48:36Z","src_ip":"10.0.3.64","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T09:49:23Z","src_ip":"10.0.1.17","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T09:49:26Z","src_ip":"10.0.1.140","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T09:50:39Z","src_ip":"10.0.2.98","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T09:55:04Z","src_ip":"10.0.2.104","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T09:58:14Z","src_ip":"10.0.3.54","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T10:02:00Z","src_ip":"10.0.2.55","country":"US","lat":40.71,"lon":-74.01,"user":"j.martinez","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T10:07:42Z","src_ip":"10.0.4.122","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T10:11:54Z","src_ip":"10.0.4.76","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T10:12:25Z","src_ip":"10.0.3.195","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T10:18:45Z","src_ip":"10.0.4.61","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T10:19:52Z","src_ip":"10.0.1.12","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T10:29:17Z","src_ip":"10.0.3.191","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T10:40:52Z","src_ip":"10.0.3.117","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T10:44:42Z","src_ip":"10.0.4.152","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T10:45:26Z","src_ip":"10.0.2.10","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T10:46:43Z","src_ip":"10.0.4.110","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T10:46:47Z","src_ip":"10.0.2.200","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T10:55:47Z","src_ip":"10.0.1.198","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T10:59:44Z","src_ip":"10.0.2.208","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T11:00:21Z","src_ip":"10.0.2.231","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T11:00:35Z","src_ip":"10.0.3.180","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T11:07:10Z","src_ip":"10.0.1.126","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T11:15:14Z","src_ip":"10.0.2.118","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T11:24:56Z","src_ip":"10.0.3.220","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T11:32:27Z","src_ip":"10.0.4.83","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T11:39:04Z","src_ip":"10.0.3.184","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T11:42:00Z","src_ip":"91.203.5.12","country":"RU","lat":55.75,"lon":37.62,"user":"j.martinez","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T11:42:41Z","src_ip":"10.0.2.170","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T11:45:48Z","src_ip":"10.0.3.52","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T11:57:13Z","src_ip":"10.0.4.196","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T12:00:21Z","src_ip":"10.0.3.74","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T12:00:34Z","src_ip":"10.0.1.195","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T12:01:00Z","src_ip":"10.0.4.177","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T12:07:04Z","src_ip":"10.0.4.149","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T12:07:06Z","src_ip":"10.0.1.165","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T12:07:25Z","src_ip":"10.0.3.203","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T12:11:14Z","src_ip":"10.0.2.82","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T12:13:18Z","src_ip":"10.0.4.23","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T12:19:08Z","src_ip":"10.0.4.61","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T12:21:36Z","src_ip":"10.0.1.68","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T12:26:44Z","src_ip":"10.0.1.200","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T12:28:57Z","src_ip":"10.0.4.104","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T12:33:05Z","src_ip":"10.0.3.224","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T12:33:18Z","src_ip":"10.0.4.181","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T12:38:28Z","src_ip":"10.0.3.23","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T12:51:26Z","src_ip":"10.0.2.171","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T12:52:27Z","src_ip":"10.0.4.80","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T12:52:46Z","src_ip":"10.0.3.186","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T12:55:13Z","src_ip":"10.0.3.206","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T12:58:29Z","src_ip":"10.0.3.47","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T13:04:08Z","src_ip":"10.0.3.47","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T13:08:28Z","src_ip":"10.0.3.82","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T13:12:43Z","src_ip":"10.0.2.210","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T13:15:23Z","src_ip":"10.0.4.42","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T13:15:56Z","src_ip":"10.0.3.54","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T13:17:16Z","src_ip":"10.0.2.103","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T13:18:38Z","src_ip":"10.0.3.229","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T13:27:13Z","src_ip":"10.0.3.16","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T13:28:20Z","src_ip":"10.0.4.38","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T13:41:31Z","src_ip":"10.0.3.43","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T13:43:17Z","src_ip":"10.0.2.132","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T13:53:25Z","src_ip":"10.0.2.227","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T13:57:52Z","src_ip":"10.0.2.154","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"vpn","port":1194,"action":"login","status":"fail"},{"ts":"2026-07-14T14:04:07Z","src_ip":"10.0.2.36","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T14:10:27Z","src_ip":"10.0.2.87","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T14:17:13Z","src_ip":"10.0.1.159","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T14:18:35Z","src_ip":"10.0.2.77","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T14:24:13Z","src_ip":"10.0.3.12","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T14:25:49Z","src_ip":"10.0.3.15","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T14:28:27Z","src_ip":"10.0.1.37","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T14:31:10Z","src_ip":"10.0.3.217","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T14:31:37Z","src_ip":"10.0.2.16","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T14:34:55Z","src_ip":"10.0.4.201","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T14:40:28Z","src_ip":"10.0.4.86","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T14:45:41Z","src_ip":"10.0.3.23","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T14:49:01Z","src_ip":"10.0.3.55","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T14:51:28Z","src_ip":"10.0.4.205","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T14:52:19Z","src_ip":"10.0.1.27","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"https","port":443,"action":"login","status":"fail"},{"ts":"2026-07-14T14:52:59Z","src_ip":"10.0.3.166","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T14:55:28Z","src_ip":"10.0.2.108","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T14:56:29Z","src_ip":"10.0.1.210","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T14:57:04Z","src_ip":"10.0.3.54","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T14:58:43Z","src_ip":"10.0.2.145","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T15:00:43Z","src_ip":"10.0.3.113","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T15:07:01Z","src_ip":"10.0.2.160","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"ssh","port":22,"action":"login","status":"fail"},{"ts":"2026-07-14T15:23:59Z","src_ip":"10.0.2.49","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T15:28:19Z","src_ip":"10.0.3.159","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T15:41:48Z","src_ip":"10.0.2.110","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T15:43:45Z","src_ip":"10.0.4.210","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T15:44:24Z","src_ip":"10.0.4.207","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T16:04:54Z","src_ip":"10.0.4.34","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T16:13:41Z","src_ip":"10.0.2.89","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T16:14:56Z","src_ip":"10.0.3.132","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T16:19:01Z","src_ip":"10.0.4.193","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T16:20:20Z","src_ip":"10.0.2.15","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T16:23:25Z","src_ip":"10.0.2.162","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T16:23:29Z","src_ip":"10.0.4.32","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T16:24:47Z","src_ip":"10.0.2.235","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T16:26:38Z","src_ip":"10.0.4.125","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T16:29:45Z","src_ip":"10.0.2.95","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T16:32:45Z","src_ip":"10.0.2.201","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T16:35:36Z","src_ip":"10.0.1.69","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"https","port":443,"action":"login","status":"fail"},{"ts":"2026-07-14T16:37:58Z","src_ip":"10.0.1.219","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T16:39:05Z","src_ip":"10.0.4.20","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T16:39:12Z","src_ip":"10.0.1.88","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T16:40:47Z","src_ip":"10.0.4.202","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T16:47:37Z","src_ip":"10.0.3.23","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T16:49:08Z","src_ip":"10.0.3.216","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T16:52:21Z","src_ip":"10.0.2.235","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T16:53:32Z","src_ip":"10.0.1.81","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T16:54:29Z","src_ip":"10.0.1.181","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T17:03:41Z","src_ip":"10.0.4.83","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T17:11:42Z","src_ip":"10.0.2.210","country":"US","lat":40.71,"lon":-74.01,"user":"m.rossi","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T17:11:55Z","src_ip":"10.0.2.24","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"rdp","port":3389,"action":"login","status":"fail"},{"ts":"2026-07-14T17:13:16Z","src_ip":"10.0.4.29","country":"US","lat":40.71,"lon":-74.01,"user":"t.johnson","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T17:13:31Z","src_ip":"10.0.2.135","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T17:14:04Z","src_ip":"10.0.4.51","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T17:16:33Z","src_ip":"10.0.4.145","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"rdp","port":3389,"action":"login","status":"success"},{"ts":"2026-07-14T17:19:24Z","src_ip":"10.0.1.204","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T17:24:19Z","src_ip":"10.0.3.59","country":"US","lat":40.71,"lon":-74.01,"user":"s.patel","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T17:25:21Z","src_ip":"10.0.3.160","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"https","port":443,"action":"login","status":"fail"},{"ts":"2026-07-14T17:28:44Z","src_ip":"10.0.2.153","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T17:33:50Z","src_ip":"10.0.3.194","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T17:34:57Z","src_ip":"10.0.3.121","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"ssh","port":22,"action":"login","status":"success"},{"ts":"2026-07-14T17:40:19Z","src_ip":"10.0.4.48","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T17:40:37Z","src_ip":"10.0.2.13","country":"US","lat":40.71,"lon":-74.01,"user":"d.nguyen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T17:43:30Z","src_ip":"10.0.4.231","country":"US","lat":40.71,"lon":-74.01,"user":"a.chen","service":"https","port":443,"action":"login","status":"success"},{"ts":"2026-07-14T17:46:46Z","src_ip":"10.0.2.93","country":"US","lat":40.71,"lon":-74.01,"user":"k.obrien","service":"vpn","port":1194,"action":"login","status":"success"},{"ts":"2026-07-14T17:59:47Z","src_ip":"10.0.4.31","country":"US","lat":40.71,"lon":-74.01,"user":"r.kowalski","service":"https","port":443,"action":"login","status":"success"}];
+  EVENTS.forEach(function(e){ e._t = Date.parse(e.ts)/1000; e._hour = new Date(e.ts).getUTCHours(); });
+  EVENTS.sort(function(a,b){ return a._t - b._t; });
+
+  var DEFAULTS = { bf_threshold:8, bf_window:300, spray_users:6, scan_ports:10, scan_window:120, travel_kmh:800, work_start:7, work_end:19 };
+  var SEV_RANK = { CRITICAL:0, HIGH:1, MEDIUM:2, LOW:3 };
+  var SEV_CLASS = { CRITICAL:"crit", HIGH:"high", MEDIUM:"med", LOW:"low" };
+  var PRIV = ["admin","root","administrator","svc_"];
+
+  function pad2(n){ return (n<10?"0":"")+n; }
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function isPriv(u){ u=(u||"").toLowerCase(); return PRIV.some(function(p){ return u===p || u.indexOf(p)===0; }); }
+  function haversine(la1,lo1,la2,lo2){
+    var R=6371, r=Math.PI/180;
+    var dp=(la2-la1)*r, dl=(lo2-lo1)*r;
+    var a=Math.sin(dp/2)**2 + Math.cos(la1*r)*Math.cos(la2*r)*Math.sin(dl/2)**2;
+    return 2*R*Math.asin(Math.sqrt(a));
+  }
+  function mk(sev,tech,tid,entity,detail,count,first,last,entities){
+    return { severity:sev, technique:tech, attack_id:tid, entity:entity, detail:detail, events:count, first_seen:first, last_seen:last, entities:entities };
+  }
+  function groupBy(list, keyFn, filterFn){
+    var m={}; list.forEach(function(e){ if(filterFn(e)){ (m[keyFn(e)]=m[keyFn(e)]||[]).push(e); } }); return m;
+  }
+
+  function detectBruteForce(cfg){
+    var alerts=[], byIp=groupBy(EVENTS, function(e){return e.src_ip;}, function(e){return e.action==="login"&&e.status==="fail";});
+    Object.keys(byIp).forEach(function(ip){
+      var fails=byIp[ip], i=0, best=[];
+      for(var j=0;j<fails.length;j++){
+        while(fails[j]._t-fails[i]._t > cfg.bf_window) i++;
+        if(j-i+1>best.length) best=fails.slice(i,j+1);
+      }
+      if(best.length>=cfg.bf_threshold){
+        var success=EVENTS.find(function(e){ return e.src_ip===ip && e.status==="success" && e._t>=best[0]._t; });
+        if(success){
+          alerts.push(mk("CRITICAL","Brute-force success (likely compromise)","T1110", ip,
+            best.length+" failed logins then a SUCCESS as '"+success.user+"' ("+success.service+") from "+ip+" ("+best[0].country+")",
+            best.length+1, best[0].ts, success.ts, [ip]));
+        } else {
+          var users=Array.from(new Set(best.map(function(e){return e.user;}))).sort();
+          alerts.push(mk("HIGH","Brute force","T1110", ip,
+            best.length+" failed logins in "+cfg.bf_window+"s targeting "+users.join(", ")+" from "+ip+" ("+best[0].country+")",
+            best.length, best[0].ts, best[best.length-1].ts, [ip]));
+        }
+      }
+    });
+    return alerts;
+  }
+  function detectSpray(cfg){
+    var alerts=[], byIp=groupBy(EVENTS, function(e){return e.src_ip;}, function(e){return e.action==="login"&&e.status==="fail";});
+    Object.keys(byIp).forEach(function(ip){
+      var evs=byIp[ip], users=Array.from(new Set(evs.map(function(e){return e.user;}))).sort();
+      if(users.length>=cfg.spray_users){
+        alerts.push(mk("HIGH","Password spraying","T1110.003", ip,
+          users.length+" distinct users targeted from "+ip+" ("+evs[0].country+"): "+users.join(", "),
+          evs.length, evs[0].ts, evs[evs.length-1].ts, [ip]));
+      }
+    });
+    return alerts;
+  }
+  function detectScan(cfg){
+    var alerts=[], byIp=groupBy(EVENTS, function(e){return e.src_ip;}, function(e){return e.action==="port_probe";});
+    Object.keys(byIp).forEach(function(ip){
+      var pr=byIp[ip], i=0, best=[];
+      for(var j=0;j<pr.length;j++){
+        while(pr[j]._t-pr[i]._t > cfg.scan_window) i++;
+        var win=pr.slice(i,j+1);
+        if(new Set(win.map(function(p){return p.port;})).size > new Set(best.map(function(p){return p.port;})).size) best=win;
+      }
+      var ports=Array.from(new Set(best.map(function(p){return p.port;}))).sort(function(a,b){return a-b;});
+      if(ports.length>=cfg.scan_ports){
+        alerts.push(mk("MEDIUM","Port scan / service discovery","T1046", ip,
+          ports.length+" ports probed from "+ip+" ("+best[0].country+"): "+ports.join(", "),
+          best.length, best[0].ts, best[best.length-1].ts, [ip]));
+      }
+    });
+    return alerts;
+  }
+  function detectTravel(cfg){
+    var alerts=[], byUser=groupBy(EVENTS, function(e){return e.user;}, function(e){return e.action==="login"&&e.status==="success";});
+    Object.keys(byUser).forEach(function(user){
+      var logins=byUser[user], worst=null;
+      for(var k=0;k<logins.length-1;k++){
+        var a=logins[k], b=logins[k+1], hours=(b._t-a._t)/3600;
+        if(hours<=0) continue;
+        var km=haversine(a.lat,a.lon,b.lat,b.lon);
+        if(km<500) continue;
+        var speed=km/hours;
+        if(speed>cfg.travel_kmh && (!worst || speed>worst.speed)) worst={speed:speed,a:a,b:b,km:km,hours:hours};
+      }
+      if(worst){
+        alerts.push(mk("HIGH","Impossible travel","T1078", user,
+          "'"+user+"' logged in from "+worst.a.country+" then "+worst.b.country+" "+Math.round(worst.hours*60)+" min apart ("+Math.round(worst.km)+" km, "+Math.round(worst.speed)+" km/h)",
+          2, worst.a.ts, worst.b.ts, [user]));
+      }
+    });
+    return alerts;
+  }
+  function detectOffHours(cfg){
+    var alerts=[];
+    EVENTS.forEach(function(e){
+      if(e.action==="login" && e.status==="success" && isPriv(e.user)){
+        if(e._hour<cfg.work_start || e._hour>=cfg.work_end){
+          alerts.push(mk("LOW","Off-hours privileged access","T1078", e.user,
+            "'"+e.user+"' logged in at "+e.ts.slice(11,16)+" UTC (outside "+pad2(cfg.work_start)+":00-"+pad2(cfg.work_end)+":00) from "+e.src_ip,
+            1, e.ts, e.ts, [e.user, e.src_ip]));
+        }
+      }
+    });
+    return alerts;
+  }
+  function analyze(cfg){
+    var a=detectBruteForce(cfg).concat(detectSpray(cfg), detectScan(cfg), detectTravel(cfg), detectOffHours(cfg));
+    a.sort(function(x,y){ return SEV_RANK[x.severity]-SEV_RANK[y.severity]; });
+    return a;
+  }
+
+  // ---- rendering ----
+  var selected = null;
+  function renderTiles(alerts){
+    var c={CRITICAL:0,HIGH:0,MEDIUM:0,LOW:0};
+    alerts.forEach(function(a){ c[a.severity]++; });
+    document.getElementById("tiles").innerHTML =
+      tile("", EVENTS.length, "events") + tile("crit", c.CRITICAL, "critical") +
+      tile("high", c.HIGH, "high") + tile("med", c.MEDIUM, "medium") + tile("low", c.LOW, "low");
+  }
+  function tile(cls, n, k){ return '<div class="tile '+cls+'"><div class="m">'+n+'</div><div class="k">'+k+'</div></div>'; }
+
+  function renderAlerts(alerts){
+    var host=document.getElementById("alerts");
+    if(!alerts.length){ host.innerHTML='<div class="alert"><div class="alert-detail">No suspicious activity at this threshold.</div></div>'; return; }
+    host.innerHTML = alerts.map(function(a,i){
+      var cl=SEV_CLASS[a.severity];
+      return '<div class="alert '+cl+(selected===i?" sel":"")+'" data-i="'+i+'">'+
+        '<div class="alert-top"><span class="sev '+cl+'">'+a.severity+'</span>'+
+        '<span class="alert-title">'+esc(a.technique)+'</span>'+
+        '<span class="atk">'+a.attack_id+'</span></div>'+
+        '<div class="alert-detail">'+esc(a.detail)+'</div>'+
+        '<div class="alert-meta">entity '+esc(a.entity)+' · '+a.events+' events · '+a.first_seen.slice(11,19)+' → '+a.last_seen.slice(11,19)+'</div>'+
+        '</div>';
+    }).join("");
+    Array.prototype.forEach.call(host.querySelectorAll(".alert[data-i]"), function(el){
+      el.addEventListener("click", function(){
+        var i=+el.getAttribute("data-i");
+        selected = (selected===i? null : i);
+        renderAlerts(alerts); applyFilter(alerts[i] && selected!==null ? alerts[i] : null);
+      });
+    });
+  }
+
+  function renderStream(){
+    document.getElementById("streamCount").textContent = EVENTS.length + " events";
+    document.getElementById("log").innerHTML = EVENTS.map(function(e){
+      var who = e.action==="port_probe"
+        ? esc(e.src_ip)+"  →  :"+e.port+" ("+esc(e.country)+")"
+        : esc(e.src_ip)+"  "+esc(e.user)+"  "+esc(e.service)+" ("+esc(e.country)+")";
+      return '<div class="logrow" data-ip="'+esc(e.src_ip)+'" data-user="'+esc(e.user)+'">'+
+        '<span class="t">'+e.ts.slice(11,19)+'</span>'+
+        '<span class="who">'+who+'</span>'+
+        '<span class="st '+e.status+'">'+e.status+'</span></div>';
+    }).join("");
+  }
+  function applyFilter(alert){
+    var log=document.getElementById("log");
+    var rows=log.querySelectorAll(".logrow");
+    if(!alert){
+      log.classList.remove("filtered");
+      Array.prototype.forEach.call(rows, function(r){ r.classList.remove("hot"); });
+      document.getElementById("streamLabel").textContent="all events";
+      return;
+    }
+    var ents=alert.entities;
+    log.classList.add("filtered");
+    var firstHot=null;
+    Array.prototype.forEach.call(rows, function(r){
+      var hot = ents.indexOf(r.getAttribute("data-ip"))>=0 || ents.indexOf(r.getAttribute("data-user"))>=0;
+      r.classList.toggle("hot", hot);
+      if(hot && !firstHot) firstHot=r;
+    });
+    document.getElementById("streamLabel").textContent = "showing "+ents.join(", ");
+    if(firstHot) firstHot.scrollIntoView({block:"nearest"});
+  }
+  function renderChips(alerts){
+    var seen={}, order=[];
+    alerts.forEach(function(a){ if(!seen[a.attack_id]){ seen[a.attack_id]=a.technique; order.push(a.attack_id); } });
+    document.getElementById("chips").innerHTML = order.length
+      ? order.map(function(id){ return '<span class="chip"><b>'+id+'</b> '+esc(seen[id])+'</span>'; }).join("")
+      : '<span class="chip">none at this threshold</span>';
+  }
+
+  function run(){
+    var cfg = Object.assign({}, DEFAULTS, { bf_threshold: parseInt(document.getElementById("bf").value,10) });
+    var alerts = analyze(cfg);
+    selected = null;
+    renderTiles(alerts); renderAlerts(alerts); renderChips(alerts); applyFilter(null);
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    document.getElementById("evCount").textContent = EVENTS.length;
+    document.getElementById("range").textContent = EVENTS[0].ts.slice(0,10) + " · " + EVENTS[0].ts.slice(11,16) + "–" + EVENTS[EVENTS.length-1].ts.slice(11,16) + " UTC";
+    renderStream();
+    var bf=document.getElementById("bf");
+    bf.addEventListener("input", function(){ document.getElementById("bfVal").textContent=bf.value; run(); });
+    document.getElementById("clearSel").addEventListener("click", function(){ selected=null; run(); });
+    run();
+  });
+})();
+</script>
+</body>
+</html>
