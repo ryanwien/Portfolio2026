@@ -38,7 +38,7 @@ No installation needed — Python standard library only.
 
 ## Sample output
 
-```
+```text
 ====================================================================
 SECURITY LOG ANALYSIS
 ====================================================================
@@ -83,6 +83,21 @@ JSON Lines (one event per line):
   sensitive is involved and the tool (and its browser demo) run anywhere.
 - **One engine, two front-ends** — the browser demo re-implements the exact same
   rules the Python CLI runs, over the exact same sample log.
+
+## What this demonstrates
+
+Skills central to a SOC analyst role and the **Microsoft Cybersecurity Analyst**
+curriculum:
+
+- **Detection engineering** — writing and tuning rules that turn raw telemetry
+  into actionable alerts (the SIEM query/analytics workflow behind Microsoft
+  Sentinel and KQL).
+- **MITRE ATT&CK** — mapping observed activity to a shared technique taxonomy so
+  findings are comparable and actionable.
+- **Incident triage** — severity ranking so the genuine compromise (brute force
+  *then* a success) surfaces above lower-priority noise.
+- **Threat recognition** — brute force, password spraying, account compromise,
+  network reconnaissance, and anomalous sign-ins (impossible travel).
 
 ## Possible next steps
 
