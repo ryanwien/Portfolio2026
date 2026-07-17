@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>File Organizer — Live Demo</title>
-<meta name="description" content="An in-browser demo of a Python CLI that sorts a folder by file type — dry-run, collision-safe renaming, and undo, running the real algorithm." />
+<meta name="description" content="An in-browser file organizer that sorts a folder by type. Try the sample sandbox, or pick a real folder on your computer (Chrome/Edge) and it actually organizes it." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -12,6 +12,7 @@
   :root{
     --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
     --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
+    --warn:#B45309; --warn-bg:#FFF4E5; --warn-line:#F3C98B;
     --term-bg:#141A24; --term-ink:#D6DEE8; --term-muted:#7C8A9C; --term-green:#4FB477; --term-blue:#7CA0FF;
     --c-images:#2D4EF5; --c-documents:#0E9F6E; --c-audio:#9333EA; --c-video:#E8622C;
     --c-archives:#B45309; --c-code:#0891B2; --c-other:#6B7280;
@@ -23,6 +24,7 @@
     :root{
       --bg:#0E1218; --surface:#151B24; --sunken:#10151C; --ink:#EAEEF3; --muted:#8A95A3;
       --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-ink:#0E1218;
+      --warn:#F0A83C; --warn-bg:#2A2011; --warn-line:#5C4718;
       --term-bg:#0A0E14; --term-ink:#D6DEE8;
       --c-images:#6E86FF; --c-documents:#34D399; --c-audio:#C084FC; --c-video:#FB8C5E;
       --c-archives:#F0A83C; --c-code:#22D3EE; --c-other:#94A3B8;
@@ -45,16 +47,21 @@
   .sandbox{display:flex; gap:.55rem; align-items:baseline; font-size:.82rem; color:var(--muted); margin-top:.75rem; max-width:56em; line-height:1.55}
   .pill{flex:none; font-family:var(--mono); font-size:.64rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
     color:var(--accent); border:1px solid var(--accent); border-radius:3px; padding:.14rem .42rem}
+  .pill.warnpill{color:var(--warn); border-color:var(--warn)}
+  [hidden]{display:none!important}
 
-  /* controls */
-  .controls{display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin:1.6rem 0 1.2rem}
-  .btn{font-family:var(--mono); font-size:.8rem; font-weight:600; letter-spacing:.01em;
-    border-radius:4px; padding:.55rem 1rem; cursor:pointer; border:1px solid var(--line-strong);
-    background:var(--surface); color:var(--ink); transition:transform .1s ease, border-color .1s ease, background .1s ease}
+  /* mode + controls */
+  .mode-row{display:flex; flex-wrap:wrap; gap:.6rem .8rem; align-items:center; margin:1.4rem 0 .4rem}
+  .mode-note{font-family:var(--mono); font-size:.74rem; color:var(--muted)}
+  .controls{display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin:.9rem 0 1rem}
+  .btn{font-family:var(--mono); font-size:.8rem; font-weight:600; letter-spacing:.01em; border-radius:4px;
+    padding:.55rem 1rem; cursor:pointer; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink);
+    transition:transform .1s ease, border-color .1s ease, background .1s ease}
   .btn:hover:not(:disabled){transform:translateY(-1px)}
   .btn:disabled{opacity:.4; cursor:not-allowed}
   .btn-primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
   .btn-ghost{background:transparent}
+  .btn-pick{background:var(--ink); color:var(--bg); border-color:var(--ink)}
   .toggle{display:inline-flex; align-items:center; gap:.5rem; font-family:var(--mono);
     font-size:.78rem; color:var(--muted); cursor:pointer; -webkit-user-select:none; user-select:none; margin-left:.2rem}
   .toggle input{position:absolute;opacity:0;width:0;height:0}
@@ -65,19 +72,22 @@
   .toggle input:checked + .switch::after{transform:translateX(15px)}
   .toggle input:focus-visible + .switch{outline:2px solid var(--accent); outline-offset:2px}
 
+  .live-warn{display:flex; gap:.6rem; align-items:baseline; background:var(--warn-bg); border:1px solid var(--warn-line);
+    color:var(--warn); border-radius:6px; padding:.7rem .9rem; margin:0 0 1rem; font-size:.84rem; line-height:1.55; max-width:64em}
+  .live-warn b{font-weight:600}
+  .live-warn code{font-family:var(--mono); font-size:.85em}
+
   /* panels */
   .grid{display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start}
   .panel{background:var(--surface); border:1px solid var(--line); border-radius:8px; overflow:hidden}
   .panel-head{font-family:var(--mono); font-size:.72rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
     color:var(--muted); padding:.7rem .9rem; border-bottom:1px solid var(--line);
     display:flex; justify-content:space-between; align-items:center; gap:.5rem}
-  .panel-head .path{color:var(--ink); text-transform:none; letter-spacing:0; font-weight:500}
+  .panel-head .path{color:var(--ink); text-transform:none; letter-spacing:0; font-weight:500; max-width:60%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 
-  /* folder view */
   .folder-body{padding:.6rem; min-height:220px}
   .file{display:inline-flex; align-items:center; gap:.45rem; font-family:var(--mono); font-size:.78rem;
-    background:var(--sunken); border:1px solid var(--line); border-radius:5px; padding:.32rem .55rem; margin:.22rem;
-    animation:pop .22s ease}
+    background:var(--sunken); border:1px solid var(--line); border-radius:5px; padding:.32rem .55rem; margin:.22rem; animation:pop .22s ease}
   .file .dot{width:8px; height:8px; border-radius:2px; flex:none}
   .file .ext{color:var(--muted)}
   @keyframes pop{from{opacity:0; transform:scale(.9)} to{opacity:1; transform:scale(1)}}
@@ -90,7 +100,6 @@
   .subfolder-body{padding:.35rem .5rem .5rem}
   .empty-note{font-family:var(--mono); font-size:.78rem; color:var(--muted); padding:1.5rem .6rem; text-align:center}
 
-  /* terminal */
   .term{background:var(--term-bg); border:1px solid var(--line); border-radius:8px; overflow:hidden}
   .term-head{display:flex; align-items:center; gap:.5rem; padding:.6rem .8rem; border-bottom:1px solid rgba(255,255,255,.07)}
   .term-head .tdot{width:11px; height:11px; border-radius:50%}
@@ -103,19 +112,18 @@
   .term-body .head{color:#fff; font-weight:600}
   .term-body .cat{color:var(--term-blue)}
   .term-body .warn{color:#F5A623}
+  .term-body .err{color:#F6584C}
   .term-body .log{color:var(--term-green)}
-  .term-body .cursor{display:inline-block; width:8px; height:1em; background:var(--term-ink); vertical-align:text-bottom; animation:blink 1.1s step-end infinite}
-  @keyframes blink{50%{opacity:0}}
 
   .legend{display:flex; flex-wrap:wrap; gap:.5rem 1rem; margin:1.1rem 0 0; font-family:var(--mono); font-size:.72rem; color:var(--muted)}
   .legend span{display:inline-flex; align-items:center; gap:.4rem}
   .legend .dot{width:9px; height:9px; border-radius:2px}
-
   .note{font-family:var(--mono); font-size:.74rem; color:var(--muted); margin-top:1.1rem; line-height:1.6}
   .note b{color:var(--ink); font-weight:600}
+  .note code{font-family:var(--mono)}
 
   a:focus-visible,.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
-  @media (max-width:720px){ .grid{grid-template-columns:1fr} }
+  @media (max-width:720px){ .grid{grid-template-columns:1fr} .panel-head .path{max-width:50%} }
   @media (prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important} }
 </style>
 </head>
@@ -123,8 +131,19 @@
 <div class="wrap">
   <div class="eyebrow"><a href="../index.html">&#8592; Portfolio</a> · File Organizer</div>
   <h1>File Organizer</h1>
-  <p class="lead">A Python CLI that sorts a messy folder into subfolders by file type. This demo runs the <b>real algorithm</b> in your browser — the same categorization, <code>--dry-run</code> preview, collision-safe renaming, and undo. The terminal on the right mirrors the actual script's output.</p>
-  <p class="sandbox"><span class="pill">Sandbox</span> The folder below is a made-up sample. This page never reads, moves, or touches any files on your computer — the real CLI does that when you run it locally on a folder you point it at.</p>
+  <p class="lead">A Python CLI that sorts a messy folder into subfolders by file type. This page runs the <b>real algorithm</b> — the same categorization, <code>--dry-run</code> preview, collision-safe renaming, and undo. Try the built-in sample, or pick a real folder and it will actually organize it.</p>
+
+  <p class="sandbox" id="sandboxNote"><span class="pill">Sandbox</span> The folder below is a made-up sample. In this mode nothing on your computer is read or touched. To organize your own files, use <b>Choose a real folder</b> below.</p>
+
+  <div class="mode-row">
+    <button class="btn btn-pick" id="pick">Choose a real folder on your computer…</button>
+    <span class="mode-note" id="modeNote"></span>
+  </div>
+
+  <div class="live-warn" id="liveWarn" hidden>
+    <span class="pill warnpill">Live</span>
+    <span><b>Live mode.</b> <b id="warnRun">Organize</b> will move real files inside <code id="warnPath">the folder</code> into category subfolders. <b>Dry run is on by default</b> — turn it off and confirm to move for real. Nothing is ever overwritten, and <b>Undo</b> reverses the last run. Grant access only to a folder you're comfortable rearranging (your Downloads is a good candidate).</span>
+  </div>
 
   <div class="controls">
     <button class="btn btn-primary" id="run">Organize</button>
@@ -152,12 +171,12 @@
 
   <div class="legend" id="legend"></div>
 
-  <p class="note"><b>Try this:</b> flip on <b>Dry run</b> and hit Organize — nothing moves, you just see the plan. Turn it off to sort for real, then <b>Add new downloads</b> (which drops in a file whose name is already taken) and Organize again to watch collision-safe renaming (<code style="font-family:var(--mono)">vacation_1.jpg</code>) in action. <b>Undo</b> reverses the last real run using its logged moves — exactly like the CLI.</p>
+  <p class="note"><b>Sample mode:</b> flip on <b>Dry run</b> and hit Organize to preview, or <b>Add new downloads</b> (drops in a name that's already taken) then Organize to see collision-safe renaming. <b>Real mode:</b> click <b>Choose a real folder</b>, grant access, preview with Dry run, then turn it off to actually sort your files. Requires Chrome or Edge, and a normal folder like <b>Downloads</b> (browsers block drive roots and system folders).</p>
 </div>
 
 <script>
 (function(){
-  // --- Real categorization rules, ported 1:1 from organize.py ---
+  // Category rules, ported 1:1 from organize.py
   var CATEGORIES = {
     Images:    [".jpg",".jpeg",".png",".gif",".bmp",".svg",".webp",".tiff"],
     Documents: [".pdf",".doc",".docx",".txt",".rtf",".odt",".md",".xlsx",".csv"],
@@ -168,163 +187,102 @@
   };
   var OTHER = "Other";
   var ORDER = ["Images","Documents","Audio","Video","Archives","Code",OTHER];
+  var CATSET = {}; ORDER.forEach(function(c){ CATSET[c] = true; });
   var COLORVAR = {
     Images:"--c-images", Documents:"--c-documents", Audio:"--c-audio", Video:"--c-video",
     Archives:"--c-archives", Code:"--c-code", Other:"--c-other"
   };
-  var PATH = "/Users/ryan/Downloads";
 
+  var SAMPLE_PATH = "~/Downloads";
   var INITIAL = [
     "vacation.jpg","screenshot.png","logo.svg",
     "resume.pdf","budget.xlsx","meeting-notes.md",
     "interview.mp3","demo-reel.mp4","project-backup.zip",
     "organize.py","app.js","keyfile.dat"
   ];
-  // Deterministic batch added by "Add new downloads" (vacation.jpg forces a collision).
   var EXTRA = ["vacation.jpg","tax-return.pdf","riff.flac"];
 
+  var mode = "sample";     // "sample" | "real"
+  var realDir = null;      // FileSystemDirectoryHandle
   var root, folders, lastLog;
+  var busy = false;
+  var supported = (typeof window.showDirectoryPicker === "function");
 
-  function ext(name){
-    var i = name.lastIndexOf(".");
-    return i < 0 ? "" : name.slice(i).toLowerCase();
-  }
+  // ---- shared pure logic ----
+  function ext(name){ var i = name.lastIndexOf("."); return i < 0 ? "" : name.slice(i).toLowerCase(); }
   function categorize(name){
     var e = ext(name);
     for(var c in CATEGORIES){ if(CATEGORIES[c].indexOf(e) >= 0) return c; }
     return OTHER;
   }
-  // Mirrors resolve_collision: report.pdf -> report_1.pdf -> report_2.pdf
   function resolveCollision(taken, name){
     if(taken.indexOf(name) < 0) return name;
-    var dot = name.lastIndexOf(".");
-    var stem = dot < 0 ? name : name.slice(0, dot);
-    var suf  = dot < 0 ? "" : name.slice(dot);
+    var dot = name.lastIndexOf("."), stem = dot < 0 ? name : name.slice(0,dot), suf = dot < 0 ? "" : name.slice(dot);
     var n = 1, cand;
     do { cand = stem + "_" + n + suf; n++; } while(taken.indexOf(cand) >= 0);
     return cand;
   }
   function stamp(){
-    var d = new Date();
-    function p(x){ return (x<10?"0":"")+x; }
+    var d = new Date(); function p(x){ return (x<10?"0":"")+x; }
     return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds());
   }
-
-  function reset(){
-    root = INITIAL.slice();
-    folders = {};
-    lastLog = null;
-    render();
-    termClear();
-    print('<span class="prompt">$</span> <span class="head">python organize.py ~/Downloads</span>');
-    print('<span class="rule">A messy folder with '+root.length+' files. Press <b class="head">Organize</b> to sort them.</span>');
-    document.getElementById("undo").disabled = true;
-  }
-
-  // --- Core operation, mirroring organize.py's organize() ---
-  function organize(dryRun){
-    if(root.length === 0){ flash("No files to organize."); return; }
-    var moves = [], pending = {}, summary = {};
+  // Build the move plan from the current `root` + `folders` (collision-safe).
+  function planMoves(){
+    var moves = [], pending = {};
     root.forEach(function(name){
       var cat = categorize(name);
       var taken = (folders[cat] || []).concat(pending[cat] || []);
       var dest = resolveCollision(taken, name);
       (pending[cat] = pending[cat] || []).push(dest);
       moves.push({from:name, cat:cat, to:dest});
-      summary[cat] = (summary[cat]||0) + 1;
     });
+    return moves;
+  }
 
-    termClear();
-    print('<span class="prompt">$</span> <span class="head">python organize.py ~/Downloads'+(dryRun?' <span class="flag">--dry-run</span>':'')+'</span>');
+  // ---- terminal ----
+  var termEl;
+  function termClear(){ termEl.innerHTML = ""; }
+  function print(html){
+    var line = document.createElement("div");
+    line.innerHTML = html === "" ? "&nbsp;" : html;
+    termEl.appendChild(line); termEl.scrollTop = termEl.scrollHeight;
+  }
+  function dash(){ return "------------------------------------------------------------"; }
+  function pad(s,n){ s = String(s); while(s.length < n) s += " "; return s; }
+  function padName(s){ return pad(s, 34); }
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  function printPlan(moves, dryRun, pathLabel, cmd){
+    var summary = {};
+    print('<span class="prompt">$</span> <span class="head">'+cmd+'</span>');
     print("");
-    print('<span class="head">'+(dryRun?"DRY RUN — no changes made":"Organizing")+':</span> '+PATH);
+    print('<span class="head">'+(dryRun?"DRY RUN — no changes made":"Organizing")+':</span> '+esc(pathLabel));
     print('<span class="rule">'+dash()+'</span>');
     moves.forEach(function(m){
-      var renamed = m.to !== m.from;
-      var line = "  " + padName(m.from) + " -> <span class=\"cat\">" + m.cat + "/</span>";
-      if(renamed) line += ' <span class="warn">(name taken → ' + m.to + ')</span>';
+      summary[m.cat] = (summary[m.cat]||0)+1;
+      var line = "  " + padName(esc(m.from)) + " -> <span class=\"cat\">" + m.cat + "/</span>";
+      if(m.to !== m.from) line += ' <span class="warn">(name taken → ' + esc(m.to) + ')</span>';
       print(line);
     });
     print('<span class="rule">'+dash()+'</span>');
     print('<span class="head">Summary:</span>');
-    ORDER.forEach(function(c){
-      if(summary[c]) print("  " + pad(c,12) + summary[c] + " file(s)");
-    });
+    ORDER.forEach(function(c){ if(summary[c]) print("  " + pad(c,12) + summary[c] + " file(s)"); });
     print("  " + pad("Total",12) + moves.length + " file(s)");
-
-    if(!dryRun){
-      // apply moves
-      moves.forEach(function(m){
-        (folders[m.cat] = folders[m.cat] || []).push(m.to);
-      });
-      root = [];
-      lastLog = moves.map(function(m){ return {from:PATH+"/"+m.from, to:PATH+"/"+m.cat+"/"+m.to}; });
-      var logName = "organize_log_" + stamp() + ".json";
-      print("");
-      print('<span class="log">Log saved to: '+logName+'</span>');
-      print('<span class="rule">To undo: python organize.py ~/Downloads <span class="flag">--undo</span> '+logName+'</span>');
-      document.getElementById("undo").disabled = false;
-    } else {
-      print("");
-      print('<span class="rule">Nothing was moved. Turn off <b class="head">Dry run</b> to sort for real.</span>');
-    }
-    render();
   }
 
-  // Mirrors undo(): reverse each logged move
-  function undo(){
-    if(!lastLog){ return; }
-    termClear();
-    print('<span class="prompt">$</span> <span class="head">python organize.py ~/Downloads <span class="flag">--undo</span> organize_log.json</span>');
-    print('<span class="head">Undoing '+lastLog.length+' move(s)...</span>');
-    print('<span class="rule">'+dash()+'</span>');
-    lastLog.forEach(function(entry){
-      var cat = entry.to.split("/").slice(-2)[0];
-      var current = entry.to.split("/").pop();
-      var original = entry.from.split("/").pop();
-      // remove from its category folder
-      if(folders[cat]){
-        var idx = folders[cat].indexOf(current);
-        if(idx >= 0) folders[cat].splice(idx,1);
-        if(folders[cat].length === 0) delete folders[cat];
-      }
-      var back = resolveCollision(root, original);
-      root.push(back);
-      print("  " + current + " -> back to original location");
-    });
-    print('<span class="rule">'+dash()+'</span>');
-    print('<span class="head">Undo complete.</span>');
-    lastLog = null;
-    document.getElementById("undo").disabled = true;
-    render();
-  }
-
-  function addDownloads(){
-    EXTRA.forEach(function(name){
-      root.push(resolveCollision(root, name));
-    });
-    render();
-    flash("Added "+EXTRA.length+" new files to ~/Downloads. Organize to sort them.");
-  }
-
-  // --- rendering ---
+  // ---- rendering ----
   function fileEl(name){
-    var cat = categorize(name);
-    var e = ext(name) || "—";
-    var dot = name.lastIndexOf(".");
-    var stem = dot < 0 ? name : name.slice(0,dot);
+    var cat = categorize(name), e = ext(name) || "—";
+    var dot = name.lastIndexOf("."), stem = dot < 0 ? name : name.slice(0,dot);
     var d = document.createElement("span");
     d.className = "file";
-    d.innerHTML = '<span class="dot" style="background:var('+COLORVAR[cat]+')"></span>'+
-      esc(stem)+'<span class="ext">'+esc(e)+'</span>';
+    d.innerHTML = '<span class="dot" style="background:var('+COLORVAR[cat]+')"></span>'+esc(stem)+'<span class="ext">'+esc(e)+'</span>';
     return d;
   }
   function render(){
     var host = document.getElementById("folder");
     host.innerHTML = "";
-    // root files first
     root.forEach(function(n){ host.appendChild(fileEl(n)); });
-    // then category subfolders in canonical order
     var any = false;
     ORDER.forEach(function(cat){
       var files = folders[cat];
@@ -333,53 +291,258 @@
       var sf = document.createElement("div");
       sf.className = "subfolder";
       var body = files.map(function(n){ return fileEl(n).outerHTML; }).join("");
-      sf.innerHTML =
-        '<div class="subfolder-head"><span class="swatch" style="background:var('+COLORVAR[cat]+')"></span>'+
-        cat+'/<span class="count">'+files.length+'</span></div>'+
-        '<div class="subfolder-body">'+body+'</div>';
+      sf.innerHTML = '<div class="subfolder-head"><span class="swatch" style="background:var('+COLORVAR[cat]+')"></span>'+
+        cat+'/<span class="count">'+files.length+'</span></div><div class="subfolder-body">'+body+'</div>';
       host.appendChild(sf);
     });
-    if(root.length === 0 && !any){
-      host.innerHTML = '<div class="empty-note">Folder is empty.</div>';
+    if(root.length === 0 && !any) host.innerHTML = '<div class="empty-note">Folder is empty.</div>';
+  }
+  function setPath(p){ document.getElementById("path").textContent = p; }
+  function setBusy(b){
+    busy = b;
+    ["run","undo","add","reset","pick"].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.disabled = b || (id==="undo" && !lastLog);
+    });
+    document.getElementById("dry").disabled = b;
+  }
+
+  // ======================= SAMPLE MODE =======================
+  function sampleReset(){
+    mode = "sample"; realDir = null;
+    root = INITIAL.slice(); folders = {}; lastLog = null;
+    document.getElementById("sandboxNote").hidden = false;
+    document.getElementById("liveWarn").hidden = true;
+    document.getElementById("add").hidden = false;
+    document.getElementById("undo").disabled = true;
+    setPath(SAMPLE_PATH);
+    render(); termClear();
+    print('<span class="prompt">$</span> <span class="head">python organize.py ~/Downloads</span>');
+    print('<span class="rule">A messy sample folder with '+root.length+' files. Press <b class="head">Organize</b> to sort them.</span>');
+  }
+  function sampleOrganize(dryRun){
+    if(root.length === 0){ print('<span class="rule">No files to organize.</span>'); return; }
+    var moves = planMoves();
+    termClear();
+    printPlan(moves, dryRun, "/Users/ryan/Downloads",
+      "python organize.py ~/Downloads" + (dryRun ? ' <span class="flag">--dry-run</span>' : ''));
+    if(!dryRun){
+      moves.forEach(function(m){ (folders[m.cat] = folders[m.cat] || []).push(m.to); });
+      root = [];
+      lastLog = moves.slice();
+      var logName = "organize_log_" + stamp() + ".json";
+      print(""); print('<span class="log">Log saved to: '+logName+'</span>');
+      print('<span class="rule">To undo: python organize.py ~/Downloads <span class="flag">--undo</span> '+logName+'</span>');
+      document.getElementById("undo").disabled = false;
+    } else {
+      print(""); print('<span class="rule">Nothing was moved. Turn off <b class="head">Dry run</b> to sort for real.</span>');
+    }
+    render();
+  }
+  function sampleUndo(){
+    if(!lastLog) return;
+    termClear();
+    print('<span class="prompt">$</span> <span class="head">python organize.py ~/Downloads <span class="flag">--undo</span> organize_log.json</span>');
+    print('<span class="head">Undoing '+lastLog.length+' move(s)...</span>');
+    print('<span class="rule">'+dash()+'</span>');
+    lastLog.forEach(function(m){
+      if(folders[m.cat]){
+        var idx = folders[m.cat].indexOf(m.to);
+        if(idx >= 0) folders[m.cat].splice(idx,1);
+        if(folders[m.cat].length === 0) delete folders[m.cat];
+      }
+      root.push(resolveCollision(root, m.from));
+      print("  " + esc(m.to) + " -> back to original location");
+    });
+    print('<span class="rule">'+dash()+'</span>'); print('<span class="head">Undo complete.</span>');
+    lastLog = null; document.getElementById("undo").disabled = true; render();
+  }
+  function sampleAdd(){
+    EXTRA.forEach(function(name){ root.push(resolveCollision(root, name)); });
+    render();
+    print('<span class="rule">Added '+EXTRA.length+' new files to ~/Downloads. Organize to sort them.</span>');
+  }
+
+  // ======================= REAL MODE (File System Access API) =======================
+  async function listDirFileNames(dirHandle){
+    var names = [];
+    for await (var entry of dirHandle.values()){ if(entry.kind === "file") names.push(entry.name); }
+    return names;
+  }
+  async function scanReal(){
+    root = []; folders = {};
+    for await (var entry of realDir.values()){
+      if(entry.name.charAt(0) === ".") continue;          // skip hidden (matches organize.py)
+      if(entry.kind === "directory"){
+        if(CATSET[entry.name]){
+          var files = await listDirFileNames(entry);
+          if(files.length) folders[entry.name] = files;
+        }
+        continue;                                          // skip directories as sources
+      }
+      root.push(entry.name);
     }
   }
+  // Plan against the REAL destination folders' current contents.
+  async function planMovesReal(){
+    var moves = [], pending = {}, existing = {};
+    for(var i=0;i<root.length;i++){
+      var name = root[i], cat = categorize(name);
+      if(!(cat in existing)) existing[cat] = folders[cat] ? folders[cat].slice() : [];
+      var taken = existing[cat].concat(pending[cat] || []);
+      var dest = resolveCollision(taken, name);
+      (pending[cat] = pending[cat] || []).push(dest);
+      moves.push({from:name, cat:cat, to:dest});
+    }
+    return moves;
+  }
+  async function moveFile(srcDir, fileHandle, srcName, destDir, destName){
+    if(typeof fileHandle.move === "function"){
+      await fileHandle.move(destDir, destName);           // Chrome 111+: real move
+    } else {
+      var file = await fileHandle.getFile();               // fallback: copy + delete
+      var dest = await destDir.getFileHandle(destName, {create:true});
+      var w = await dest.createWritable();
+      await w.write(file); await w.close();
+      await srcDir.removeEntry(srcName);
+    }
+  }
+  async function pickFolder(){
+    if(!supported){
+      print('<span class="err">This browser can\'t open a real folder — the File System Access API needs Chrome or Edge (desktop).</span>');
+      return;
+    }
+    if(location.protocol === "file:"){
+      print('<span class="warn">You\'re running this from a local file, where browsers block folder access (that "contains system files" error). Use the hosted version instead: <b class="head">ryanwien.github.io/Portfolio2026/file-organizer/demo.html</b></span>');
+    }
+    var handle;
+    try {
+      handle = await window.showDirectoryPicker({ mode: "readwrite" });
+    } catch(e){
+      if(e && (e.name === "AbortError")) return;   // user closed / cancelled the picker
+      // SecurityError, blocked system folder, or anything else
+      print('<span class="err">Couldn\'t open that folder: '+esc(e && (e.message || e.name) || "blocked by the browser")+'.</span>');
+      print('<span class="rule">Browsers block drive roots (C:\\), the Desktop, and system folders. Pick a normal folder like <b class="head">Downloads</b> or <b class="head">Documents</b> — or make a test folder and drop a few files in it.</span>');
+      return;
+    }
+    // Confirm read/write permission
+    try {
+      if(handle.requestPermission){
+        var perm = await handle.requestPermission({ mode: "readwrite" });
+        if(perm !== "granted"){ print('<span class="err">Permission not granted — no files were touched.</span>'); return; }
+      }
+    } catch(e){}
+    mode = "real"; realDir = handle; lastLog = null;
+    setBusy(true);
+    try { await scanReal(); } catch(e){ print('<span class="err">Could not read folder: '+esc(e.message)+'</span>'); setBusy(false); sampleReset(); return; }
+    document.getElementById("sandboxNote").hidden = true;
+    document.getElementById("liveWarn").hidden = false;
+    document.getElementById("add").hidden = true;
+    document.getElementById("warnPath").textContent = handle.name + "/";
+    document.getElementById("dry").checked = true;         // safety: default to dry-run
+    setPath(handle.name + "/");
+    render(); termClear();
+    print('<span class="prompt">$</span> <span class="head">python organize.py '+esc(handle.name)+' <span class="flag">--dry-run</span></span>');
+    print('<span class="rule">Connected to <b class="head">'+esc(handle.name)+'/</b> — '+root.length+' file(s) at the top level. Press <b class="head">Organize</b> to preview (Dry run is on).</span>');
+    setBusy(false);
+  }
+  async function realOrganize(dryRun){
+    if(root.length === 0){ print('<span class="rule">No files to organize in '+esc(realDir.name)+'/.</span>'); return; }
+    var moves = await planMovesReal();
+    if(!dryRun){
+      var ok = window.confirm('Move ' + moves.length + ' file(s) into category subfolders inside "' + realDir.name +
+        '"?\n\nNothing is overwritten, and you can reverse this with Undo.');
+      if(!ok){ print('<span class="rule">Cancelled — no files were moved.</span>'); return; }
+    }
+    termClear();
+    printPlan(moves, dryRun, realDir.name + "/",
+      "python organize.py " + esc(realDir.name) + (dryRun ? ' <span class="flag">--dry-run</span>' : ''));
+    if(dryRun){
+      print(""); print('<span class="rule">Nothing was moved. Turn off <b class="head">Dry run</b> and confirm to organize for real.</span>');
+      return;
+    }
+    setBusy(true);
+    var done = [];
+    try {
+      for(var i=0;i<moves.length;i++){
+        var m = moves[i];
+        var fh = await realDir.getFileHandle(m.from);
+        var destDir = await realDir.getDirectoryHandle(m.cat, { create: true });
+        await moveFile(realDir, fh, m.from, destDir, m.to);
+        done.push({ cat:m.cat, finalName:m.to, originalName:m.from });
+      }
+    } catch(e){
+      print('<span class="err">Stopped: '+esc(e.message)+' ('+done.length+' of '+moves.length+' moved).</span>');
+    }
+    lastLog = done.length ? done : null;
+    await scanReal(); render();
+    print("");
+    print('<span class="log">Moved '+done.length+' file(s) inside '+esc(realDir.name)+'/.</span>');
+    print('<span class="rule">Press <b class="head">Undo last run</b> to reverse this.</span>');
+    document.getElementById("undo").disabled = !lastLog;
+    setBusy(false);
+  }
+  async function realUndo(){
+    if(!lastLog) return;
+    setBusy(true);
+    termClear();
+    print('<span class="head">Undoing '+lastLog.length+' move(s) in '+esc(realDir.name)+'/...</span>');
+    print('<span class="rule">'+dash()+'</span>');
+    var rootNames = await listDirFileNames(realDir);
+    var undone = 0;
+    try {
+      for(var i=0;i<lastLog.length;i++){
+        var entry = lastLog[i];
+        var destDir = await realDir.getDirectoryHandle(entry.cat);
+        var fh = await destDir.getFileHandle(entry.finalName);
+        var back = resolveCollision(rootNames, entry.originalName);
+        await moveFile(destDir, fh, entry.finalName, realDir, back);
+        rootNames.push(back);
+        print("  " + esc(entry.finalName) + " -> back to original location");
+        undone++;
+      }
+    } catch(e){
+      print('<span class="err">Stopped: '+esc(e.message)+' ('+undone+' of '+lastLog.length+' undone).</span>');
+    }
+    print('<span class="rule">'+dash()+'</span>'); print('<span class="head">Undo complete.</span>');
+    lastLog = null;
+    await scanReal(); render();
+    document.getElementById("undo").disabled = true;
+    setBusy(false);
+  }
 
-  // --- terminal helpers ---
-  var termEl;
-  function termClear(){ termEl.innerHTML = ""; }
-  function print(html){
-    var line = document.createElement("div");
-    line.innerHTML = html === "" ? "&nbsp;" : html;
-    termEl.appendChild(line);
-    termEl.scrollTop = termEl.scrollHeight;
+  // ---- dispatchers ----
+  function onRun(){
+    if(busy) return;
+    var dry = document.getElementById("dry").checked;
+    if(mode === "real") realOrganize(dry); else sampleOrganize(dry);
   }
-  function flash(msg){
-    print('<span class="rule">'+esc(msg)+'</span>');
-    termEl.scrollTop = termEl.scrollHeight;
-  }
-  function dash(){ return "------------------------------------------------------------"; }
-  function pad(s,n){ s = String(s); while(s.length < n) s += " "; return s; }
-  function padName(s){ return pad(s, 34); }
-  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function onUndo(){ if(busy) return; if(mode === "real") realUndo(); else sampleUndo(); }
+  function onReset(){ if(busy) return; sampleReset(); }
 
   function buildLegend(){
-    var el = document.getElementById("legend");
-    el.innerHTML = ORDER.map(function(c){
+    document.getElementById("legend").innerHTML = ORDER.map(function(c){
       return '<span><span class="dot" style="background:var('+COLORVAR[c]+')"></span>'+c+'</span>';
     }).join("");
   }
 
-  // --- wire up ---
   document.addEventListener("DOMContentLoaded", function(){
     termEl = document.getElementById("term");
     buildLegend();
-    document.getElementById("run").addEventListener("click", function(){
-      organize(document.getElementById("dry").checked);
-    });
-    document.getElementById("undo").addEventListener("click", undo);
-    document.getElementById("add").addEventListener("click", addDownloads);
-    document.getElementById("reset").addEventListener("click", reset);
-    reset();
+    var note = document.getElementById("modeNote");
+    if(!supported){
+      note.textContent = "Real-folder mode needs Chrome or Edge — sample mode works everywhere.";
+      document.getElementById("pick").disabled = true;
+    } else if(location.protocol === "file:"){
+      note.innerHTML = "Opened locally — folder access is blocked here. Use the hosted site for real mode.";
+    } else {
+      note.textContent = "Pick a normal folder like Downloads. Nothing leaves your device.";
+    }
+    document.getElementById("run").addEventListener("click", onRun);
+    document.getElementById("undo").addEventListener("click", onUndo);
+    document.getElementById("add").addEventListener("click", function(){ if(!busy) sampleAdd(); });
+    document.getElementById("reset").addEventListener("click", onReset);
+    document.getElementById("pick").addEventListener("click", function(){ if(!busy) pickFolder(); });
+    sampleReset();
   });
 })();
 </script>
