@@ -26,5 +26,6 @@ machine learning (DeepLearning.AI).
 - **[Security Log Analyzer](https://github.com/ryanwien/Portfolio2026/tree/main/security-log-analyzer)** ([▶ live demo](https://ryanwien.github.io/Portfolio2026/security-log-analyzer/demo.html)) — a SIEM-style detection engine that turns raw authentication logs into ranked, MITRE ATT&CK-tagged alerts (brute force, password spraying, impossible travel, port scans), with a live SOC console and tunable detection thresholds.
 
 ## 📫 Reach me
-- Email: ryanwien3d@gmail.com
+
+- Email: [ryanwien3d@gmail.com](mailto:ryanwien3d@gmail.com)
 - LinkedIn: [linkedin.com/in/ryanwien3d](https://www.linkedin.com/in/ryanwien3d)
