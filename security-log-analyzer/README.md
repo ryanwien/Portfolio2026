@@ -7,6 +7,8 @@ working through the **Microsoft Cybersecurity Analyst** certificate.
 
 **▶ [Live demo](https://ryanwien.github.io/Portfolio2026/security-log-analyzer/demo.html)** — a SOC console running the real detection rules in your browser: ranked alert cards, a tunable brute-force threshold, and click-to-trace from any alert back to the raw events.
 
+![Security Log Analyzer SOC console](screenshot.png)
+
 ## What it does
 
 Point it at a log of login/probe events and it flags the patterns that matter,
