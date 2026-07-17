@@ -55,8 +55,8 @@ Linux/macOS `sshd` auth log directly, and runs the same detections client-side.
 powershell -ExecutionPolicy Bypass -File collect_windows.ps1 -Hours 168
 python analyze.py data/windows_events.jsonl
 
-# Linux (sshd auth log):
-bash collect_linux.sh /var/log/auth.log > events.jsonl
+# Linux (journald, or /var/log/auth.log on older distros):
+sudo journalctl -u ssh --since "7 days ago" | bash collect_linux.sh - > events.jsonl
 python3 analyze.py events.jsonl
 
 # macOS (sshd events from the unified log):
