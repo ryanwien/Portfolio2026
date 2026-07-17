@@ -16,7 +16,7 @@
 DAYS="${1:-7}"
 
 log show --last "${DAYS}d" --predicate 'process == "sshd"' --style syslog 2>/dev/null | awk '
-/sshd\[[0-9]+\]:.*(Failed|Accepted) password for/ {
+/sshd(-session)?\[[0-9]+\]:.*(Failed|Accepted) password for/ {
   date=$1; time=$2; sub(/\..*/, "", time);          # 14:02:11.123-0700 -> 14:02:11
   ts=date "T" time "Z";                              # treat local time as UTC (demo simplification)
   status="fail"; if ($0 ~ /Accepted/) status="success";

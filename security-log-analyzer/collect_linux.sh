@@ -15,7 +15,7 @@ YEAR="$(date +%Y)"
 awk -v year="$YEAR" '
 BEGIN { split("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec", M, " ");
         for (i in M) mon[M[i]] = sprintf("%02d", i) }
-/sshd\[[0-9]+\]:.*(Failed|Accepted) password for/ {
+/sshd(-session)?\[[0-9]+\]:.*(Failed|Accepted) password for/ {
   ts = sprintf("%s-%s-%02dT%sZ", year, mon[$1], $2, $3);
   status = "fail"; if ($0 ~ /Accepted/) status = "success";
   user = "-"; ip = "-"; port = 0;
