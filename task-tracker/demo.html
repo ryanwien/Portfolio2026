@@ -16,6 +16,9 @@
             background: var(--bg); color: var(--text); line-height: 1.5; padding: 2rem 1rem;
         }
         .container { max-width: 640px; margin: 0 auto; }
+        .backlink { display: inline-block; color: var(--text-muted); text-decoration: none;
+            font-size: 0.85rem; margin-bottom: 1rem; }
+        .backlink:hover { color: var(--accent); }
         header { text-align: center; margin-bottom: 0.5rem; }
         h1 { font-size: 2rem; color: var(--accent); }
         .subtitle { color: var(--text-muted); font-size: 0.9rem; }
@@ -84,6 +87,7 @@
 </head>
 <body>
     <div class="container">
+        <a class="backlink" href="../index.html">&#8592; Portfolio</a>
         <header>
             <h1>Task Tracker</h1>
             <p class="subtitle">A full-stack task management app</p>
