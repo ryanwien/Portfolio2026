@@ -3,3 +3,10 @@ __pycache__/
 venv/
 .venv/
 .DS_Store
+
+# C++ build output
+cpp/build/
+*.obj
+*.exe
+*.pdb
+*.ilk

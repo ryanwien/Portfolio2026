@@ -30,7 +30,7 @@ the reasoning matters more than the line count.
 | **[Security Log Analyzer](security-log-analyzer/)** <br> [▶ live demo](https://ryanwien.github.io/Portfolio2026/security-log-analyzer/demo.html) | A SIEM-style detection engine turning raw auth logs into ranked, MITRE ATT&CK-tagged alerts — brute force, password spraying, impossible travel, port scans. Runs on your own logs. | C# · Python · JS |
 | **[Task Tracker](task-tracker/)** <br> [▶ live demo](https://ryanwien.github.io/Portfolio2026/task-tracker/demo.html) | A task management app with full CRUD, server-side validation and SQL-injection protection, behind a REST API. | C# · Python · JS |
 | **[File Organizer](file-organizer/)** <br> [▶ live demo](https://ryanwien.github.io/Portfolio2026/file-organizer/demo.html) | Sorts a folder by file type with dry-run preview, collision-safe renaming and undo. The browser demo can organize a real folder on your machine. | C++20 · Python · JS |
-| **[House Price Prediction](ml-housing/)** <br> [▶ live demo](https://ryanwien.github.io/Portfolio2026/ml-housing/demo.html) | Supervised regression predicting sale price from six features, R² = 0.94 on held-out data. The demo runs the real trained weights. | Python · JS |
+| **[House Price Prediction](ml-housing/)** <br> [▶ live demo](https://ryanwien.github.io/Portfolio2026/ml-housing/demo.html) | Supervised regression predicting sale price from six features, R² = 0.94 on held-out data. The demo runs the real trained weights. | C++20 · Python · JS |
 
 ## ✅ How this repo is verified
 
@@ -44,6 +44,7 @@ that silently diverges is worse than no port at all.
 | Order Book | Both replay a shared [`reference_scenario.txt`](matching-engine/reference_scenario.txt); every trade and the final book **match exactly** | 56 |
 | File Organizer | Both run over identical folders and produce **identical directory trees**, collision renames included | 45 |
 | Task Tracker | The C# API implements the Flask contract exactly — same routes, same JSON field names, same error strings | 22 |
+| House Prices | Both train on a **frozen train/test split** and agree on every coefficient to four decimals, R² to nine | 46 |
 
 Holding those equivalences honest surfaced details that are easy to get wrong:
 Python dictionaries iterate in insertion order and the detection rules depend on
