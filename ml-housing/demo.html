@@ -127,6 +127,8 @@
   .sc-pt{fill:var(--accent); fill-opacity:.5}
   .sc-tick{font-family:var(--mono); font-size:9px; fill:var(--muted)}
   .sc-title{font-family:var(--mono); font-size:10px; fill:var(--muted)}
+  .sc-you{stroke:var(--accent); stroke-width:1.5; stroke-dasharray:5 3}
+  .sc-you-label{font-family:var(--mono); font-size:9.5px; font-weight:600; fill:var(--accent)}
   .caption{font-family:var(--mono); font-size:.72rem; color:var(--muted); margin-top:.7rem; line-height:1.55}
 
   .note{font-family:var(--mono); font-size:.74rem; color:var(--muted); margin-top:1.3rem; line-height:1.65}
@@ -212,7 +214,7 @@
   <div class="section-label"><span>Actual vs. predicted</span><span>400 test homes</span></div>
   <div class="scatter-wrap">
     <div id="scatter"></div>
-    <p class="caption">Each dot is a test home the model never saw during training. The dashed line is a perfect prediction, so the tighter the cloud hugs it, the better the fit. Here it explains <b>94%</b> of the variance in price.</p>
+    <p class="caption">Each dot is a test home the model never saw during training. The grey diagonal is a perfect prediction, so the tighter the cloud hugs it, the better the fit. Here it explains <b>94%</b> of the variance in price. The coloured line tracks the home you configured above: it has no actual sale price to plot against, so it sits on the predicted axis and moves as you drag.</p>
   </div>
 
   <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways, gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>), then evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
@@ -258,6 +260,7 @@
 
   var state = {};
   var touched = false;
+  var scatterScale = null;   // set by buildScatter, used to place the prediction line
   M.features.forEach(function(f){ state[f] = META[f].def; });
 
   function predict(){
@@ -289,6 +292,7 @@
     M.features.forEach(function(f){ document.getElementById("v_"+f).textContent = META[f].fmt(state[f]); });
     var p = predict();
     document.getElementById("price").textContent = usd(p);
+    updateScatterMarker(p);
     var rmse = M.metrics.test.rmse;
     document.getElementById("range").textContent = "typical range " + usd(p - rmse) + " – " + usd(p + rmse);
     var med = M.priceStats.median;
@@ -336,6 +340,8 @@
     lo = Math.floor(lo/100000)*100000; hi = Math.ceil(hi/100000)*100000;
     function x(v){ return padL + (v - lo)/(hi - lo) * (W - padL - padR); }
     function y(v){ return (H - padB) - (v - lo)/(hi - lo) * (H - padB - padT); }
+    // Kept so update() can move the "your prediction" line as the sliders change.
+    scatterScale = {y: y, xLo: x(lo), xHi: x(hi), lo: lo, hi: hi};
     var svg = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Scatter plot of actual versus predicted price">';
     // gridlines + ticks
     for(var t=lo; t<=hi; t+=100000){
@@ -351,11 +357,32 @@
     svg += '<line class="sc-axis" x1="'+x(lo)+'" y1="'+y(lo)+'" x2="'+x(lo)+'" y2="'+y(hi)+'"/>';
     // points
     pts.forEach(function(p){ svg += '<circle class="sc-pt" cx="'+x(p.actual).toFixed(1)+'" cy="'+y(p.predicted).toFixed(1)+'" r="3"/>'; });
+    // "Your prediction" marker. The configured home has a predicted price but no
+    // actual one, so it can't be a dot in the cloud — it's a line on the
+    // predicted axis. Where it crosses the diagonal is the actual price that
+    // would make it a perfect prediction.
+    svg += '<line class="sc-you" id="sc-you-line" x1="'+x(lo)+'" y1="'+y(lo)+'" x2="'+x(hi)+'" y2="'+y(lo)+'"/>';
+    svg += '<text class="sc-you-label" id="sc-you-label" x="'+(x(hi)-2)+'" y="'+y(lo)+'" text-anchor="end">your prediction</text>';
     // axis titles
     svg += '<text class="sc-title" x="'+((x(lo)+x(hi))/2)+'" y="'+(H-8)+'" text-anchor="middle">Actual price →</text>';
     svg += '<text class="sc-title" transform="translate(16,'+((y(lo)+y(hi))/2)+') rotate(-90)" text-anchor="middle">Predicted price →</text>';
     svg += '</svg>';
     document.getElementById("scatter").innerHTML = svg;
+  }
+
+  // Slide the "your prediction" line to the current predicted price.
+  function updateScatterMarker(p){
+    if(!scatterScale) return;
+    var line = document.getElementById("sc-you-line"),
+        label = document.getElementById("sc-you-label");
+    if(!line || !label) return;
+    // Clamp to the plotted range so an extreme configuration parks the line at
+    // the edge rather than drawing outside the axes.
+    var clamped = Math.min(Math.max(p, scatterScale.lo), scatterScale.hi);
+    var yy = scatterScale.y(clamped);
+    line.setAttribute("y1", yy); line.setAttribute("y2", yy);
+    // Flip the label below the line near the top edge so it can't be clipped.
+    label.setAttribute("y", yy - 4 < 14 ? yy + 12 : yy - 4);
   }
 
   // Force sliders back to defaults, unless the user has already dragged one.
