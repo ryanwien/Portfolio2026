@@ -39,6 +39,13 @@
   }
 }
 
+/* Paint the root element, not just body. Body's background normally propagates
+   to the canvas, but that stops covering the full area if anything ever makes
+   the page scroll horizontally — the leftover strip renders as bare white.
+   Setting it here means the canvas is painted whatever else happens. Each page
+   re-points --site-bg to its own palette, so this follows the page's theme. */
+html{background:var(--site-bg)}
+
 /* ---- top nav ------------------------------------------------------------ */
 
 .site-nav{
