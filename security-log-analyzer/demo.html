@@ -26,6 +26,13 @@
     --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
     --crit:#DC2626; --high:#EA580C; --med:#D97706; --low:#2563EB;
     --ok:#0E9F6E;
+    /* The vivid severity colours above carry borders and the large tile
+       numerals, which are exempt from the 4.5:1 small-text minimum. Filled
+       badges and small status text need their own values: darker backgrounds
+       in light mode, and dark text on the bright badges in dark mode. */
+    --sev-ink:#FFFFFF;
+    --crit-bg:#DC2626; --high-bg:#C2410C; --med-bg:#A45A05; --low-bg:#2563EB;
+    --st-fail:#C2410C;
     --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
     --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
     --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
@@ -35,6 +42,9 @@
       --bg:#0E1218; --surface:#151B24; --sunken:#10151C; --ink:#EAEEF3; --muted:#8A95A3;
       --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-ink:#0E1218;
       --crit:#F87171; --high:#FB923C; --med:#FBBF24; --low:#60A5FA; --ok:#34D399;
+      --sev-ink:#0E1218;
+      --crit-bg:#F87171; --high-bg:#FB923C; --med-bg:#FBBF24; --low-bg:#60A5FA;
+      --st-fail:#FB923C;
     }
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -102,8 +112,8 @@
   .alert.crit{border-left-color:var(--crit)} .alert.high{border-left-color:var(--high)}
   .alert.med{border-left-color:var(--med)} .alert.low{border-left-color:var(--low)}
   .alert-top{display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.35rem}
-  .sev{font-family:var(--mono); font-size:.62rem; font-weight:600; letter-spacing:.06em; padding:.13rem .4rem; border-radius:3px; color:#fff}
-  .sev.crit{background:var(--crit)} .sev.high{background:var(--high)} .sev.med{background:var(--med)} .sev.low{background:var(--low)}
+  .sev{font-family:var(--mono); font-size:.62rem; font-weight:600; letter-spacing:.06em; padding:.13rem .4rem; border-radius:3px; color:var(--sev-ink)}
+  .sev.crit{background:var(--crit-bg)} .sev.high{background:var(--high-bg)} .sev.med{background:var(--med-bg)} .sev.low{background:var(--low-bg)}
   .atk{font-family:var(--mono); font-size:.64rem; color:var(--muted); border:1px solid var(--line-strong); border-radius:3px; padding:.12rem .38rem; margin-left:auto}
   .alert-title{font-family:var(--display); font-weight:600; font-size:1.02rem}
   .alert-detail{font-size:.85rem; color:var(--muted); margin-top:.2rem; word-break:break-word}
@@ -119,7 +129,7 @@
   .logrow .t{color:var(--muted)}
   .logrow .who{color:var(--ink); overflow:hidden; text-overflow:ellipsis}
   .logrow .st{font-weight:600; text-align:right}
-  .logrow .st.success{color:var(--ok)} .logrow .st.fail{color:var(--high)} .logrow .st.blocked{color:var(--muted)}
+  .logrow .st.success{color:var(--ok)} .logrow .st.fail{color:var(--st-fail)} .logrow .st.blocked{color:var(--muted)}
   .logrow.hot{background:color-mix(in srgb, var(--high) 16%, transparent)}
   .log.filtered .logrow:not(.hot){opacity:.25}
 
@@ -566,7 +576,11 @@
     }).join("");
   }
 
-  document.addEventListener("DOMContentLoaded", function(){
+  // Run immediately rather than on DOMContentLoaded. This script tag is the
+  // last thing in <body>, so every element below already exists, and waiting
+  // let the browser paint the empty panels first — the alerts, event stream,
+  // and tiles then dropped in and shifted the page (0.248 cumulative shift).
+  (function init(){
     document.getElementById("evCount").textContent = SAMPLE.length;
     runDiagnostics();
     var bf = document.getElementById("bf");
@@ -577,7 +591,7 @@
       setEvents(SAMPLE, "sample", "Sample log — " + SAMPLE.length + " synthetic events");
     });
     setEvents(SAMPLE, "sample", "Sample log — " + SAMPLE.length + " synthetic events");
-  });
+  })();
 })();
 </script>
 </body>
