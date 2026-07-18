@@ -137,7 +137,11 @@
   /* Touch only: 20px tall is under a finger's width. The border and label stay
      put; only the padding grows. */
   @media (pointer:coarse){ .stream-head button{padding:.35rem .6rem} }
-  .log{font-family:var(--mono); font-size:.7rem; line-height:1.45; max-height:560px; overflow:auto; padding:.35rem 0}
+  /* An event stream should scroll in place, but the flat 560px cap made it 93%
+     of a short window, so a wheel scroll almost anywhere landed in the log and
+     the page underneath wouldn't move until ~4000px of events had gone by.
+     Tying the cap to the viewport keeps page around it to scroll on. */
+  .log{font-family:var(--mono); font-size:.7rem; line-height:1.45; max-height:min(560px,60vh); overflow:auto; padding:.35rem 0}
   .logrow{display:grid; grid-template-columns:58px 1fr auto; gap:.5rem; padding:.12rem .8rem; white-space:nowrap; color:var(--muted)}
   .logrow .t{color:var(--muted)}
   .logrow .who{color:var(--ink); overflow:hidden; text-overflow:ellipsis}
