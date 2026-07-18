@@ -3,3 +3,10 @@ __pycache__/
 organize_log_*.json
 testdir/
 .DS_Store
+
+# C++ build output
+cpp/build/
+*.obj
+*.exe
+*.pdb
+*.ilk
