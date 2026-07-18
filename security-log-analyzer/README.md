@@ -47,6 +47,9 @@ logs** — two ways, both fully local (nothing is ever uploaded):
 detects your OS and browser, shows the exact export command, and has a **Load
 your own log** button. It reads JSON Lines (from the collectors below) or a raw
 Linux/macOS `sshd` auth log directly, and runs the same detections client-side.
+This works on **iOS and Android** too — a phone can't export its *own* system
+logs (the OS sandboxes them), but it can analyze a log you collect elsewhere and
+move over via AirDrop, Drive, or Files.
 
 **On the command line** — collect your logs to JSON Lines, then analyze:
 
