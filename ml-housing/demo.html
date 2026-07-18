@@ -207,6 +207,7 @@
     <div class="tile"><div class="m" id="mMAE">—</div><div class="k">MAE</div><div class="d">avg. abs. error</div></div>
     <div class="tile"><div class="m" id="mSplit">—</div><div class="k">Train / Test</div><div class="d">80 / 20 split</div></div>
   </div>
+  <p class="caption">These score the trained model against the 400 held-out homes, so they stay fixed as you move the sliders. They describe the model itself, not the home you configured.</p>
 
   <div class="section-label"><span>What the model learned</span><span>effect on price</span></div>
   <div class="infl" id="infl"></div>
@@ -329,7 +330,7 @@
     host.insertAdjacentHTML("beforeend",
       '<p class="infl-note">Bars show each feature\'s effect per one standard deviation, so they\'re directly comparable. '+
       '<b style="color:var(--ink)">Square footage</b> dominates; <b style="color:var(--ink)">age</b> is the only one that pushes price down. '+
-      'Values on the right are the raw per-unit weights the model learned.</p>');
+      'Values on the right are the raw per-unit weights the model learned during training, so these bars stay fixed too.</p>');
   }
 
   function buildScatter(){
