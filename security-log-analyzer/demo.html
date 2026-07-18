@@ -4,7 +4,17 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Security Log Analyzer — Live Demo</title>
-<meta name="description" content="A SIEM-style SOC console that turns raw auth logs into MITRE ATT&CK-tagged alerts — brute force, password spraying, impossible travel, port scans — running the real detection engine in your browser." />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta name="description" content="A SIEM-style detection engine turning raw auth logs into ranked, MITRE ATT&amp;CK-tagged alerts. Load your own log; nothing is uploaded." />
+<meta property="og:title" content="Security Log Analyzer — Ryan Wien" />
+<meta property="og:description" content="A SIEM-style detection engine turning raw auth logs into ranked, MITRE ATT&amp;CK-tagged alerts. Load your own log; nothing is uploaded." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/security-log-analyzer/demo.html" />
+<meta property="og:image" content="https://ryanwien.github.io/Portfolio2026/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://ryanwien.github.io/Portfolio2026/og-image.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -12,7 +22,7 @@
 <style>
   :root{
     --site-w:1000px;
-    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
+    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#5C6673;
     --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
     --crit:#DC2626; --high:#EA580C; --med:#D97706; --low:#2563EB;
     --ok:#0E9F6E;
@@ -126,7 +136,7 @@
 </style>
 </head>
 <body>
-<nav class="site-nav">
+<nav class="site-nav" aria-label="Site">
   <div class="site-nav-inner">
     <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
     <div class="site-links">
@@ -139,7 +149,7 @@
   </div>
 </nav>
 
-<div class="wrap">
+<main class="wrap">
   <div class="eyebrow">Security</div>
   <h1>Security Log Analyzer</h1>
   <p class="lead">A SIEM-style detection engine that turns raw authentication logs into ranked, <b>MITRE ATT&amp;CK</b>-tagged alerts — the core of a SOC analyst's day. This page runs the <b>real detection rules</b> in your browser over a sample day of <b id="evCount">…</b> synthetic log events. Adjust the detection threshold and watch the alerts recompute, then click an alert to trace it back to the raw events.</p>
@@ -193,7 +203,7 @@
 
   <p class="note"><b>How it works:</b> the same rules run here and in the Python CLI (<code>analyze.py</code>) — brute force and its success (compromise), password spraying, port scanning, impossible travel (geo-velocity), and off-hours privileged access — each mapped to a MITRE ATT&amp;CK technique. Logs are synthetic; no real data is involved. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/security-log-analyzer">source and detection write-up</a>.</p>
 
-  <div class="section-label"><span>How it works</span><span>Behind the demo</span></div>
+  <h2 class="section-label"><span>How it works</span><span>Behind the demo</span></h2>
   <div class="site-how">
     <div class="site-card">
       <div class="site-card-n">01</div>
@@ -211,7 +221,7 @@
       <p>Each alert carries a severity and a MITRE ATT&amp;CK technique ID, so a genuine compromise sorts above the noise and speaks the language every SOC uses.</p>
     </div>
   </div>
-</div>
+</main>
 
 <footer class="site-footer">
   <div class="site-footer-inner">

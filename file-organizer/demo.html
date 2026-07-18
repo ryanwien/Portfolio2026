@@ -4,7 +4,17 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>File Organizer — Live Demo</title>
-<meta name="description" content="An in-browser file organizer that sorts a folder by type. Try the sample sandbox, or pick a real folder on your computer (Chrome/Edge) and it actually organizes it." />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta name="description" content="Sorts a messy folder by file type, with dry-run preview, collision-safe renaming, and undo. Works on a real folder on your computer." />
+<meta property="og:title" content="File Organizer — Ryan Wien" />
+<meta property="og:description" content="Sorts a messy folder by file type, with dry-run preview, collision-safe renaming, and undo. Works on a real folder on your computer." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/file-organizer/demo.html" />
+<meta property="og:image" content="https://ryanwien.github.io/Portfolio2026/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://ryanwien.github.io/Portfolio2026/og-image.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -12,7 +22,7 @@
 <style>
   :root{
     --site-w:960px;
-    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
+    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#5C6673;
     --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
     --warn:#B45309; --warn-bg:#FFF4E5; --warn-line:#F3C98B;
     --term-bg:#141A24; --term-ink:#D6DEE8; --term-muted:#7C8A9C; --term-green:#4FB477; --term-blue:#7CA0FF;
@@ -131,7 +141,7 @@
 </style>
 </head>
 <body>
-<nav class="site-nav">
+<nav class="site-nav" aria-label="Site">
   <div class="site-nav-inner">
     <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
     <div class="site-links">
@@ -144,7 +154,7 @@
   </div>
 </nav>
 
-<div class="wrap">
+<main class="wrap">
   <div class="eyebrow">Tooling</div>
   <h1>File Organizer</h1>
   <p class="lead">A Python CLI that sorts a messy folder into subfolders by file type. This page runs the <b>real algorithm</b> — the same categorization, <code>--dry-run</code> preview, collision-safe renaming, and undo. Try the built-in sample, or pick a real folder and it will actually organize it.</p>
@@ -195,7 +205,7 @@
 
   <p class="note"><b>Sample mode:</b> flip on <b>Dry run</b> and hit Organize to preview, or <b>Add new downloads</b> (drops in a name that's already taken) then Organize to see collision-safe renaming. <b>Real mode:</b> click <b>Choose a real folder</b>, grant access, preview with Dry run, then turn it off to actually sort your files. Requires Chrome or Edge, and a normal folder like <b>Downloads</b> (browsers block drive roots and system folders).</p>
 
-  <div class="site-section-label"><span>How it works</span><span>Behind the demo</span></div>
+  <h2 class="site-section-label"><span>How it works</span><span>Behind the demo</span></h2>
   <div class="site-how">
     <div class="site-card">
       <div class="site-card-n">01</div>
@@ -213,7 +223,7 @@
       <p>Preview every move before committing. Real moves are recorded as they happen, so one click puts the folder back exactly as it was.</p>
     </div>
   </div>
-</div>
+</main>
 
 <footer class="site-footer">
   <div class="site-footer-inner">
