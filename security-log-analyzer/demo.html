@@ -78,9 +78,19 @@
     border-radius:8px; padding:.8rem 1rem; margin-bottom:1.2rem}
   .tune label{font-family:var(--mono); font-size:.78rem; color:var(--ink); white-space:nowrap}
   .tune label b{color:var(--accent)}
-  .tune input[type=range]{-webkit-appearance:none; appearance:none; flex:1; min-width:160px; height:6px; border-radius:6px;
-    background:var(--sunken); border:1px solid var(--line); cursor:pointer}
-  .tune input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:17px; height:17px; border-radius:50%; background:var(--accent); border:2px solid var(--surface); cursor:pointer}
+  /* 24px transparent element for the touch/pointer target; the visible 6px track
+     is drawn by ::-*-track. At the old 6px this sat well under the ~24px minimum
+     and was awkward to grab on a phone. touch-action keeps vertical scrolling
+     working over the slider while giving horizontal drags to the thumb. */
+  .tune input[type=range]{-webkit-appearance:none; appearance:none; flex:1; min-width:160px; height:24px;
+    background:transparent; border:0; cursor:pointer; margin:-9px 0; touch-action:pan-y}
+  .tune input[type=range]::-webkit-slider-runnable-track{height:6px; border-radius:6px;
+    background:var(--sunken); border:1px solid var(--line)}
+  .tune input[type=range]::-moz-range-track{height:6px; border-radius:6px;
+    background:var(--sunken); border:1px solid var(--line)}
+  .tune input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:17px; height:17px; border-radius:50%; background:var(--accent); border:2px solid var(--surface); cursor:pointer;
+    /* Centre a 21px thumb (17 + 2px border each side) on the 8px track box. */
+    margin-top:-6.5px}
   .tune input[type=range]::-moz-range-thumb{width:15px; height:15px; border-radius:50%; background:var(--accent); border:2px solid var(--surface); cursor:pointer}
   .tune .hint{font-family:var(--mono); font-size:.7rem; color:var(--muted); flex-basis:100%}
 
