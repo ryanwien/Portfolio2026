@@ -4,100 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Tracker — Live Demo</title>
+    <meta name="description" content="An interactive task tracker running in your browser — add, filter, and complete tasks with live priority-ranked stats." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <style>
-        :root {
-            --bg: #f4f5f7; --card: #ffffff; --text: #1a1a1a;
-            --text-muted: #6b7280; --accent: #2c3e50; --border: #e5e7eb;
-            --high: #ef4444; --medium: #f59e0b; --low: #10b981;
+      :root{
+        --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
+        --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-soft:rgba(45,78,245,.14); --accent-ink:#FFFFFF;
+        --high:#E8622C; --medium:#C9902A; --low:#2D8A5F;
+        --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+        --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
+        --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+      }
+      @media (prefers-color-scheme:dark){
+        :root{
+          --bg:#0E1218; --surface:#151B24; --sunken:#10151C; --ink:#EAEEF3; --muted:#8A95A3;
+          --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-soft:rgba(110,134,255,.18); --accent-ink:#0E1218;
+          --high:#FB8C5E; --medium:#E0B457; --low:#5FC494;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg); color: var(--text); line-height: 1.5; padding: 2rem 1rem;
-        }
-        .container { max-width: 640px; margin: 0 auto; }
-        .backlink { display: inline-block; color: var(--text-muted); text-decoration: none;
-            font-size: 0.85rem; margin-bottom: 1rem; }
-        .backlink:hover { color: var(--accent); }
-        header { text-align: center; margin-bottom: 0.5rem; }
-        h1 { font-size: 2rem; color: var(--accent); }
-        .subtitle { color: var(--text-muted); font-size: 0.9rem; }
-        .demo-note {
-            background: #fef3c7; border: 1px solid #f59e0b; color: #92400e;
-            border-radius: 6px; padding: 0.6rem 0.9rem; font-size: 0.85rem;
-            text-align: center; margin: 1rem 0 1.5rem;
-        }
-        .stats { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
-        .stat-card {
-            flex: 1; background: var(--card); border: 1px solid var(--border);
-            border-radius: 8px; padding: 1rem; text-align: center;
-            display: flex; flex-direction: column;
-        }
-        .stat-number { font-size: 1.75rem; font-weight: 700; color: var(--accent); }
-        .stat-label {
-            font-size: 0.8rem; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.05em;
-        }
-        .task-form { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-        .task-form input[type="text"] {
-            flex: 1; min-width: 140px; padding: 0.6rem 0.8rem;
-            border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem;
-        }
-        .task-form select {
-            padding: 0.6rem; border: 1px solid var(--border);
-            border-radius: 6px; background: var(--card);
-        }
-        .task-form button, .filter-btn {
-            padding: 0.6rem 1.2rem; border: none; border-radius: 6px;
-            background: var(--accent); color: white; cursor: pointer;
-            font-size: 0.95rem; transition: opacity 0.15s;
-        }
-        .task-form button:hover { opacity: 0.9; }
-        .filters { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-        .filter-btn {
-            background: var(--card); color: var(--text-muted); border: 1px solid var(--border);
-        }
-        .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-        .task-item {
-            display: flex; align-items: center; gap: 0.75rem;
-            background: var(--card); border: 1px solid var(--border);
-            border-left: 4px solid var(--border); border-radius: 8px;
-            padding: 0.8rem 1rem; margin-bottom: 0.5rem;
-        }
-        .task-item.priority-high { border-left-color: var(--high); }
-        .task-item.priority-medium { border-left-color: var(--medium); }
-        .task-item.priority-low { border-left-color: var(--low); }
-        .task-item.completed .task-title { text-decoration: line-through; color: var(--text-muted); }
-        .task-content { flex: 1; display: flex; flex-direction: column; }
-        .task-title { font-weight: 500; }
-        .task-desc { font-size: 0.85rem; color: var(--text-muted); }
-        .task-priority {
-            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
-            color: var(--text-muted); padding: 0.2rem 0.5rem;
-            border: 1px solid var(--border); border-radius: 4px;
-        }
-        .delete-btn {
-            background: none; border: none; color: var(--text-muted);
-            font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0 0.25rem;
-        }
-        .delete-btn:hover { color: var(--high); }
-        .task-check { width: 18px; height: 18px; cursor: pointer; }
-        .empty { text-align: center; color: var(--text-muted); padding: 2rem; }
+      }
+      *{box-sizing:border-box;margin:0;padding:0}
+      html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+      body{font-family:var(--body); background:var(--bg); color:var(--ink); line-height:1.5;
+        padding:clamp(1.25rem,4vw,2.75rem) 1.25rem 3rem; -webkit-font-smoothing:antialiased}
+      .container{max-width:760px;margin:0 auto}
+
+      .eyebrow{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
+        text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center}
+      .eyebrow::after{content:"";flex:1;height:1px;background:var(--line-strong)}
+      .eyebrow a{color:var(--muted); text-decoration:none; border-bottom:1px solid transparent}
+      .eyebrow a:hover{color:var(--ink); border-bottom-color:var(--accent)}
+      h1{font-family:var(--display); font-weight:700; line-height:1.03;
+        font-size:clamp(2rem,6vw,3rem); letter-spacing:-.02em; margin:.6rem 0 .4rem}
+      .lead{font-size:clamp(.95rem,2.4vw,1.08rem); color:var(--muted); max-width:54em}
+      .lead b{color:var(--ink); font-weight:600}
+
+      .section-label{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.12em; text-transform:uppercase;
+        color:var(--muted); margin:2.2rem 0 .9rem; padding-bottom:.55rem; border-bottom:1px solid var(--line-strong);
+        display:flex; justify-content:space-between; align-items:baseline; gap:1rem}
+
+      /* stat tiles */
+      .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem}
+      .stat-card{background:var(--surface); border:1px solid var(--line); border-radius:8px;
+        padding:.9rem 1rem; display:flex; flex-direction:column}
+      .stat-number{font-family:var(--display); font-weight:700; font-size:1.9rem; letter-spacing:-.01em; line-height:1.1}
+      .stat-label{font-family:var(--mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-top:.15rem}
+
+      /* compose */
+      .task-form{display:flex; gap:.5rem; flex-wrap:wrap; background:var(--surface);
+        border:1px solid var(--line); border-radius:10px; padding:.9rem}
+      .task-form input[type="text"], .task-form select{
+        font-family:var(--body); font-size:.92rem; color:var(--ink); background:var(--sunken);
+        border:1px solid var(--line); border-radius:7px; padding:.6rem .75rem}
+      .task-form input[type="text"]{flex:1; min-width:150px}
+      .task-form input[type="text"]::placeholder{color:var(--muted)}
+      .task-form input[type="text"]:focus, .task-form select:focus{
+        outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+      .task-form select{font-family:var(--mono); font-size:.82rem; cursor:pointer}
+      .task-form button{font-family:var(--mono); font-size:.78rem; font-weight:600; letter-spacing:.06em;
+        text-transform:uppercase; padding:.6rem 1.15rem; border:1px solid var(--accent); border-radius:7px;
+        background:var(--accent); color:var(--accent-ink); cursor:pointer; transition:filter .15s}
+      .task-form button:hover{filter:brightness(1.1)}
+
+      /* filters */
+      .filters{display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem}
+      .filter-btn{font-family:var(--mono); font-size:.75rem; letter-spacing:.06em; text-transform:uppercase;
+        padding:.45rem .95rem; border:1px solid var(--line-strong); border-radius:999px;
+        background:var(--surface); color:var(--muted); cursor:pointer; transition:background .15s,color .15s,border-color .15s}
+      .filter-btn:hover{color:var(--ink); border-color:var(--accent)}
+      .filter-btn.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+
+      /* task rows */
+      .task-item{display:flex; align-items:center; gap:.85rem;
+        background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--line-strong);
+        border-radius:8px; padding:.8rem 1rem; margin-bottom:.5rem}
+      .task-item.priority-high{border-left-color:var(--high)}
+      .task-item.priority-medium{border-left-color:var(--medium)}
+      .task-item.priority-low{border-left-color:var(--low)}
+      .task-item.completed{background:var(--sunken)}
+      .task-item.completed .task-title{text-decoration:line-through; color:var(--muted)}
+      .task-content{flex:1; display:flex; flex-direction:column; min-width:0}
+      .task-title{font-family:var(--display); font-weight:600; font-size:1rem; letter-spacing:-.005em}
+      .task-desc{font-size:.84rem; color:var(--muted)}
+      .task-priority{font-family:var(--mono); font-size:.64rem; font-weight:600; letter-spacing:.1em;
+        text-transform:uppercase; color:var(--muted); padding:.22rem .5rem;
+        border:1px solid var(--line-strong); border-radius:999px; white-space:nowrap}
+      .priority-high .task-priority{color:var(--high); border-color:var(--high)}
+      .priority-medium .task-priority{color:var(--medium); border-color:var(--medium)}
+      .priority-low .task-priority{color:var(--low); border-color:var(--low)}
+      .delete-btn{background:none; border:none; color:var(--muted); font-size:1.4rem; line-height:1;
+        cursor:pointer; padding:0 .2rem; transition:color .15s}
+      .delete-btn:hover{color:var(--high)}
+      .task-check{width:17px; height:17px; flex:none; accent-color:var(--accent); cursor:pointer}
+      .empty{font-family:var(--mono); font-size:.8rem; text-align:center; color:var(--muted);
+        background:var(--surface); border:1px dashed var(--line-strong); border-radius:8px; padding:2.2rem 1rem}
+
+      .note{font-family:var(--mono); font-size:.74rem; color:var(--muted); margin-top:1.3rem; line-height:1.65}
+      .note b{color:var(--ink); font-weight:600}
+      a:focus-visible, button:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+
+      @media (max-width:640px){
+        .stats{grid-template-columns:1fr 1fr}
+        .stats .stat-card:first-child{grid-column:1 / -1}
+        .task-form input[type="text"]{min-width:100%}
+        .task-form select, .task-form button{flex:1}
+      }
+      @media (prefers-reduced-motion:reduce){*{transition:none!important}}
     </style>
 </head>
 <body>
     <div class="container">
-        <a class="backlink" href="../index.html">&#8592; Portfolio</a>
-        <header>
-            <h1>Task Tracker</h1>
-            <p class="subtitle">A full-stack task management app</p>
-        </header>
+        <div class="eyebrow"><a href="../index.html">&#8592; Portfolio</a> · Task Tracker</div>
+        <h1>Task Tracker</h1>
+        <p class="lead">A task manager with <b>priority ranking</b>, filtering, and live counts. This page runs the same interface as the full app — the difference is where the data lives: here it's an in-memory array, in the full version it's a <b>Flask + SQLite</b> REST backend.</p>
 
-        <div class="demo-note">
-            ⓘ This is a standalone browser demo (data resets on refresh).
-            The full version runs on a Flask + SQLite backend — see the README.
-        </div>
-
+        <div class="section-label"><span>Overview</span><span>Resets on refresh</span></div>
         <section class="stats">
             <div class="stat-card">
                 <span class="stat-number" id="stat-total">0</span>
@@ -113,6 +135,7 @@
             </div>
         </section>
 
+        <div class="section-label"><span>Add a task</span><span>Enter to submit</span></div>
         <section class="task-form">
             <input type="text" id="task-title" placeholder="Task title..." maxlength="120">
             <input type="text" id="task-description" placeholder="Description (optional)...">
@@ -124,6 +147,7 @@
             <button id="add-btn">Add Task</button>
         </section>
 
+        <div class="section-label"><span>Tasks</span><span>Click a filter</span></div>
         <section class="filters">
             <button class="filter-btn active" data-filter="all">All</button>
             <button class="filter-btn" data-filter="pending">Pending</button>
@@ -131,6 +155,10 @@
         </section>
 
         <section class="task-list" id="task-list"></section>
+
+        <p class="note"><b>Standalone browser demo.</b> Tasks live in a JavaScript array, so they reset on refresh.
+        The full project swaps this for REST calls to a Flask server backed by SQLite — see the
+        <a href="README.md">README</a> for the API and schema.</p>
     </div>
 
     <script>
