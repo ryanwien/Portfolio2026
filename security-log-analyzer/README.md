@@ -77,6 +77,34 @@ machine — the detections fire on hosts that have actually seen attacks (e.g. a
 internet-exposed SSH/RDP server). Any log you collect is git-ignored, so it
 never leaves your machine.
 
+## C# implementation
+
+The same detection engine, written in **C# / .NET 9** under [`csharp/`](csharp/) —
+the stack a SOC analyst actually meets in the Microsoft security ecosystem
+(Sentinel, Defender, and the .NET tooling around them).
+
+```bash
+cd csharp
+dotnet run --project src/SecurityLogAnalyzer -- ../data/auth_events.jsonl
+dotnet test tests/SecurityLogAnalyzer.Tests        # 30 tests
+```
+
+It is a port of the rules, not a rewrite of the idea, and that is the point:
+run both against the same log and the output is **byte-for-byte identical**.
+
+```bash
+python analyze.py > py.txt
+csharp/src/SecurityLogAnalyzer/bin/Debug/net9.0/analyze data/auth_events.jsonl > cs.txt
+diff py.txt cs.txt        # no output
+```
+
+The xUnit suite pins every field of all six alerts the sample log produces, so
+the two engines can't silently drift apart. It also covers the pieces worth
+testing in isolation: haversine against a known great-circle distance,
+privileged-account matching, the business-hours boundary, and the two cases
+impossible travel must *not* fire on — short hops and plausible long-haul
+flights.
+
 ## Sample output
 
 ```text
@@ -149,5 +177,6 @@ curriculum:
 
 ## Tech stack
 
-Python (standard library: `json`, `datetime`, `math`, `argparse`, `collections`).
+Python (standard library: `json`, `datetime`, `math`, `argparse`, `collections`)
+and a matching **C# / .NET 9** implementation with an xUnit suite.
 Browser demo: vanilla JavaScript, no dependencies.
