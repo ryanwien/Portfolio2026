@@ -138,7 +138,7 @@
       <span class="src-status" id="srcStatus"></span>
     </div>
     <details class="howto">
-      <summary>How to export your own logs (Windows · macOS · Linux)</summary>
+      <summary id="howtoSummary">How to export your own logs (Windows · macOS · Linux)</summary>
       <div id="howtoBody"></div>
     </details>
   </div>
@@ -455,7 +455,17 @@
     if(/Safari\//.test(ua)) return "Safari";
     return "your browser";
   }
+  var MOBILE_HOWTO =
+    "# A phone can't export its own system logs - iOS and Android sandbox them,\n" +
+    "# and no browser on any OS can read them directly. Analyze a log from\n" +
+    "# elsewhere instead:\n" +
+    "#   1. Collect it on the server/PC (see the steps below)\n" +
+    "#   2. Move it to this device - AirDrop, iCloud Drive / Google Drive, or email\n" +
+    "#   3. Tap 'Load your own log', then Browse and pick the file\n" +
+    "# It is parsed on this device. Nothing is uploaded.";
   var HOWTO = {
+    iOS: MOBILE_HOWTO,
+    Android: MOBILE_HOWTO,
     Windows: "# Elevated PowerShell, in the security-log-analyzer folder:\npowershell -ExecutionPolicy Bypass -File collect_windows.ps1 -Hours 168\n# then Load your own log  ->  data\\windows_events.jsonl",
     macOS:   "# Collect sshd auth events from the unified log into JSON Lines:\nbash collect_macos.sh > ~/mac_events.jsonl\n# then Load your own log  ->  ~/mac_events.jsonl",
     Linux:   "# Export your SSH auth log, then load it directly (no conversion):\nsudo journalctl -u ssh --since '7 days ago' > ~/ssh.log\n# (older distros: sudo cp /var/log/auth.log ~/ssh.log && sudo chmod +r ~/ssh.log)\n# then Load your own log  ->  ~/ssh.log"
@@ -465,11 +475,17 @@
     document.getElementById("diagOS").textContent = os + " · " + br;
     function pill(k, v){ return '<span class="dpill">' + k + ': <b>' + v + '</b></span>'; }
     var verdict = mobile
-      ? "Log analysis needs a desktop OS (Windows, macOS, or Linux). You can still explore the sample below."
+      ? "Detection runs fine here — " + os + " just can't export <i>its own</i> system logs (the OS sandboxes them). Collect a log on a server or PC, move it to this device, then tap <b>Load your own log</b> and pick it from Files. Everything is parsed on this device, nothing is uploaded."
       : "A browser can't read system logs directly, for security. Export your logs with the command below, then <b>Load your own log</b> — everything is analyzed in this page, nothing is uploaded.";
     document.getElementById("diag").innerHTML =
       pill("OS", os) + pill("Browser", br) + pill("Secure context", secure ? "yes" : "no") + pill("Processing", "local only") +
       '<div class="dverdict">' + verdict + '</div>';
+    // iOS/Android file pickers grey out extensions they don't know (.jsonl, .log),
+    // so drop the filter on mobile — parseLog validates by content anyway.
+    if(mobile) document.getElementById("fileInput").removeAttribute("accept");
+    document.getElementById("howtoSummary").textContent =
+      mobile ? "How to get a log onto this device, and how to export one (Windows · macOS · Linux)"
+             : "How to export your own logs (Windows · macOS · Linux)";
     var order = ["Windows", "macOS", "Linux"];
     if(HOWTO[os]) order = [os].concat(order.filter(function(o){ return o !== os; }));
     document.getElementById("howtoBody").innerHTML = order.map(function(o){
