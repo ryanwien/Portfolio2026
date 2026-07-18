@@ -80,7 +80,8 @@
   .result .price{font-family:var(--display); font-weight:700; font-size:clamp(2.1rem,6vw,3rem); letter-spacing:-.02em; line-height:1.05}
   .result .range{font-family:var(--mono); font-size:.78rem; opacity:.9; margin-top:.35rem}
   .result .vs{font-family:var(--mono); font-size:.74rem; opacity:.9; margin-top:.7rem; border-top:1px solid rgba(255,255,255,.25); padding-top:.6rem}
-  .result .eqn{font-family:var(--mono); font-size:.68rem; opacity:.8; margin-top:.5rem; line-height:1.5; word-break:break-word}
+  /* opacity .8 over the accent panel lands at 4.39:1, just under the minimum */
+  .result .eqn{font-family:var(--mono); font-size:.68rem; opacity:.9; margin-top:.5rem; line-height:1.5; word-break:break-word}
 
   /* metric tiles */
   .metrics{display:grid; grid-template-columns:repeat(4,1fr); gap:.75rem}
@@ -104,6 +105,9 @@
   /* scatter */
   .scatter-wrap{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:1rem 1.1rem}
   .scatter-wrap svg{display:block; width:100%; height:auto}
+  /* The plot is built by JS after load. Reserve its aspect ratio up front so
+     the page doesn't shift when it lands (was 0.1 cumulative layout shift). */
+  #scatter{aspect-ratio:470 / 448}
   .sc-axis{stroke:var(--line-strong); stroke-width:1}
   .sc-grid{stroke:var(--line); stroke-width:1}
   .sc-diag{stroke:var(--muted); stroke-width:1.2; stroke-dasharray:4 4}
