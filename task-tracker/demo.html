@@ -114,6 +114,14 @@
         cursor:pointer; padding:0 .2rem; transition:color .15s}
       .delete-btn:hover{color:var(--high)}
       .task-check{width:17px; height:17px; flex:none; accent-color:var(--accent); cursor:pointer}
+      /* Touch only. Completing and deleting are the two things you actually do
+         here, and at 17px and 19px they were well under a finger's width — with
+         the destructive one sitting right beside the harmless one. Padding grows
+         the hit area without moving the control or resizing the glyph. */
+      @media (pointer:coarse){
+        .task-check{width:24px; height:24px}
+        .delete-btn{padding:0 .55rem; min-height:32px}
+      }
       .empty{font-family:var(--mono); font-size:.8rem; text-align:center; color:var(--muted);
         background:var(--surface); border:1px dashed var(--line-strong); border-radius:8px; padding:2.2rem 1rem}
 
