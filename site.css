@@ -46,6 +46,12 @@
    re-points --site-bg to its own palette, so this follows the page's theme. */
 html{background:var(--site-bg)}
 
+/* Hold the footer at the bottom of the window when a page is shorter than the
+   viewport. Without this the footer floats partway up on a tall screen with
+   dead space under it, which reads as the page failing to finish. */
+body{min-height:100vh; display:flex; flex-direction:column}
+body > .site-footer{margin-top:auto}
+
 /* ---- top nav ------------------------------------------------------------ */
 
 .site-nav{
