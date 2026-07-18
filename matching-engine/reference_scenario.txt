@@ -1,0 +1,34 @@
+# Reference scenario — executed by both the Python and C++ engines to prove
+# they agree. Order ids are assigned sequentially to each submitted order,
+# starting at 1; cancel lines do not consume an id.
+#
+#   L <B|S> <price> <qty>   limit order
+#   M <B|S> - <qty>         market order
+#   C <order_id>            cancel a resting order
+
+# Build a resting book. Two orders at 101.00 establish time priority.
+L S 101.00 10
+L S 101.00 5
+L S 101.50 20
+L S 102.00 30
+L B 100.00 15
+L B 99.50 25
+L B 100.00 5
+
+# Partial fill: takes 4 from the oldest order at 101.00, leaving 6.
+L B 101.00 4
+
+# Sweep across levels: finishes id 1, consumes id 2, then eats into 101.50.
+L B 101.75 20
+
+# Market sell into the bid side.
+M S - 12
+
+# Cancel a resting bid that was never touched.
+C 6
+
+# Market buy larger than the remaining book — takes everything and expires.
+M B - 1000
+
+# A limit that crosses nothing and simply rests.
+L B 98.00 7

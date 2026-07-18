@@ -1,4 +1,11 @@
 __pycache__/
 *.pyc
-.pytest_cache/
 .venv/
+venv/
+
+# C++ build output
+cpp/build/
+*.obj
+*.exe
+*.pdb
+*.ilk

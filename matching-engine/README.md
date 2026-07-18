@@ -77,6 +77,8 @@ Three ideas working together:
 - `order.py` — `Order` (also a list node), `Trade`, enums
 - `book.py` — `PriceLevel` and the `OrderBook` engine
 - `demo.py` — annotated end-to-end scenario
+- `reference_trace.py` / `reference_scenario.txt` — shared scenario both engines replay
+- `cpp/` — the C++20 implementation, tests, and latency benchmark
 - `orderbook_terminal.html` — live browser front end (see below)
 
 ## Front end: live order book terminal
@@ -95,6 +97,59 @@ into a running market:
 The matching logic is the same price-time-priority design as the Python
 engine, ported to JavaScript, so one design is shown in two languages.
 
+## C++ implementation
+
+Real matching engines are written in C++, so this one is too — [`cpp/`](cpp/),
+C++20, the same price-time-priority design.
+
+```bash
+cd cpp
+cmake -B build && cmake --build build   # portable
+build.bat                               # or MSVC directly
+
+build\reference_trace.exe   # replay the shared scenario
+build\tests.exe             # 56 assertions
+build\benchmark.exe         # latency distribution
+```
+
+**Proving the two agree.** Both engines replay
+[`reference_scenario.txt`](reference_scenario.txt) — a fixed sequence covering
+time priority at equal prices, partial fills, sweeps across levels, market
+orders, cancels, and an order that rests untouched. Each prints every trade and
+the final book, and the two outputs are **identical**:
+
+```bash
+python reference_trace.py > py.txt
+cpp/build/reference_trace.exe reference_scenario.txt > cpp.txt
+diff py.txt cpp.txt        # no output
+```
+
+**Latency**, averaged over 256-operation batches, release build:
+
+| operation | mean | p50 | p99 | p99.9 |
+|-----------|-----:|----:|----:|------:|
+| submit | 115 ns | 113 ns | 163 ns | 302 ns |
+| cancel | 19 ns | 19 ns | 34 ns | 44 ns |
+| best bid + ask | 1.3 ns | 1.2 ns | 1.6 ns | 2.0 ns |
+
+The gap between cancel and submit is the entire argument for the data
+structure. Cancel never searches: the id map holds a pointer straight to the
+owning price level and an iterator to the order, so it unlinks in constant time
+and only touches the ordered map when a level empties. Submit pays `O(log P)`
+to locate its level. With a heap, cancel would be the `O(n)` operation — and
+cancels outnumber fills in real order flow.
+
+Two measurement details, because a benchmark that flatters itself is worthless.
+Operations are timed in batches: `steady_clock` on Windows ticks at ~100 ns, so
+timing a single ~100 ns operation reports 0, 100 or 200 ns and nothing between —
+precise-looking noise. And cancels are gated on a depth floor, because flow that
+cancels as fast as it adds drains the book, and an empty book makes every
+operation look fast for the wrong reason.
+
+One deliberate difference from a production engine: prices are `double` here to
+stay faithful to the Python reference. A real venue uses integer ticks, because
+binary floating point cannot represent a cent exactly.
+
 ## Natural extensions (good talking points)
 
 - **More order types**: IOC (immediate-or-cancel), FOK (fill-or-kill),
@@ -107,7 +162,5 @@ engine, ported to JavaScript, so one design is shown in two languages.
 - **FIX protocol** front end for order entry.
 - **Persistence / replay**: append-only event log so the book can be rebuilt
   deterministically after a crash.
-- **C++ port**: swap `SortedDict` for `std::map<Price, PriceLevel>` and the
-  id map for `std::unordered_map` — same design, and more idiomatic for the HFT
-  domain this models.
-```
+- **Integer tick prices** in the C++ engine, replacing `double`, so a cent is
+  represented exactly rather than approximately.
