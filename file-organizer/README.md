@@ -55,6 +55,37 @@ python organize.py ~/Downloads --undo organize_log_20260630_213845.json
    dry-run mode).
 5. **Log** every move to a JSON file so the operation can be undone.
 
+## C++ implementation
+
+The same organizer in **C++20** under [`cpp/`](cpp/), built on `std::filesystem` —
+native tooling being the job C++ is actually reached for here.
+
+```bash
+cd cpp
+cmake -B build && cmake --build build && ./build/organizer_tests   # portable
+build.bat                                                          # or MSVC directly
+build\organize.exe ~/Downloads --dry-run
+```
+
+Both implementations were run over identical folders — including a
+pre-existing `Documents/notes.md` to force a collision, and a `screenshot.PNG`
+to exercise case-insensitive matching — and produced **identical directory
+trees**, `notes_1.md` included.
+
+Planning is separated from execution, so a dry run and a real run share one
+code path and can't disagree about what would happen. Entries are sorted before
+planning, because `directory_iterator` order is unspecified and a tool that
+reports a different order each run is hard to trust.
+
+Writing the move path in C++ surfaced a failure the Python version also has:
+when another process holds a file open, Windows refuses the rename, the
+copy-and-delete fallback fails too, and the error escaped as an unhandled
+exception. `apply_move` now reports which file was blocked and why, and if the
+copy succeeds but the original can't be deleted it rolls the copy back — so a
+file is never silently left in two places. The suite covers that case.
+
+45 assertions, no test framework to install.
+
 ## Design decisions
 
 - **Dry-run by request** — destructive operations (moving files) should always
