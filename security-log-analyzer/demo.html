@@ -134,6 +134,9 @@
     font-family:var(--mono); font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
   .stream-head button{font-family:var(--mono); font-size:.66rem; color:var(--accent); background:none; border:1px solid var(--line-strong); border-radius:3px; padding:.15rem .45rem; cursor:pointer}
   .stream-head button:hover{border-color:var(--accent)}
+  /* Touch only: 20px tall is under a finger's width. The border and label stay
+     put; only the padding grows. */
+  @media (pointer:coarse){ .stream-head button{padding:.35rem .6rem} }
   .log{font-family:var(--mono); font-size:.7rem; line-height:1.45; max-height:560px; overflow:auto; padding:.35rem 0}
   .logrow{display:grid; grid-template-columns:58px 1fr auto; gap:.5rem; padding:.12rem .8rem; white-space:nowrap; color:var(--muted)}
   .logrow .t{color:var(--muted)}

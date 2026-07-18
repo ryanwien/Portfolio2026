@@ -175,6 +175,28 @@
   .site-nav-inner{gap:.75rem}
   .site-brand span:not(.site-mark){display:none}
 }
+/* The five links need ~410px laid out at full size. Below that the strip used
+   to clip mid-word, which reads as broken rather than scrollable — it looks the
+   same whether you are on a small window, a zoomed-in desktop, or a phone.
+   Tightening the type and padding lets the whole set fit instead. */
+@media (max-width:460px){
+  .site-nav-inner{gap:.4rem; padding:0 .75rem}
+  .site-link{font-size:.62rem; letter-spacing:.05em; padding:.42rem .3rem}
+}
+/* Touch devices only. A finger needs ~24px; a mouse pointer doesn't, and
+   growing these on desktop would just loosen the nav and footer for no gain.
+   Gating on pointer:coarse leaves the desktop layout byte-for-byte unchanged
+   while giving phones and tablets a real target. */
+@media (pointer:coarse){
+  /* Below 720px the wordmark is hidden and only the 22px square remains, so the
+     target needs padding out in both directions. */
+  .site-brand{min-height:24px; min-width:24px; justify-content:center}
+  /* Standalone links in a stacked column, not links inside a sentence, so the
+     inline exemption doesn't apply. Text position is unchanged; the hit area
+     grows around it. */
+  .site-footer-col a{display:inline-flex; align-items:center; min-height:24px}
+}
+
 @media (prefers-reduced-motion:reduce){
   .site-link,.site-brand,.site-footer-col a{transition:none!important}
 }
