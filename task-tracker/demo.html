@@ -156,6 +156,25 @@
           <span class="site-chip">Vanilla JS</span>
         </div>
 
+        <h2 class="section-label"><span>How it works</span><span>Behind the demo</span></h2>
+        <div class="site-how">
+          <div class="site-card">
+            <div class="site-card-n">01</div>
+            <h3>REST API</h3>
+            <p>The task list is exposed as CRUD endpoints — <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> — so the front end never talks to the database directly. Two backends serve the same contract: Flask and ASP.NET Core.</p>
+          </div>
+          <div class="site-card">
+            <div class="site-card-n">02</div>
+            <h3>Parameterized SQL</h3>
+            <p>Every query binds its values as parameters instead of building strings, so a task title can't change the shape of the statement it lands in.</p>
+          </div>
+          <div class="site-card">
+            <div class="site-card-n">03</div>
+            <h3>Validated input</h3>
+            <p>Titles are required and length-capped, and priority has to be one of three known values — checked on the server, not just in the browser.</p>
+          </div>
+        </div>
+
         <div class="section-label"><span>Overview</span><span>Resets on refresh</span></div>
         <section class="stats">
             <div class="stat-card">
@@ -197,24 +216,6 @@
         The full project swaps this for REST calls to a Flask server backed by SQLite — see the
         <a href="https://github.com/ryanwien/Portfolio2026/tree/main/task-tracker">source and API write-up</a>.</p>
 
-        <h2 class="section-label"><span>How it works</span><span>Behind the demo</span></h2>
-        <div class="site-how">
-          <div class="site-card">
-            <div class="site-card-n">01</div>
-            <h3>REST API</h3>
-            <p>Flask exposes the task list as CRUD endpoints — <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> — so the front end never talks to the database directly.</p>
-          </div>
-          <div class="site-card">
-            <div class="site-card-n">02</div>
-            <h3>Parameterized SQL</h3>
-            <p>Every query binds its values as parameters instead of building strings, so a task title can't change the shape of the statement it lands in.</p>
-          </div>
-          <div class="site-card">
-            <div class="site-card-n">03</div>
-            <h3>Validated input</h3>
-            <p>Titles are required and length-capped, and priority has to be one of three known values — checked on the server, not just in the browser.</p>
-          </div>
-        </div>
     </main>
 
     <footer class="site-footer">

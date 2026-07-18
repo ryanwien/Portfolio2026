@@ -9,6 +9,11 @@ working through the **Microsoft Cybersecurity Analyst** certificate.
 
 ![Security Log Analyzer SOC console](screenshot.png)
 
+**Implementations:** C# / .NET 9 (`csharp/`) · Python (`analyze.py`) · JavaScript (the console).
+Run the C# and Python engines over the same log and the reports are byte-for-byte identical —
+see [C# implementation](#c-implementation).
+
+
 ## What it does
 
 Point it at a log of login/probe events and it flags the patterns that matter,

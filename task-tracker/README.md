@@ -8,6 +8,11 @@ operations, and frontend–backend integration.
 
 ![Task Tracker demo](screenshot.png)
 
+**Implementations:** C# / ASP.NET Core 9 (`csharp/`) · Python / Flask (`backend/`) · JavaScript (the demo).
+Both backends serve the same REST contract, so the front end works against either —
+see [C# implementation](#c-implementation).
+
+
 ## Overview
 
 Task Tracker lets a user create, view, update, complete, and delete tasks,

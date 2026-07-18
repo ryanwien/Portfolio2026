@@ -9,6 +9,11 @@ choices below are the point.
 
 ![Order book trading terminal](screenshot.png)
 
+**Implementations:** C++20 (`cpp/`) · Python (`book.py`) · JavaScript (the terminal).
+The C++ and Python engines replay a shared scenario and produce identical trades —
+see [C++ implementation](#c-implementation) for the equivalence check and latency figures.
+
+
 ## Quick start
 
 ```bash

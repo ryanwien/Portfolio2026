@@ -8,6 +8,11 @@ more. Built as a practical Python automation utility.
 
 ![File Organizer demo](screenshot.png)
 
+**Implementations:** C++20 (`cpp/`) · Python (`organize.py`) · JavaScript (the demo).
+Both sort identical folders into identical trees, collision renames included —
+see [C++ implementation](#c-implementation).
+
+
 ## What it does
 
 Point it at a messy folder (like a Downloads directory) and it moves every
