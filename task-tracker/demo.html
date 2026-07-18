@@ -4,7 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Tracker — Live Demo</title>
-    <meta name="description" content="An interactive task tracker running in your browser — add, filter, and complete tasks with live priority-ranked stats." />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta name="description" content="A task manager with priority ranking and live counts, running in your browser. Flask + SQLite REST backend in the full version." />
+<meta property="og:title" content="Task Tracker — Ryan Wien" />
+<meta property="og:description" content="A task manager with priority ranking and live counts, running in your browser. Flask + SQLite REST backend in the full version." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/task-tracker/demo.html" />
+<meta property="og:image" content="https://ryanwien.github.io/Portfolio2026/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://ryanwien.github.io/Portfolio2026/og-image.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -12,7 +22,7 @@
     <style>
       :root{
         --site-w:760px;
-        --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
+        --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#5C6673;
         --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-soft:rgba(45,78,245,.14); --accent-ink:#FFFFFF;
         --high:#E8622C; --medium:#C9902A; --low:#2D8A5F;
         --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -117,7 +127,7 @@
     </style>
 </head>
 <body>
-    <nav class="site-nav">
+    <nav class="site-nav" aria-label="Site">
       <div class="site-nav-inner">
         <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
         <div class="site-links">
@@ -130,7 +140,7 @@
       </div>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <div class="eyebrow">Full-stack</div>
         <h1>Task Tracker</h1>
         <p class="lead">A task manager with <b>priority ranking</b>, filtering, and live counts. This page runs the same interface as the full app — the difference is where the data lives: here it's an in-memory array, in the full version it's a <b>Flask + SQLite</b> REST backend.</p>
@@ -159,9 +169,9 @@
 
         <div class="section-label"><span>Add a task</span><span>Enter to submit</span></div>
         <section class="task-form">
-            <input type="text" id="task-title" placeholder="Task title..." maxlength="120">
-            <input type="text" id="task-description" placeholder="Description (optional)...">
-            <select id="task-priority">
+            <input type="text" id="task-title" placeholder="Task title..." maxlength="120" aria-label="Task title">
+            <input type="text" id="task-description" placeholder="Description (optional)..." aria-label="Task description">
+            <select id="task-priority" aria-label="Task priority">
                 <option value="low">Low</option>
                 <option value="medium" selected>Medium</option>
                 <option value="high">High</option>
@@ -182,7 +192,7 @@
         The full project swaps this for REST calls to a Flask server backed by SQLite — see the
         <a href="https://github.com/ryanwien/Portfolio2026/tree/main/task-tracker">source and API write-up</a>.</p>
 
-        <div class="section-label"><span>How it works</span><span>Behind the demo</span></div>
+        <h2 class="section-label"><span>How it works</span><span>Behind the demo</span></h2>
         <div class="site-how">
           <div class="site-card">
             <div class="site-card-n">01</div>
@@ -200,7 +210,7 @@
             <p>Titles are required and length-capped, and priority has to be one of three known values — checked on the server, not just in the browser.</p>
           </div>
         </div>
-    </div>
+    </main>
 
     <footer class="site-footer">
       <div class="site-footer-inner">
@@ -262,13 +272,13 @@
                     const item = document.createElement("div");
                     item.className = `task-item priority-${task.priority}` + (task.completed ? " completed" : "");
                     item.innerHTML = `
-                        <input type="checkbox" class="task-check" ${task.completed ? "checked" : ""}>
+                        <input type="checkbox" class="task-check" ${task.completed ? "checked" : ""} aria-label="Mark &quot;${escapeHtml(task.title)}&quot; complete">
                         <div class="task-content">
                             <span class="task-title">${escapeHtml(task.title)}</span>
                             ${task.description ? `<span class="task-desc">${escapeHtml(task.description)}</span>` : ""}
                         </div>
                         <span class="task-priority">${task.priority}</span>
-                        <button class="delete-btn">&times;</button>
+                        <button type="button" class="delete-btn" aria-label="Delete &quot;${escapeHtml(task.title)}&quot;">&times;</button>
                     `;
                     item.querySelector(".task-check").addEventListener("change", (e) => {
                         task.completed = e.target.checked;

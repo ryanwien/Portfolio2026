@@ -4,7 +4,17 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>House Price Prediction — Live Demo</title>
-<meta name="description" content="An interactive house-price predictor running the real trained linear-regression model (R²=0.94) in your browser — drag the features and watch the prediction update." />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta name="description" content="The real trained linear-regression model (R2 = 0.94) running in your browser. Drag any feature and the prediction updates live." />
+<meta property="og:title" content="House Price Prediction — Ryan Wien" />
+<meta property="og:description" content="The real trained linear-regression model (R2 = 0.94) running in your browser. Drag any feature and the prediction updates live." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/ml-housing/demo.html" />
+<meta property="og:image" content="https://ryanwien.github.io/Portfolio2026/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://ryanwien.github.io/Portfolio2026/og-image.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -12,7 +22,7 @@
 <style>
   :root{
     --site-w:960px;
-    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
+    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#5C6673;
     --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-soft:rgba(45,78,245,.14); --accent-ink:#FFFFFF;
     --pos:#2D4EF5; --neg:#E8622C;
     --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -115,7 +125,7 @@
 </style>
 </head>
 <body>
-<nav class="site-nav">
+<nav class="site-nav" aria-label="Site">
   <div class="site-nav-inner">
     <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
     <div class="site-links">
@@ -128,7 +138,7 @@
   </div>
 </nav>
 
-<div class="wrap">
+<main class="wrap">
   <div class="eyebrow">Machine learning</div>
   <h1>House Price Prediction</h1>
   <p class="lead">A supervised <b>linear-regression</b> model trained on 2,000 homes to predict sale price from six features. This page runs the <b>real trained model</b> — the exact learned weights — right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b>.</p>
@@ -170,7 +180,7 @@
 
   <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways — gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>) — and evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
 
-  <div class="section-label"><span>How it works</span><span>Behind the demo</span></div>
+  <h2 class="section-label"><span>How it works</span><span>Behind the demo</span></h2>
   <div class="site-how">
     <div class="site-card">
       <div class="site-card-n">01</div>
@@ -188,7 +198,7 @@
       <p>Raw coefficients live in different units, so they're rescaled by each feature's spread. That's what makes the influence bars honest against each other.</p>
     </div>
   </div>
-</div>
+</main>
 
 <footer class="site-footer">
   <div class="site-footer-inner">

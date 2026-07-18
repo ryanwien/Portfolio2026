@@ -4,6 +4,17 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Matching Engine — Live Order Book</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta name="description" content="A price-time-priority limit order book with partial fills and O(1) cancels, wired to a live depth-ladder terminal and order-flow simulator." />
+<meta property="og:title" content="Order Book Matching Engine — Ryan Wien" />
+<meta property="og:description" content="A price-time-priority limit order book with partial fills and O(1) cancels, wired to a live depth-ladder terminal and order-flow simulator." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/matching-engine/orderbook_terminal.html" />
+<meta property="og:image" content="https://ryanwien.github.io/Portfolio2026/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://ryanwien.github.io/Portfolio2026/og-image.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -14,12 +25,12 @@
        shared chrome tokens at that palette so the nav and footer follow it
        instead of the portfolio's light theme. */
     --site-w:1180px; --site-pad:20px;
-    --site-bg:#0A0E14; --site-surface:#0E141D; --site-ink:#D6DEE8; --site-muted:#66768A;
+    --site-bg:#0A0E14; --site-surface:#0E141D; --site-ink:#D6DEE8; --site-muted:#7A8A9E;
     --site-line:#1B2430; --site-line-strong:#2A3746;
     --site-accent:#F5A623; --site-accent-ink:#0A0E14;
     --site-display:'Space Grotesk',system-ui,-apple-system,sans-serif;
     --bg:#0A0E14; --panel:#0E141D; --panel-2:#0B1017; --line:#1B2430; --line-2:#141C26;
-    --text:#D6DEE8; --muted:#66768A; --muted-2:#3A4658;
+    --text:#D6DEE8; --muted:#7A8A9E; --muted-2:#75859A;
     --bid:#2EBD85; --bid-dim:rgba(46,189,133,.13); --bid-line:rgba(46,189,133,.35);
     --ask:#F6465D; --ask-dim:rgba(246,70,93,.13); --ask-line:rgba(246,70,93,.35);
     --accent:#F5A623; --accent-dim:rgba(245,166,35,.14);
@@ -190,7 +201,7 @@
 </style>
 </head>
 <body>
-<nav class="site-nav">
+<nav class="site-nav" aria-label="Site">
   <div class="site-nav-inner">
     <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
     <div class="site-links">
@@ -203,7 +214,7 @@
   </div>
 </nav>
 
-<div class="wrap">
+<main class="wrap">
   <header>
     <div class="brand">
       <div class="tick" aria-hidden="true"></div>
@@ -290,7 +301,7 @@
     Symbol prices are illustrative starting seeds, not a live quote feed — the simulator drives movement from there.
   </div>
 
-  <div class="site-section-label"><span>How it works</span><span>Behind the demo</span></div>
+  <h2 class="site-section-label"><span>How it works</span><span>Behind the demo</span></h2>
   <div class="site-how">
     <div class="site-card">
       <div class="site-card-n">01</div>
@@ -308,7 +319,7 @@
       <p>A large order walks the opposing side, consuming level after level until it's filled — or rests as the new best quote with whatever quantity is left.</p>
     </div>
   </div>
-</div>
+</main>
 
 <footer class="site-footer">
   <div class="site-footer-inner">
