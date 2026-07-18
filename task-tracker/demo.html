@@ -25,6 +25,9 @@
         --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#5C6673;
         --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-soft:rgba(45,78,245,.14); --accent-ink:#FFFFFF;
         --high:#E8622C; --medium:#C9902A; --low:#2D8A5F;
+        /* The vivid colours above carry the left borders, which are decorative.
+           Pill *text* needs 4.5:1, so it uses these darker variants. */
+        --high-ink:#B83E12; --medium-ink:#8A6212; --low-ink:#1F6B47;
         --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
         --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
         --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
@@ -34,6 +37,7 @@
           --bg:#0E1218; --surface:#151B24; --sunken:#10151C; --ink:#EAEEF3; --muted:#8A95A3;
           --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-soft:rgba(110,134,255,.18); --accent-ink:#0E1218;
           --high:#FB8C5E; --medium:#E0B457; --low:#5FC494;
+          --high-ink:#FB8C5E; --medium-ink:#E0B457; --low-ink:#5FC494;
         }
       }
       *{box-sizing:border-box;margin:0;padding:0}
@@ -103,9 +107,9 @@
       .task-priority{font-family:var(--mono); font-size:.64rem; font-weight:600; letter-spacing:.1em;
         text-transform:uppercase; color:var(--muted); padding:.22rem .5rem;
         border:1px solid var(--line-strong); border-radius:999px; white-space:nowrap}
-      .priority-high .task-priority{color:var(--high); border-color:var(--high)}
-      .priority-medium .task-priority{color:var(--medium); border-color:var(--medium)}
-      .priority-low .task-priority{color:var(--low); border-color:var(--low)}
+      .priority-high .task-priority{color:var(--high-ink); border-color:var(--high)}
+      .priority-medium .task-priority{color:var(--medium-ink); border-color:var(--medium)}
+      .priority-low .task-priority{color:var(--low-ink); border-color:var(--low)}
       .delete-btn{background:none; border:none; color:var(--muted); font-size:1.4rem; line-height:1;
         cursor:pointer; padding:0 .2rem; transition:color .15s}
       .delete-btn:hover{color:var(--high)}
