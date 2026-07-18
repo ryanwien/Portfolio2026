@@ -12,3 +12,8 @@ venv/
 
 # OS
 .DS_Store
+
+# .NET build output
+csharp/**/bin/
+csharp/**/obj/
+csharp/**/*.db

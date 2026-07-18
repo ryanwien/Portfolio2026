@@ -102,9 +102,38 @@ Then visit `http://localhost:8000`.
 - Automated tests (pytest for the API)
 - Deploy to a cloud host
 
+## C# implementation
+
+The same REST API in **C# / ASP.NET Core 9 + EF Core**, under [`csharp/`](csharp/) —
+the stack this kind of CRUD service is most often built on in industry.
+
+```bash
+cd csharp
+dotnet run --project src/TaskTracker.Api      # http://localhost:5000
+dotnet test tests/TaskTracker.Tests           # 22 tests
+```
+
+It implements the same contract as the Flask backend — same routes, same JSON
+field names (`created_at`, not `createdAt`), same error strings — so the
+existing front end can point at either without a change.
+
+The 22 tests boot the real application through `WebApplicationFactory` against
+a throwaway SQLite file, so they exercise the actual HTTP pipeline, routing,
+model binding and EF Core rather than a stand-in. They cover CRUD, the
+`?completed=` filter, partial updates leaving untouched fields alone, the
+validation rules, 404s, and stats staying self-consistent — plus two
+SQL-injection payloads that must round-trip as ordinary text.
+
+Two things are tightened relative to the Flask version. Listing orders by
+`created_at` **and then by id**, because two tasks created in the same instant
+would otherwise come back in an order SQLite doesn't guarantee between runs.
+And `PUT` rejects a blank title instead of accepting it, which the Flask
+version allows — it validates the title on create but not on update.
+
 ## Tech stack
 
 Python · Flask · SQLite · JavaScript (ES6) · HTML5 · CSS3
+· C# · ASP.NET Core 9 · EF Core
 
 ## Live demo
 
