@@ -8,8 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../site.css" />
 <style>
   :root{
+    --site-w:960px;
     --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
     --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-soft:rgba(45,78,245,.14); --accent-ink:#FFFFFF;
     --pos:#2D4EF5; --neg:#E8622C;
@@ -26,8 +28,9 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:var(--body); background:var(--bg); color:var(--ink); line-height:1.5;
-    padding:clamp(1.25rem,4vw,2.75rem) 1.25rem 3rem; -webkit-font-smoothing:antialiased}
-  .wrap{max-width:960px;margin:0 auto}
+    padding:0; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--site-w); margin:0 auto;
+    padding:clamp(1.5rem,4vw,2.75rem) var(--site-pad) 1rem}
 
   .eyebrow{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
     text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center}
@@ -112,10 +115,29 @@
 </style>
 </head>
 <body>
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
+    <div class="site-links">
+      <a class="site-link" href="../task-tracker/demo.html">Tasks</a>
+      <a class="site-link" href="../matching-engine/orderbook_terminal.html">Order Book</a>
+      <a class="site-link" href="../ml-housing/demo.html" aria-current="page">ML</a>
+      <a class="site-link" href="../file-organizer/demo.html">Files</a>
+      <a class="site-link" href="../security-log-analyzer/demo.html">Security</a>
+    </div>
+  </div>
+</nav>
+
 <div class="wrap">
-  <div class="eyebrow"><a href="../index.html">&#8592; Portfolio</a> · House Price Prediction</div>
+  <div class="eyebrow">Machine learning · Project 03</div>
   <h1>House Price Prediction</h1>
   <p class="lead">A supervised <b>linear-regression</b> model trained on 2,000 homes to predict sale price from six features. This page runs the <b>real trained model</b> — the exact learned weights — right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b>.</p>
+  <div class="site-chips">
+    <span class="site-chip">scikit-learn</span>
+    <span class="site-chip">pandas</span>
+    <span class="site-chip">NumPy</span>
+    <span class="site-chip">Matplotlib</span>
+  </div>
 
   <div class="section-label"><span>Try the model</span><span>Live prediction</span></div>
   <div class="panel predict">
@@ -147,7 +169,47 @@
   </div>
 
   <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways — gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>) — and evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
+
+  <div class="section-label"><span>How it works</span><span>Behind the demo</span></div>
+  <div class="site-how">
+    <div class="site-card">
+      <div class="site-card-n">01</div>
+      <h3>Ordinary least squares</h3>
+      <p>Features are standardized, then the coefficients are solved in closed form via the normal equation — the same weights this page ships and predicts with.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">02</div>
+      <h3>Held-out evaluation</h3>
+      <p>1,600 homes train the model, 400 are kept back. Every metric above — <code>R²</code>, RMSE, MAE — is measured on homes the model never saw.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">03</div>
+      <h3>Comparable importance</h3>
+      <p>Raw coefficients live in different units, so they're rescaled by each feature's spread. That's what makes the influence bars honest against each other.</p>
+    </div>
+  </div>
 </div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <div class="site-footer-name">Ryan Wien</div>
+      <p class="site-footer-tag">Software engineer building full-stack applications, automation tools, and data-driven programs.</p>
+    </div>
+    <div class="site-footer-col">
+      <div class="site-footer-h">This project</div>
+      <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">Source &amp; write-up</a>
+      <a href="../index.html">All projects</a>
+    </div>
+    <div class="site-footer-col">
+      <div class="site-footer-h">Contact</div>
+      <a href="mailto:ryanwien3d@gmail.com">ryanwien3d@gmail.com</a>
+      <a href="https://www.linkedin.com/in/ryanwien3d">LinkedIn</a>
+      <a href="https://github.com/ryanwien/Portfolio2026">GitHub</a>
+    </div>
+  </div>
+  <div class="site-footer-note">Built and deployed on GitHub Pages · every demo runs client-side</div>
+</footer>
 
 <script>
 (function(){

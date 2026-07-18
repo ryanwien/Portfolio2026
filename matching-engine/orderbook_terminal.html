@@ -7,8 +7,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../site.css" />
 <style>
   :root{
+    /* This page is a trading terminal — always dark, amber accent. Re-point the
+       shared chrome tokens at that palette so the nav and footer follow it
+       instead of the portfolio's light theme. */
+    --site-w:1180px; --site-pad:20px;
+    --site-bg:#0A0E14; --site-surface:#0E141D; --site-ink:#D6DEE8; --site-muted:#66768A;
+    --site-line:#1B2430; --site-line-strong:#2A3746;
+    --site-accent:#F5A623; --site-accent-ink:#0A0E14;
+    --site-display:'Space Grotesk',system-ui,-apple-system,sans-serif;
     --bg:#0A0E14; --panel:#0E141D; --panel-2:#0B1017; --line:#1B2430; --line-2:#141C26;
     --text:#D6DEE8; --muted:#66768A; --muted-2:#3A4658;
     --bid:#2EBD85; --bid-dim:rgba(46,189,133,.13); --bid-line:rgba(46,189,133,.35);
@@ -24,7 +33,7 @@
     -webkit-font-smoothing:antialiased; font-size:14px; line-height:1.4;
     background-image:radial-gradient(1200px 600px at 70% -10%, rgba(245,166,35,.04), transparent 60%);
   }
-  .wrap{max-width:1180px; margin:0 auto; padding:22px 20px 40px; min-height:100%}
+  .wrap{max-width:var(--site-w); margin:0 auto; padding:22px var(--site-pad) 30px}
 
   /* ---- header ---- */
   header{
@@ -167,9 +176,9 @@
   input[type=range]{flex:1; accent-color:var(--accent); cursor:pointer}
   .sim-note{font-family:var(--mono); font-size:10.5px; color:var(--muted-2); line-height:1.5}
 
-  footer{margin-top:22px; padding-top:14px; border-top:1px solid var(--line);
+  .engine-note{margin-top:22px; padding-top:14px; border-top:1px solid var(--line);
     font-family:var(--mono); font-size:11px; color:var(--muted-2); line-height:1.6}
-  footer b{color:var(--muted)}
+  .engine-note b{color:var(--muted)}
 
   @media (max-width:820px){
     .grid{grid-template-columns:1fr}
@@ -181,8 +190,20 @@
 </style>
 </head>
 <body>
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
+    <div class="site-links">
+      <a class="site-link" href="../task-tracker/demo.html">Tasks</a>
+      <a class="site-link" href="../matching-engine/orderbook_terminal.html" aria-current="page">Order Book</a>
+      <a class="site-link" href="../ml-housing/demo.html">ML</a>
+      <a class="site-link" href="../file-organizer/demo.html">Files</a>
+      <a class="site-link" href="../security-log-analyzer/demo.html">Security</a>
+    </div>
+  </div>
+</nav>
+
 <div class="wrap">
-  <a class="backlink" href="../index.html">&#8592; Portfolio</a>
   <header>
     <div class="brand">
       <div class="tick" aria-hidden="true"></div>
@@ -263,12 +284,52 @@
     </div>
   </div>
 
-  <footer>
+  <div class="engine-note">
     <b>Design</b> · ordered price levels + FIFO queues + id→order map · O(1) best quote, O(log P) insert, O(1) cancel.<br>
     Trades print at the resting order's price, so price improvement accrues to the aggressor. Client-side port of the Python engine.<br>
     Symbol prices are illustrative starting seeds, not a live quote feed — the simulator drives movement from there.
-  </footer>
+  </div>
+
+  <div class="site-section-label"><span>How it works</span><span>Behind the demo</span></div>
+  <div class="site-how">
+    <div class="site-card">
+      <div class="site-card-n">01</div>
+      <h3>Price-time priority</h3>
+      <p>Orders rest at a price level in arrival order. The best price fills first, and ties break in favour of whoever was there first — the rule every real exchange runs on.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">02</div>
+      <h3>O(1) cancels</h3>
+      <p>An id→order map points straight at each resting order's node, so cancelling unlinks it in constant time instead of scanning the book.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">03</div>
+      <h3>Partial fills</h3>
+      <p>A large order walks the opposing side, consuming level after level until it's filled — or rests as the new best quote with whatever quantity is left.</p>
+    </div>
+  </div>
 </div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <div class="site-footer-name">Ryan Wien</div>
+      <p class="site-footer-tag">Software engineer building full-stack applications, automation tools, and data-driven programs.</p>
+    </div>
+    <div class="site-footer-col">
+      <div class="site-footer-h">This project</div>
+      <a href="https://github.com/ryanwien/Portfolio2026/tree/main/matching-engine">Source &amp; write-up</a>
+      <a href="../index.html">All projects</a>
+    </div>
+    <div class="site-footer-col">
+      <div class="site-footer-h">Contact</div>
+      <a href="mailto:ryanwien3d@gmail.com">ryanwien3d@gmail.com</a>
+      <a href="https://www.linkedin.com/in/ryanwien3d">LinkedIn</a>
+      <a href="https://github.com/ryanwien/Portfolio2026">GitHub</a>
+    </div>
+  </div>
+  <div class="site-footer-note">Built and deployed on GitHub Pages · every demo runs client-side</div>
+</footer>
 
 <script>
 /* ============================================================

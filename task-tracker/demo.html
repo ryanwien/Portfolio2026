@@ -8,8 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../site.css" />
     <style>
       :root{
+        --site-w:760px;
         --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
         --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-soft:rgba(45,78,245,.14); --accent-ink:#FFFFFF;
         --high:#E8622C; --medium:#C9902A; --low:#2D8A5F;
@@ -27,8 +29,9 @@
       *{box-sizing:border-box;margin:0;padding:0}
       html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       body{font-family:var(--body); background:var(--bg); color:var(--ink); line-height:1.5;
-        padding:clamp(1.25rem,4vw,2.75rem) 1.25rem 3rem; -webkit-font-smoothing:antialiased}
-      .container{max-width:760px;margin:0 auto}
+        padding:0; -webkit-font-smoothing:antialiased}
+      .container{max-width:var(--site-w); margin:0 auto;
+        padding:clamp(1.5rem,4vw,2.75rem) var(--site-pad) 1rem}
 
       .eyebrow{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
         text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center}
@@ -114,10 +117,29 @@
     </style>
 </head>
 <body>
+    <nav class="site-nav">
+      <div class="site-nav-inner">
+        <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
+        <div class="site-links">
+          <a class="site-link" href="../task-tracker/demo.html" aria-current="page">Tasks</a>
+          <a class="site-link" href="../matching-engine/orderbook_terminal.html">Order Book</a>
+          <a class="site-link" href="../ml-housing/demo.html">ML</a>
+          <a class="site-link" href="../file-organizer/demo.html">Files</a>
+          <a class="site-link" href="../security-log-analyzer/demo.html">Security</a>
+        </div>
+      </div>
+    </nav>
+
     <div class="container">
-        <div class="eyebrow"><a href="../index.html">&#8592; Portfolio</a> · Task Tracker</div>
+        <div class="eyebrow">Full-stack · Project 01</div>
         <h1>Task Tracker</h1>
         <p class="lead">A task manager with <b>priority ranking</b>, filtering, and live counts. This page runs the same interface as the full app — the difference is where the data lives: here it's an in-memory array, in the full version it's a <b>Flask + SQLite</b> REST backend.</p>
+        <div class="site-chips">
+          <span class="site-chip">Flask</span>
+          <span class="site-chip">SQLite</span>
+          <span class="site-chip">REST API</span>
+          <span class="site-chip">Vanilla JS</span>
+        </div>
 
         <div class="section-label"><span>Overview</span><span>Resets on refresh</span></div>
         <section class="stats">
@@ -159,7 +181,47 @@
         <p class="note"><b>Standalone browser demo.</b> Tasks live in a JavaScript array, so they reset on refresh.
         The full project swaps this for REST calls to a Flask server backed by SQLite — see the
         <a href="https://github.com/ryanwien/Portfolio2026/tree/main/task-tracker">source and API write-up</a>.</p>
+
+        <div class="section-label"><span>How it works</span><span>Behind the demo</span></div>
+        <div class="site-how">
+          <div class="site-card">
+            <div class="site-card-n">01</div>
+            <h3>REST API</h3>
+            <p>Flask exposes the task list as CRUD endpoints — <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> — so the front end never talks to the database directly.</p>
+          </div>
+          <div class="site-card">
+            <div class="site-card-n">02</div>
+            <h3>Parameterized SQL</h3>
+            <p>Every query binds its values as parameters instead of building strings, so a task title can't change the shape of the statement it lands in.</p>
+          </div>
+          <div class="site-card">
+            <div class="site-card-n">03</div>
+            <h3>Validated input</h3>
+            <p>Titles are required and length-capped, and priority has to be one of three known values — checked on the server, not just in the browser.</p>
+          </div>
+        </div>
     </div>
+
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        <div class="site-footer-brand">
+          <div class="site-footer-name">Ryan Wien</div>
+          <p class="site-footer-tag">Software engineer building full-stack applications, automation tools, and data-driven programs.</p>
+        </div>
+        <div class="site-footer-col">
+          <div class="site-footer-h">This project</div>
+          <a href="https://github.com/ryanwien/Portfolio2026/tree/main/task-tracker">Source &amp; write-up</a>
+          <a href="../index.html">All projects</a>
+        </div>
+        <div class="site-footer-col">
+          <div class="site-footer-h">Contact</div>
+          <a href="mailto:ryanwien3d@gmail.com">ryanwien3d@gmail.com</a>
+          <a href="https://www.linkedin.com/in/ryanwien3d">LinkedIn</a>
+          <a href="https://github.com/ryanwien/Portfolio2026">GitHub</a>
+        </div>
+      </div>
+      <div class="site-footer-note">Built and deployed on GitHub Pages · every demo runs client-side</div>
+    </footer>
 
     <script>
         /*

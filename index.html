@@ -17,8 +17,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="site.css" />
 <style>
   :root{
+    --site-w:820px;
     --bg:#E7EAEE; --surface:#FFFFFF; --ink:#131922; --muted:#616B78;
     --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
     --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -35,10 +37,11 @@
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   body{
     font-family:var(--body); background:var(--bg); color:var(--ink);
-    line-height:1.5; padding:clamp(1.5rem,5vw,4rem) 1.25rem 3rem;
+    line-height:1.5; padding:0;
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:720px;margin:0 auto}
+  .wrap{max-width:var(--site-w); margin:0 auto;
+    padding:clamp(1.75rem,5vw,3.5rem) var(--site-pad) 1rem}
 
   /* ---- header ---- */
   .eyebrow{
@@ -89,12 +92,6 @@
   .btn-src:hover{border-color:var(--ink)}
   .runs-local{font-family:var(--mono); font-size:.68rem; color:var(--muted); text-align:center; letter-spacing:.04em}
 
-  /* ---- footer ---- */
-  footer{margin-top:2.75rem; display:flex; flex-wrap:wrap; gap:.4rem 1.5rem; align-items:center}
-  footer a{font-family:var(--mono); font-size:.82rem; color:var(--ink); text-decoration:none; border-bottom:1px solid var(--accent); padding-bottom:1px}
-  footer a:hover{color:var(--accent)}
-  .foot-note{font-family:var(--mono); font-size:.72rem; color:var(--muted); margin-left:auto}
-
   a:focus-visible,.btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
 
   @media (max-width:560px){
@@ -106,6 +103,19 @@
 </style>
 </head>
 <body>
+  <nav class="site-nav">
+    <div class="site-nav-inner">
+      <a class="site-brand" href="index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
+      <div class="site-links">
+        <a class="site-link" href="task-tracker/demo.html">Tasks</a>
+        <a class="site-link" href="matching-engine/orderbook_terminal.html">Order Book</a>
+        <a class="site-link" href="ml-housing/demo.html">ML</a>
+        <a class="site-link" href="file-organizer/demo.html">Files</a>
+        <a class="site-link" href="security-log-analyzer/demo.html">Security</a>
+      </div>
+    </div>
+  </nav>
+
   <div class="wrap">
     <header>
       <div class="eyebrow">Portfolio — 2026</div>
@@ -187,12 +197,30 @@
       </article>
     </main>
 
-    <footer>
-      <a href="mailto:ryanwien3d@gmail.com">Email</a>
-      <a href="https://www.linkedin.com/in/ryanwien3d">LinkedIn</a>
-      <a href="https://github.com/ryanwien/Portfolio2026">GitHub</a>
-      <span class="foot-note">ryanwien.github.io</span>
-    </footer>
   </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="site-footer-brand">
+        <div class="site-footer-name">Ryan Wien</div>
+        <p class="site-footer-tag">Software engineer building full-stack applications, automation tools, and data-driven programs.</p>
+      </div>
+      <div class="site-footer-col">
+        <div class="site-footer-h">Projects</div>
+        <a href="task-tracker/demo.html">Task Tracker</a>
+        <a href="matching-engine/orderbook_terminal.html">Order Book</a>
+        <a href="ml-housing/demo.html">House Prices</a>
+        <a href="file-organizer/demo.html">File Organizer</a>
+        <a href="security-log-analyzer/demo.html">Log Analyzer</a>
+      </div>
+      <div class="site-footer-col">
+        <div class="site-footer-h">Contact</div>
+        <a href="mailto:ryanwien3d@gmail.com">ryanwien3d@gmail.com</a>
+        <a href="https://www.linkedin.com/in/ryanwien3d">LinkedIn</a>
+        <a href="https://github.com/ryanwien/Portfolio2026">GitHub</a>
+      </div>
+    </div>
+    <div class="site-footer-note">Built and deployed on GitHub Pages · every demo runs client-side</div>
+  </footer>
 </body>
 </html>

@@ -8,8 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../site.css" />
 <style>
   :root{
+    --site-w:1000px;
     --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#616B78;
     --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
     --crit:#DC2626; --high:#EA580C; --med:#D97706; --low:#2563EB;
@@ -27,8 +29,9 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:var(--body); background:var(--bg); color:var(--ink); line-height:1.5;
-    padding:clamp(1.25rem,4vw,2.75rem) 1.25rem 3rem; -webkit-font-smoothing:antialiased}
-  .wrap{max-width:1000px;margin:0 auto}
+    padding:0; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--site-w); margin:0 auto;
+    padding:clamp(1.5rem,4vw,2.75rem) var(--site-pad) 1rem}
 
   .eyebrow{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
     text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center}
@@ -123,10 +126,29 @@
 </style>
 </head>
 <body>
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
+    <div class="site-links">
+      <a class="site-link" href="../task-tracker/demo.html">Tasks</a>
+      <a class="site-link" href="../matching-engine/orderbook_terminal.html">Order Book</a>
+      <a class="site-link" href="../ml-housing/demo.html">ML</a>
+      <a class="site-link" href="../file-organizer/demo.html">Files</a>
+      <a class="site-link" href="../security-log-analyzer/demo.html" aria-current="page">Security</a>
+    </div>
+  </div>
+</nav>
+
 <div class="wrap">
-  <div class="eyebrow"><a href="../index.html">&#8592; Portfolio</a> · Security Log Analyzer</div>
+  <div class="eyebrow">Security · Project 05</div>
   <h1>Security Log Analyzer</h1>
   <p class="lead">A SIEM-style detection engine that turns raw authentication logs into ranked, <b>MITRE ATT&amp;CK</b>-tagged alerts — the core of a SOC analyst's day. This page runs the <b>real detection rules</b> in your browser over a sample day of <b id="evCount">…</b> synthetic log events. Adjust the detection threshold and watch the alerts recompute, then click an alert to trace it back to the raw events.</p>
+  <div class="site-chips">
+    <span class="site-chip">Python</span>
+    <span class="site-chip">Detection engineering</span>
+    <span class="site-chip">MITRE ATT&amp;CK</span>
+    <span class="site-chip">Standard library only</span>
+  </div>
 
   <div class="section-label"><span>Data source</span><span id="diagOS">…</span></div>
   <div class="source">
@@ -170,7 +192,47 @@
   <div class="chips" id="chips"></div>
 
   <p class="note"><b>How it works:</b> the same rules run here and in the Python CLI (<code>analyze.py</code>) — brute force and its success (compromise), password spraying, port scanning, impossible travel (geo-velocity), and off-hours privileged access — each mapped to a MITRE ATT&amp;CK technique. Logs are synthetic; no real data is involved. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/security-log-analyzer">source and detection write-up</a>.</p>
+
+  <div class="section-label"><span>How it works</span><span>Behind the demo</span></div>
+  <div class="site-how">
+    <div class="site-card">
+      <div class="site-card-n">01</div>
+      <h3>Sliding-window rules</h3>
+      <p>Brute force, spraying, and port scans are counted over a moving time window. Every threshold lives in one <code>DEFAULTS</code> block, because tuning sensitivity is the actual job.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">02</div>
+      <h3>Geo-velocity</h3>
+      <p>Two logins for one user become a haversine distance over elapsed time. Anything faster than a plane is flagged as impossible travel.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">03</div>
+      <h3>Ranked and mapped</h3>
+      <p>Each alert carries a severity and a MITRE ATT&amp;CK technique ID, so a genuine compromise sorts above the noise and speaks the language every SOC uses.</p>
+    </div>
+  </div>
 </div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <div class="site-footer-name">Ryan Wien</div>
+      <p class="site-footer-tag">Software engineer building full-stack applications, automation tools, and data-driven programs.</p>
+    </div>
+    <div class="site-footer-col">
+      <div class="site-footer-h">This project</div>
+      <a href="https://github.com/ryanwien/Portfolio2026/tree/main/security-log-analyzer">Source &amp; write-up</a>
+      <a href="../index.html">All projects</a>
+    </div>
+    <div class="site-footer-col">
+      <div class="site-footer-h">Contact</div>
+      <a href="mailto:ryanwien3d@gmail.com">ryanwien3d@gmail.com</a>
+      <a href="https://www.linkedin.com/in/ryanwien3d">LinkedIn</a>
+      <a href="https://github.com/ryanwien/Portfolio2026">GitHub</a>
+    </div>
+  </div>
+  <div class="site-footer-note">Built and deployed on GitHub Pages · every demo runs client-side</div>
+</footer>
 
 <script>
 (function(){
