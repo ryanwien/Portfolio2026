@@ -171,6 +171,25 @@
     <span class="site-chip">Standard library only</span>
   </div>
 
+  <h2 class="section-label"><span>How it works</span><span>Behind the demo</span></h2>
+  <div class="site-how">
+    <div class="site-card">
+      <div class="site-card-n">01</div>
+      <h3>Sliding-window rules</h3>
+      <p>Brute force, spraying, and port scans are counted over a moving time window. Every threshold lives in one <code>DEFAULTS</code> block, because tuning sensitivity is the actual job.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">02</div>
+      <h3>Geo-velocity</h3>
+      <p>Two logins for one user become a haversine distance over elapsed time. Anything faster than a plane is flagged as impossible travel.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">03</div>
+      <h3>Ranked and mapped</h3>
+      <p>Each alert carries a severity and a MITRE ATT&amp;CK technique ID, so a genuine compromise sorts above the noise and speaks the language every SOC uses.</p>
+    </div>
+  </div>
+
   <div class="section-label"><span>Data source</span><span id="diagOS">…</span></div>
   <div class="source">
     <div class="diag" id="diag"></div>
@@ -214,24 +233,6 @@
 
   <p class="note"><b>How it works:</b> the same rules run here and in the Python CLI (<code>analyze.py</code>) — brute force and its success (compromise), password spraying, port scanning, impossible travel (geo-velocity), and off-hours privileged access — each mapped to a MITRE ATT&amp;CK technique. Logs are synthetic; no real data is involved. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/security-log-analyzer">source and detection write-up</a>.</p>
 
-  <h2 class="section-label"><span>How it works</span><span>Behind the demo</span></h2>
-  <div class="site-how">
-    <div class="site-card">
-      <div class="site-card-n">01</div>
-      <h3>Sliding-window rules</h3>
-      <p>Brute force, spraying, and port scans are counted over a moving time window. Every threshold lives in one <code>DEFAULTS</code> block, because tuning sensitivity is the actual job.</p>
-    </div>
-    <div class="site-card">
-      <div class="site-card-n">02</div>
-      <h3>Geo-velocity</h3>
-      <p>Two logins for one user become a haversine distance over elapsed time. Anything faster than a plane is flagged as impossible travel.</p>
-    </div>
-    <div class="site-card">
-      <div class="site-card-n">03</div>
-      <h3>Ranked and mapped</h3>
-      <p>Each alert carries a severity and a MITRE ATT&amp;CK technique ID, so a genuine compromise sorts above the noise and speaks the language every SOC uses.</p>
-    </div>
-  </div>
 </main>
 
 <footer class="site-footer">

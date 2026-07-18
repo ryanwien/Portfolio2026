@@ -153,6 +153,25 @@
     <span class="site-chip">Matplotlib</span>
   </div>
 
+  <h2 class="section-label"><span>How it works</span><span>Behind the demo</span></h2>
+  <div class="site-how">
+    <div class="site-card">
+      <div class="site-card-n">01</div>
+      <h3>Ordinary least squares</h3>
+      <p>Features are standardized, then the coefficients are solved in closed form via the normal equation — the same weights this page ships and predicts with.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">02</div>
+      <h3>Held-out evaluation</h3>
+      <p>1,600 homes train the model, 400 are kept back. Every metric above — <code>R²</code>, RMSE, MAE — is measured on homes the model never saw.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">03</div>
+      <h3>Comparable importance</h3>
+      <p>Raw coefficients live in different units, so they're rescaled by each feature's spread. That's what makes the influence bars honest against each other.</p>
+    </div>
+  </div>
+
   <div class="section-label"><span>Try the model</span><span>Live prediction</span></div>
   <div class="panel predict">
     <div class="sliders" id="sliders"></div>
@@ -184,24 +203,6 @@
 
   <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways — gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>) — and evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
 
-  <h2 class="section-label"><span>How it works</span><span>Behind the demo</span></h2>
-  <div class="site-how">
-    <div class="site-card">
-      <div class="site-card-n">01</div>
-      <h3>Ordinary least squares</h3>
-      <p>Features are standardized, then the coefficients are solved in closed form via the normal equation — the same weights this page ships and predicts with.</p>
-    </div>
-    <div class="site-card">
-      <div class="site-card-n">02</div>
-      <h3>Held-out evaluation</h3>
-      <p>1,600 homes train the model, 400 are kept back. Every metric above — <code>R²</code>, RMSE, MAE — is measured on homes the model never saw.</p>
-    </div>
-    <div class="site-card">
-      <div class="site-card-n">03</div>
-      <h3>Comparable importance</h3>
-      <p>Raw coefficients live in different units, so they're rescaled by each feature's spread. That's what makes the influence bars honest against each other.</p>
-    </div>
-  </div>
 </main>
 
 <footer class="site-footer">

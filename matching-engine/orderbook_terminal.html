@@ -237,6 +237,25 @@
     </div>
   </header>
 
+  <h2 class="site-section-label"><span>How it works</span><span>Behind the demo</span></h2>
+  <div class="site-how">
+    <div class="site-card">
+      <div class="site-card-n">01</div>
+      <h3>Price-time priority</h3>
+      <p>Orders rest at a price level in arrival order. The best price fills first, and ties break in favour of whoever was there first — the rule every real exchange runs on.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">02</div>
+      <h3>O(1) cancels</h3>
+      <p>An id→order map points straight at each resting order's node, so cancelling unlinks it in constant time instead of scanning the book.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">03</div>
+      <h3>Partial fills</h3>
+      <p>A large order walks the opposing side, consuming level after level until it's filled — or rests as the new best quote with whatever quantity is left.</p>
+    </div>
+  </div>
+
   <div class="grid">
     <!-- LADDER -->
     <div class="card">
@@ -306,24 +325,6 @@
     Symbol prices are illustrative starting seeds, not a live quote feed — the simulator drives movement from there.
   </div>
 
-  <h2 class="site-section-label"><span>How it works</span><span>Behind the demo</span></h2>
-  <div class="site-how">
-    <div class="site-card">
-      <div class="site-card-n">01</div>
-      <h3>Price-time priority</h3>
-      <p>Orders rest at a price level in arrival order. The best price fills first, and ties break in favour of whoever was there first — the rule every real exchange runs on.</p>
-    </div>
-    <div class="site-card">
-      <div class="site-card-n">02</div>
-      <h3>O(1) cancels</h3>
-      <p>An id→order map points straight at each resting order's node, so cancelling unlinks it in constant time instead of scanning the book.</p>
-    </div>
-    <div class="site-card">
-      <div class="site-card-n">03</div>
-      <h3>Partial fills</h3>
-      <p>A large order walks the opposing side, consuming level after level until it's filled — or rests as the new best quote with whatever quantity is left.</p>
-    </div>
-  </div>
 </main>
 
 <footer class="site-footer">
