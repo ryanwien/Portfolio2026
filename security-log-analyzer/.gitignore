@@ -10,3 +10,7 @@ data/*_events_local.jsonl
 events.jsonl
 mac_events.jsonl
 linux_events.jsonl
+
+# .NET build output
+csharp/**/bin/
+csharp/**/obj/
