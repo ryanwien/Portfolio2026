@@ -96,8 +96,15 @@ reproducible inside scikit-learn, but matching it from C++ would mean
 reimplementing NumPy's Mersenne Twister permutation — brittle, and not what this
 project is about. So the split is exported once by
 [`export_split.py`](export_split.py) into `data/split_indices.txt` and committed.
-Both implementations train on precisely the same 1,600 rows, and the C++ solver
-lands on the Python coefficients to four decimal places:
+
+Both the Python script and the C++ program then *read* that file rather than
+re-deriving the split. That matters: if scikit-learn ever changes its shuffle, a
+script that called `train_test_split` at runtime would quietly start training on
+different rows than the C++ port, and the agreement below would rot without
+anything failing. Reading committed indices makes the two structurally identical
+instead of coincidentally equal.
+
+The C++ solver lands on the Python coefficients to four decimal places:
 
 | | intercept | sqft | bedrooms | bathrooms | age | garage | location |
 |---|---:|---:|---:|---:|---:|---:|---:|

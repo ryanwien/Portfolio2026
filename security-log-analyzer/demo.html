@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Security Log Analyzer — Live Demo</title>
+<title>Security Log Analyzer · Live Demo</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
 <meta name="description" content="A SIEM-style detection engine turning raw auth logs into ranked, MITRE ATT&amp;CK-tagged alerts. Load your own log; nothing is uploaded." />
-<meta property="og:title" content="Security Log Analyzer — Ryan Wien" />
+<meta property="og:title" content="Security Log Analyzer · Ryan Wien" />
 <meta property="og:description" content="A SIEM-style detection engine turning raw auth logs into ranked, MITRE ATT&amp;CK-tagged alerts. Load your own log; nothing is uploaded." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/security-log-analyzer/demo.html" />
@@ -162,7 +162,7 @@
 <main class="wrap">
   <div class="eyebrow">Security</div>
   <h1>Security Log Analyzer</h1>
-  <p class="lead">A SIEM-style detection engine that turns raw authentication logs into ranked, <b>MITRE ATT&amp;CK</b>-tagged alerts — the core of a SOC analyst's day. This page runs the <b>real detection rules</b> in your browser over a sample day of <b id="evCount">…</b> synthetic log events. Adjust the detection threshold and watch the alerts recompute, then click an alert to trace it back to the raw events.</p>
+  <p class="lead">A SIEM-style detection engine that turns raw authentication logs into ranked, <b>MITRE ATT&amp;CK</b>-tagged alerts, the core of a SOC analyst's day. This page runs the <b>real detection rules</b> in your browser over a sample day of <b id="evCount">…</b> synthetic log events. Adjust the detection threshold and watch the alerts recompute, then click an alert to trace it back to the raw events.</p>
   <div class="site-chips">
     <span class="site-chip">Python</span>
     <span class="site-chip">C# / .NET 9</span>
@@ -231,7 +231,7 @@
   <div class="section-label"><span>ATT&amp;CK coverage</span><span>techniques observed</span></div>
   <div class="chips" id="chips"></div>
 
-  <p class="note"><b>How it works:</b> the same rules run here and in the Python CLI (<code>analyze.py</code>) — brute force and its success (compromise), password spraying, port scanning, impossible travel (geo-velocity), and off-hours privileged access — each mapped to a MITRE ATT&amp;CK technique. Logs are synthetic; no real data is involved. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/security-log-analyzer">source and detection write-up</a>.</p>
+  <p class="note"><b>How it works:</b> the same rules run here and in the Python CLI (<code>analyze.py</code>): brute force and its success (compromise), password spraying, port scanning, impossible travel (geo-velocity), and off-hours privileged access, each mapped to a MITRE ATT&amp;CK technique. Logs are synthetic; no real data is involved. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/security-log-analyzer">source and detection write-up</a>.</p>
 
 </main>
 
@@ -509,10 +509,10 @@
       var parsed = parseLog(String(reader.result));
       if(!parsed.length){
         document.getElementById("srcStatus").textContent =
-          "Couldn't read events from " + file.name + " — expected JSON Lines (from a collector) or an sshd auth log.";
+          "Couldn't read events from " + file.name + ". Expected JSON Lines (from a collector) or an sshd auth log.";
         return;
       }
-      setEvents(parsed, "file", "Your log: " + file.name + " — " + parsed.length + " events · analyzed locally, never uploaded");
+      setEvents(parsed, "file", "Your log: " + file.name + " (" + parsed.length + " events) · analyzed locally, never uploaded");
     };
     reader.readAsText(file);
     ev.target.value = "";
@@ -559,8 +559,8 @@
     document.getElementById("diagOS").textContent = os + " · " + br;
     function pill(k, v){ return '<span class="dpill">' + k + ': <b>' + v + '</b></span>'; }
     var verdict = mobile
-      ? "Detection runs fine here — " + os + " just can't export <i>its own</i> system logs (the OS sandboxes them). Collect a log on a server or PC, move it to this device, then tap <b>Load your own log</b> and pick it from Files. Everything is parsed on this device, nothing is uploaded."
-      : "A browser can't read system logs directly, for security. Export your logs with the command below, then <b>Load your own log</b> — everything is analyzed in this page, nothing is uploaded.";
+      ? "Detection runs fine here. " + os + " just can't export <i>its own</i> system logs (the OS sandboxes them). Collect a log on a server or PC, move it to this device, then tap <b>Load your own log</b> and pick it from Files. Everything is parsed on this device, nothing is uploaded."
+      : "A browser can't read system logs directly, for security. Export your logs with the command below, then <b>Load your own log</b>. Everything is analyzed in this page, nothing is uploaded.";
     document.getElementById("diag").innerHTML =
       pill("OS", os) + pill("Browser", br) + pill("Secure context", secure ? "yes" : "no") + pill("Processing", "local only") +
       '<div class="dverdict">' + verdict + '</div>';
@@ -590,9 +590,9 @@
     document.getElementById("clearSel").addEventListener("click", function(){ selected = null; run(); });
     document.getElementById("fileInput").addEventListener("change", onFile);
     document.getElementById("srcSample").addEventListener("click", function(){
-      setEvents(SAMPLE, "sample", "Sample log — " + SAMPLE.length + " synthetic events");
+      setEvents(SAMPLE, "sample", "Sample log · " + SAMPLE.length + " synthetic events");
     });
-    setEvents(SAMPLE, "sample", "Sample log — " + SAMPLE.length + " synthetic events");
+    setEvents(SAMPLE, "sample", "Sample log · " + SAMPLE.length + " synthetic events");
   })();
 })();
 </script>

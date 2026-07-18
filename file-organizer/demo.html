@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>File Organizer — Live Demo</title>
+<title>File Organizer · Live Demo</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
 <meta name="description" content="Sorts a messy folder by file type, with dry-run preview, collision-safe renaming, and undo. Works on a real folder on your computer." />
-<meta property="og:title" content="File Organizer — Ryan Wien" />
+<meta property="og:title" content="File Organizer · Ryan Wien" />
 <meta property="og:description" content="Sorts a messy folder by file type, with dry-run preview, collision-safe renaming, and undo. Works on a real folder on your computer." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/file-organizer/demo.html" />
@@ -157,10 +157,10 @@
 <main class="wrap">
   <div class="eyebrow">Tooling</div>
   <h1>File Organizer</h1>
-  <p class="lead">A Python CLI that sorts a messy folder into subfolders by file type. This page runs the <b>real algorithm</b> — the same categorization, <code>--dry-run</code> preview, collision-safe renaming, and undo. Try the built-in sample, or pick a real folder and it will actually organize it.</p>
+  <p class="lead">A Python CLI that sorts a messy folder into subfolders by file type. This page runs the <b>real algorithm</b>: the same categorization, <code>--dry-run</code> preview, collision-safe renaming, and undo. Try the built-in sample, or pick a real folder and it will actually organize it.</p>
   <div class="site-chips">
     <span class="site-chip">Python</span>
-    <span class="site-chip">C++20</span>
+    <span class="site-chip">C++</span>
     <span class="site-chip">CLI</span>
     <span class="site-chip">File System Access API</span>
     <span class="site-chip">Zero dependencies</span>
@@ -171,7 +171,7 @@
     <div class="site-card">
       <div class="site-card-n">01</div>
       <h3>Extension to category</h3>
-      <p>Each file's extension maps to one of six buckets — Images, Documents, Audio, Video, Archives, Code — and anything unrecognized lands in <code>Other</code> rather than being skipped.</p>
+      <p>Each file's extension maps to one of six buckets (Images, Documents, Audio, Video, Archives, Code), and anything unrecognized lands in <code>Other</code> rather than being skipped.</p>
     </div>
     <div class="site-card">
       <div class="site-card-n">02</div>
@@ -194,7 +194,7 @@
 
   <div class="live-warn" id="liveWarn" hidden>
     <span class="pill warnpill">Live</span>
-    <span><b>Live mode.</b> <b id="warnRun">Organize</b> will move real files inside <code id="warnPath">the folder</code> into category subfolders. <b>Dry run is on by default</b> — turn it off and confirm to move for real. Nothing is ever overwritten, and <b>Undo</b> reverses the last run. Grant access only to a folder you're comfortable rearranging (your Downloads is a good candidate).</span>
+    <span><b>Live mode.</b> <b id="warnRun">Organize</b> will move real files inside <code id="warnPath">the folder</code> into category subfolders. <b>Dry run is on by default</b>. Turn it off and confirm to move for real. Nothing is ever overwritten, and <b>Undo</b> reverses the last run. Grant access only to a folder you're comfortable rearranging (your Downloads is a good candidate).</span>
   </div>
 
   <div class="controls">
@@ -330,7 +330,7 @@
     var summary = {};
     print('<span class="prompt">$</span> <span class="head">'+cmd+'</span>');
     print("");
-    print('<span class="head">'+(dryRun?"DRY RUN — no changes made":"Organizing")+':</span> '+esc(pathLabel));
+    print('<span class="head">'+(dryRun?"DRY RUN · no changes made":"Organizing")+':</span> '+esc(pathLabel));
     print('<span class="rule">'+dash()+'</span>');
     moves.forEach(function(m){
       summary[m.cat] = (summary[m.cat]||0)+1;
@@ -482,7 +482,7 @@
   }
   async function pickFolder(){
     if(!supported){
-      print('<span class="err">This browser can\'t open a real folder — the File System Access API needs Chrome or Edge (desktop).</span>');
+      print('<span class="err">This browser can\'t open a real folder. The File System Access API needs Chrome or Edge (desktop).</span>');
       return;
     }
     if(location.protocol === "file:"){
@@ -495,14 +495,14 @@
       if(e && (e.name === "AbortError")) return;   // user closed / cancelled the picker
       // SecurityError, blocked system folder, or anything else
       print('<span class="err">Couldn\'t open that folder: '+esc(e && (e.message || e.name) || "blocked by the browser")+'.</span>');
-      print('<span class="rule">Browsers block drive roots (C:\\), the Desktop, and system folders. Pick a normal folder like <b class="head">Downloads</b> or <b class="head">Documents</b> — or make a test folder and drop a few files in it.</span>');
+      print('<span class="rule">Browsers block drive roots (C:\\), the Desktop, and system folders. Pick a normal folder like <b class="head">Downloads</b> or <b class="head">Documents</b>, or make a test folder and drop a few files in it.</span>');
       return;
     }
     // Confirm read/write permission
     try {
       if(handle.requestPermission){
         var perm = await handle.requestPermission({ mode: "readwrite" });
-        if(perm !== "granted"){ print('<span class="err">Permission not granted — no files were touched.</span>'); return; }
+        if(perm !== "granted"){ print('<span class="err">Permission not granted. No files were touched.</span>'); return; }
       }
     } catch(e){}
     mode = "real"; realDir = handle; lastLog = null;
@@ -516,7 +516,7 @@
     setPath(handle.name + "/");
     render(); termClear();
     print('<span class="prompt">$</span> <span class="head">python organize.py '+esc(handle.name)+' <span class="flag">--dry-run</span></span>');
-    print('<span class="rule">Connected to <b class="head">'+esc(handle.name)+'/</b> — '+root.length+' file(s) at the top level. Press <b class="head">Organize</b> to preview (Dry run is on).</span>');
+    print('<span class="rule">Connected to <b class="head">'+esc(handle.name)+'/</b> with '+root.length+' file(s) at the top level. Press <b class="head">Organize</b> to preview (Dry run is on).</span>');
     setBusy(false);
   }
   async function realOrganize(dryRun){
@@ -525,7 +525,7 @@
     if(!dryRun){
       var ok = window.confirm('Move ' + moves.length + ' file(s) into category subfolders inside "' + realDir.name +
         '"?\n\nNothing is overwritten, and you can reverse this with Undo.');
-      if(!ok){ print('<span class="rule">Cancelled — no files were moved.</span>'); return; }
+      if(!ok){ print('<span class="rule">Cancelled. No files were moved.</span>'); return; }
     }
     termClear();
     printPlan(moves, dryRun, realDir.name + "/",
@@ -604,10 +604,10 @@
     buildLegend();
     var note = document.getElementById("modeNote");
     if(!supported){
-      note.textContent = "Real-folder mode needs Chrome or Edge — sample mode works everywhere.";
+      note.textContent = "Real-folder mode needs Chrome or Edge. Sample mode works everywhere.";
       document.getElementById("pick").disabled = true;
     } else if(location.protocol === "file:"){
-      note.innerHTML = "Opened locally — folder access is blocked here. Use the hosted site for real mode.";
+      note.innerHTML = "Opened locally, so folder access is blocked here. Use the hosted site for real mode.";
     } else {
       note.textContent = "Pick a normal folder like Downloads. Nothing leaves your device.";
     }

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Tracker — Live Demo</title>
+    <title>Task Tracker · Live Demo</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
 <meta name="description" content="A task manager with priority ranking and live counts, running in your browser. Flask + SQLite REST backend in the full version." />
-<meta property="og:title" content="Task Tracker — Ryan Wien" />
+<meta property="og:title" content="Task Tracker · Ryan Wien" />
 <meta property="og:description" content="A task manager with priority ranking and live counts, running in your browser. Flask + SQLite REST backend in the full version." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/task-tracker/demo.html" />
@@ -147,7 +147,7 @@
     <main class="container">
         <div class="eyebrow">Full-stack</div>
         <h1>Task Tracker</h1>
-        <p class="lead">A task manager with <b>priority ranking</b>, filtering, and live counts. This page runs the same interface as the full app — the difference is where the data lives: here it's an in-memory array, in the full version it's a <b>Flask + SQLite</b> REST backend.</p>
+        <p class="lead">A task manager with <b>priority ranking</b>, filtering, and live counts. This page runs the same interface as the full app. The difference is where the data lives: here it's an in-memory array, in the full version it's a <b>Flask + SQLite</b> REST backend.</p>
         <div class="site-chips">
           <span class="site-chip">C# / ASP.NET Core</span>
           <span class="site-chip">Flask</span>
@@ -161,7 +161,7 @@
           <div class="site-card">
             <div class="site-card-n">01</div>
             <h3>REST API</h3>
-            <p>The task list is exposed as CRUD endpoints — <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> — so the front end never talks to the database directly. Two backends serve the same contract: Flask and ASP.NET Core.</p>
+            <p>The task list is exposed as CRUD endpoints (<code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>), so the front end never talks to the database directly. Two backends serve the same contract: Flask and ASP.NET Core.</p>
           </div>
           <div class="site-card">
             <div class="site-card-n">02</div>
@@ -171,7 +171,7 @@
           <div class="site-card">
             <div class="site-card-n">03</div>
             <h3>Validated input</h3>
-            <p>Titles are required and length-capped, and priority has to be one of three known values — checked on the server, not just in the browser.</p>
+            <p>Titles are required and length-capped, and priority has to be one of three known values, checked on the server, not just in the browser.</p>
           </div>
         </div>
 
@@ -213,7 +213,7 @@
         <section class="task-list" id="task-list"></section>
 
         <p class="note"><b>Standalone browser demo.</b> Tasks live in a JavaScript array, so they reset on refresh.
-        The full project swaps this for REST calls to a Flask server backed by SQLite — see the
+        The full project swaps this for REST calls to a Flask server backed by SQLite. See the
         <a href="https://github.com/ryanwien/Portfolio2026/tree/main/task-tracker">source and API write-up</a>.</p>
 
     </main>
