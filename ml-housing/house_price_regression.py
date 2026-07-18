@@ -18,13 +18,14 @@ Run:
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression, SGDRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import os
 
-DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "housing.csv")
+BASE = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(BASE, "data", "housing.csv")
+SPLIT_PATH = os.path.join(BASE, "data", "split_indices.txt")
 
 
 def load_and_explore(path):
@@ -53,6 +54,36 @@ def load_and_explore(path):
     return df
 
 
+def load_frozen_split(path):
+    """Read the committed train/test row indices.
+
+    The split was produced once by export_split.py and written to disk, so the
+    C++ implementation trains on exactly the same rows without reimplementing
+    NumPy's shuffle. Reading it here rather than calling train_test_split again
+    means the two can't drift apart if scikit-learn ever changes that shuffle.
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            f"{path} is missing. Regenerate it with: python export_split.py"
+        )
+
+    sections = {}
+    with open(path, "r", encoding="utf-8") as fh:
+        lines = [ln.strip() for ln in fh if ln.strip() and not ln.startswith("#")]
+
+    # Each section is a "<name> <count>" header followed by a line of indices.
+    for header, values in zip(lines[::2], lines[1::2]):
+        name, count = header.split()
+        indices = [int(tok) for tok in values.split()]
+        if len(indices) != int(count):
+            raise ValueError(
+                f"{path}: '{name}' claims {count} rows but lists {len(indices)}"
+            )
+        sections[name] = indices
+
+    return sections["train"], sections["test"]
+
+
 def prepare_data(df):
     """Split into features/target, then train/test, then scale.
 
@@ -66,9 +97,10 @@ def prepare_data(df):
 
     # 80/20 train/test split. The test set is held out and never seen
     # during training, so it gives an honest estimate of performance.
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
+    # The row indices are frozen on disk — see load_frozen_split.
+    train_idx, test_idx = load_frozen_split(SPLIT_PATH)
+    X_train, X_test = X[train_idx], X[test_idx]
+    y_train, y_test = y[train_idx], y[test_idx]
 
     # Standardize features: each becomes mean 0, std 1.
     # We fit the scaler on the TRAINING data only, then apply it to test —

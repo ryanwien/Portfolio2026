@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>House Price Prediction — Live Demo</title>
+<title>House Price Prediction · Live Demo</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
 <meta name="description" content="The real trained linear-regression model (R2 = 0.94) running in your browser. Drag any feature and the prediction updates live." />
-<meta property="og:title" content="House Price Prediction — Ryan Wien" />
+<meta property="og:title" content="House Price Prediction · Ryan Wien" />
 <meta property="og:description" content="The real trained linear-regression model (R2 = 0.94) running in your browser. Drag any feature and the prediction updates live." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/ml-housing/demo.html" />
@@ -145,9 +145,9 @@
 <main class="wrap">
   <div class="eyebrow">Machine learning</div>
   <h1>House Price Prediction</h1>
-  <p class="lead">A supervised <b>linear-regression</b> model trained on 2,000 homes to predict sale price from six features. This page runs the <b>real trained model</b> — the exact learned weights — right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b>.</p>
+  <p class="lead">A supervised <b>linear-regression</b> model trained on 2,000 homes to predict sale price from six features. This page runs the <b>real trained model</b>, the exact learned weights, right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b>.</p>
   <div class="site-chips">
-    <span class="site-chip">C++20</span>
+    <span class="site-chip">C++</span>
     <span class="site-chip">scikit-learn</span>
     <span class="site-chip">pandas</span>
     <span class="site-chip">NumPy</span>
@@ -159,12 +159,12 @@
     <div class="site-card">
       <div class="site-card-n">01</div>
       <h3>Ordinary least squares</h3>
-      <p>Features are standardized, then the coefficients are solved in closed form via the normal equation — the same weights this page ships and predicts with.</p>
+      <p>Features are standardized, then the coefficients are solved in closed form via the normal equation. Those are the same weights this page ships and predicts with.</p>
     </div>
     <div class="site-card">
       <div class="site-card-n">02</div>
       <h3>Held-out evaluation</h3>
-      <p>1,600 homes train the model, 400 are kept back. Every metric above — <code>R²</code>, RMSE, MAE — is measured on homes the model never saw.</p>
+      <p>1,600 homes train the model, 400 are kept back. Every metric above (<code>R²</code>, RMSE, MAE) is measured on homes the model never saw.</p>
     </div>
     <div class="site-card">
       <div class="site-card-n">03</div>
@@ -199,10 +199,10 @@
   <div class="section-label"><span>Actual vs. predicted</span><span>400 test homes</span></div>
   <div class="scatter-wrap">
     <div id="scatter"></div>
-    <p class="caption">Each dot is a test home the model never saw during training. The dashed line is a perfect prediction — the tighter the cloud hugs it, the better the fit. Here it explains <b>94%</b> of the variance in price.</p>
+    <p class="caption">Each dot is a test home the model never saw during training. The dashed line is a perfect prediction, so the tighter the cloud hugs it, the better the fit. Here it explains <b>94%</b> of the variance in price.</p>
   </div>
 
-  <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways — gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>) — and evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
+  <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways, gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>), then evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
 
 </main>
 

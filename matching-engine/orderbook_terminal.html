@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Matching Engine — Live Order Book</title>
+<title>Matching Engine · Live Order Book</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
 <meta name="description" content="A price-time-priority limit order book with partial fills and O(1) cancels, wired to a live depth-ladder terminal and order-flow simulator." />
-<meta property="og:title" content="Order Book Matching Engine — Ryan Wien" />
+<meta property="og:title" content="Order Book Matching Engine · Ryan Wien" />
 <meta property="og:description" content="A price-time-priority limit order book with partial fills and O(1) cancels, wired to a live depth-ladder terminal and order-flow simulator." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/matching-engine/orderbook_terminal.html" />
@@ -242,7 +242,7 @@
     <div class="site-card">
       <div class="site-card-n">01</div>
       <h3>Price-time priority</h3>
-      <p>Orders rest at a price level in arrival order. The best price fills first, and ties break in favour of whoever was there first — the rule every real exchange runs on.</p>
+      <p>Orders rest at a price level in arrival order. The best price fills first, and ties break in favour of whoever was there first. It's the rule every real exchange runs on.</p>
     </div>
     <div class="site-card">
       <div class="site-card-n">02</div>
@@ -252,7 +252,7 @@
     <div class="site-card">
       <div class="site-card-n">03</div>
       <h3>Partial fills</h3>
-      <p>A large order walks the opposing side, consuming level after level until it's filled — or rests as the new best quote with whatever quantity is left.</p>
+      <p>A large order walks the opposing side, consuming level after level until it's filled, or rests as the new best quote with whatever quantity is left.</p>
     </div>
   </div>
 
@@ -322,7 +322,7 @@
   <div class="engine-note">
     <b>Design</b> · ordered price levels + FIFO queues + id→order map · O(1) best quote, O(log P) insert, O(1) cancel.<br>
     Trades print at the resting order's price, so price improvement accrues to the aggressor. Client-side port of the Python engine.<br>
-    Symbol prices are illustrative starting seeds, not a live quote feed — the simulator drives movement from there.
+    Symbol prices are illustrative starting seeds, not a live quote feed. The simulator drives movement from there.
   </div>
 
 </main>
