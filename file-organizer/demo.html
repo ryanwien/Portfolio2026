@@ -117,8 +117,12 @@
   .term-head{display:flex; align-items:center; gap:.5rem; padding:.6rem .8rem; border-bottom:1px solid rgba(255,255,255,.07)}
   .term-head .tdot{width:11px; height:11px; border-radius:50%}
   .term-head .label{font-family:var(--mono); font-size:.72rem; color:var(--term-muted); margin-left:.4rem}
+  /* The transcript grows with its output instead of scrolling inside a fixed
+     box. Capping it at 520px made it a scroll region taller than most of the
+     window, so a wheel scroll anywhere over it moved the transcript rather than
+     the page and the page felt stuck. One document, one scrollbar. */
   .term-body{font-family:var(--mono); font-size:.76rem; line-height:1.65; color:var(--term-ink);
-    padding:.8rem .9rem; white-space:pre-wrap; word-break:break-word; min-height:220px; max-height:520px; overflow:auto}
+    padding:.8rem .9rem; white-space:pre-wrap; word-break:break-word; min-height:220px}
   .term-body .prompt{color:var(--term-green)}
   .term-body .flag{color:var(--term-blue)}
   .term-body .rule{color:var(--term-muted)}
@@ -319,7 +323,9 @@
   function print(html){
     var line = document.createElement("div");
     line.innerHTML = html === "" ? "&nbsp;" : html;
-    termEl.appendChild(line); termEl.scrollTop = termEl.scrollHeight;
+    // No scrollTop here: the transcript grows with the page rather than
+    // scrolling inside a box, so output reads top-down from where it started.
+    termEl.appendChild(line);
   }
   function dash(){ return "------------------------------------------------------------"; }
   function pad(s,n){ s = String(s); while(s.length < n) s += " "; return s; }
