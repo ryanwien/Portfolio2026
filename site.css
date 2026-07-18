@@ -111,7 +111,11 @@
   display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
 }
 
-.site-how{display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem}
+/* Bottom margin mirrors the label's top margin, so the cards sit in their own
+   band instead of crowding whatever demo follows. Adjacent-sibling margins
+   collapse, so a following element with its own top margin won't double up. */
+.site-how{display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem;
+  margin-bottom:2.2rem}
 .site-card{
   background:var(--site-surface); border:1px solid var(--site-line);
   border-radius:10px; padding:1.05rem 1.15rem;
