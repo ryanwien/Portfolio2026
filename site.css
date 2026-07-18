@@ -1,0 +1,176 @@
+/* ---------------------------------------------------------------------------
+   site.css — shared chrome for every page: top nav, hero furniture,
+   "how it works" cards, and the footer.
+
+   Everything here is namespaced --site-* / .site-* so it can sit on top of a
+   demo's own stylesheet without colliding. A page with its own palette (the
+   matching engine's trading terminal, for example) just re-declares the
+   --site-* tokens and the chrome follows it.
+
+   Load this BEFORE the page's inline <style> so the page always wins.
+--------------------------------------------------------------------------- */
+
+:root{
+  --site-bg:#E7EAEE;
+  --site-surface:#FFFFFF;
+  --site-ink:#131922;
+  --site-muted:#616B78;
+  --site-line:#D3D9E0;
+  --site-line-strong:#B9C2CC;
+  --site-accent:#2D4EF5;
+  --site-accent-ink:#FFFFFF;
+  --site-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --site-display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
+  --site-body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  /* Each page sets this to its own content width so the chrome lines up. */
+  --site-w:1000px;
+  --site-pad:1.25rem;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --site-bg:#0E1218;
+    --site-surface:#151B24;
+    --site-ink:#EAEEF3;
+    --site-muted:#8A95A3;
+    --site-line:#232C38;
+    --site-line-strong:#313C4B;
+    --site-accent:#6E86FF;
+    --site-accent-ink:#0E1218;
+  }
+}
+
+/* ---- top nav ------------------------------------------------------------ */
+
+.site-nav{
+  position:sticky; top:0; z-index:50;
+  background:color-mix(in srgb, var(--site-bg) 88%, transparent);
+  border-bottom:1px solid var(--site-line);
+}
+@supports (backdrop-filter:blur(1px)){
+  .site-nav{backdrop-filter:saturate(180%) blur(12px)}
+}
+.site-nav-inner{
+  max-width:var(--site-w); margin:0 auto; padding:0 var(--site-pad);
+  display:flex; align-items:center; gap:1.25rem; min-height:52px;
+}
+.site-brand{
+  display:flex; align-items:center; gap:.5rem; flex:none;
+  font-family:var(--site-display); font-weight:700; font-size:.95rem;
+  letter-spacing:-.01em; color:var(--site-ink); text-decoration:none;
+}
+.site-brand .site-mark{
+  width:22px; height:22px; flex:none; border-radius:5px;
+  background:var(--site-accent); color:var(--site-accent-ink);
+  font-family:var(--site-mono); font-size:.6rem; font-weight:700; letter-spacing:.02em;
+  display:flex; align-items:center; justify-content:center;
+}
+.site-brand:hover{color:var(--site-accent)}
+
+/* Link strip. Scrolls sideways on narrow screens rather than wrapping or
+   collapsing behind a menu button — no JS, and every demo stays one tap away. */
+.site-links{
+  display:flex; align-items:center; gap:.15rem; margin-left:auto;
+  overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.site-links::-webkit-scrollbar{display:none}
+.site-link{
+  font-family:var(--site-mono); font-size:.7rem; font-weight:500;
+  letter-spacing:.09em; text-transform:uppercase; white-space:nowrap;
+  color:var(--site-muted); text-decoration:none;
+  padding:.42rem .6rem; border-radius:4px;
+  transition:color .13s ease, background .13s ease;
+}
+.site-link:hover{color:var(--site-ink); background:var(--site-line)}
+.site-link[aria-current="page"]{color:var(--site-accent); font-weight:600}
+
+/* ---- hero furniture ----------------------------------------------------- */
+
+.site-kicker{
+  font-family:var(--site-mono); font-size:.72rem; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--site-muted);
+  display:flex; gap:.6rem; align-items:center;
+}
+.site-kicker::after{content:"";flex:1;height:1px;background:var(--site-line-strong)}
+
+.site-chips{display:flex; flex-wrap:wrap; gap:.4rem; margin-top:1rem}
+.site-chip{
+  font-family:var(--site-mono); font-size:.68rem; font-weight:500; letter-spacing:.05em;
+  color:var(--site-muted); background:var(--site-surface);
+  border:1px solid var(--site-line-strong); border-radius:999px; padding:.24rem .65rem;
+}
+
+/* ---- "how it works" cards ----------------------------------------------- */
+
+/* Most demos already define their own .section-label; this is for pages that
+   don't (the matching engine terminal). */
+.site-section-label{
+  font-family:var(--site-mono); font-size:.72rem; font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--site-muted);
+  margin:2.2rem 0 .9rem; padding-bottom:.55rem;
+  border-bottom:1px solid var(--site-line-strong);
+  display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
+}
+
+.site-how{display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem}
+.site-card{
+  background:var(--site-surface); border:1px solid var(--site-line);
+  border-radius:10px; padding:1.05rem 1.15rem;
+}
+.site-card .site-card-n{
+  font-family:var(--site-mono); font-size:.66rem; font-weight:600;
+  letter-spacing:.1em; color:var(--site-accent);
+}
+.site-card h3{
+  font-family:var(--site-display); font-weight:600; font-size:1.02rem;
+  letter-spacing:-.01em; color:var(--site-ink); margin:.35rem 0 .4rem;
+}
+.site-card p{font-size:.86rem; color:var(--site-muted); line-height:1.6}
+.site-card code{
+  font-family:var(--site-mono); font-size:.86em; color:var(--site-ink);
+  background:var(--site-bg); border-radius:3px; padding:.05em .3em;
+}
+
+/* ---- footer ------------------------------------------------------------- */
+
+.site-footer{
+  border-top:1px solid var(--site-line); margin-top:clamp(2.5rem,7vw,4rem);
+  background:var(--site-bg);
+}
+.site-footer-inner{
+  max-width:var(--site-w); margin:0 auto; padding:2rem var(--site-pad) 2.5rem;
+  display:flex; flex-wrap:wrap; gap:1.5rem 2.5rem; align-items:flex-start;
+}
+.site-footer-brand{flex:1 1 15rem; min-width:0}
+.site-footer-name{
+  font-family:var(--site-display); font-weight:700; font-size:1.05rem;
+  letter-spacing:-.01em; color:var(--site-ink);
+}
+.site-footer-tag{font-size:.84rem; color:var(--site-muted); margin-top:.3rem; max-width:32em}
+.site-footer-col{display:flex; flex-direction:column; gap:.45rem}
+.site-footer-h{
+  font-family:var(--site-mono); font-size:.66rem; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--site-muted); margin-bottom:.1rem;
+}
+.site-footer-col a{
+  font-family:var(--site-mono); font-size:.8rem; color:var(--site-ink);
+  text-decoration:none; width:fit-content; border-bottom:1px solid transparent;
+}
+.site-footer-col a:hover{color:var(--site-accent); border-bottom-color:var(--site-accent)}
+.site-footer-note{
+  max-width:var(--site-w); margin:0 auto; padding:0 var(--site-pad) 2rem;
+  font-family:var(--site-mono); font-size:.7rem; color:var(--site-muted);
+}
+
+/* ---- shared behaviour --------------------------------------------------- */
+
+.site-nav a:focus-visible,
+.site-footer a:focus-visible{outline:2px solid var(--site-accent); outline-offset:2px; border-radius:3px}
+
+@media (max-width:720px){
+  .site-how{grid-template-columns:1fr}
+  .site-nav-inner{gap:.75rem}
+  .site-brand span:not(.site-mark){display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .site-link,.site-brand,.site-footer-col a{transition:none!important}
+}
