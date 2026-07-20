@@ -54,9 +54,9 @@ python organize.py ~/Downloads --undo organize_log_20260630_213845.json
 ## How it works
 
 ```mermaid
-flowchart LR
+flowchart TD
   IN["target folder"] --> SCAN["scan files<br>skip subfolders and hidden"]
-  SCAN --> SORT["sort entries<br>iteration order is otherwise unspecified"]
+  SCAN --> SORT["sort entries<br>iteration order is<br>otherwise unspecified"]
   SORT --> CAT["categorize by extension"]
   CAT --> COL{"name already taken?"}
   COL -->|yes| REN["rename to report_1.pdf"]

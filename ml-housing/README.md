@@ -26,8 +26,8 @@ This project walks through the standard supervised-learning workflow taught in
 the course:
 
 ```mermaid
-flowchart LR
-  CSV["housing.csv<br>2,000 rows"] --> SPLIT["frozen split<br>split_indices.txt, committed"]
+flowchart TD
+  CSV["housing.csv<br>2,000 rows"] --> SPLIT["frozen split<br>split_indices.txt<br>committed to the repo"]
   SPLIT --> TR["train, 80%"]
   SPLIT --> TE["test, 20%"]
   TR --> SC["standardize features"]
