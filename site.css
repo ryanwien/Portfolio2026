@@ -204,6 +204,10 @@ body > .site-footer{margin-top:auto}
   /* Below 720px the wordmark is hidden and only the 22px square remains, so the
      target needs padding out in both directions. */
   .site-brand{min-height:24px; min-width:24px; justify-content:center}
+  /* Below 460px these drop to .62rem, which lands the box right on 24px with
+     nothing to spare. Pinning the height keeps the target honest at every
+     width instead of relying on the padding happening to add up. */
+  .site-link{display:inline-flex; align-items:center; min-height:24px}
   /* Standalone links in a stacked column, not links inside a sentence, so the
      inline exemption doesn't apply. Text position is unchanged; the hit area
      grows around it. */
