@@ -53,6 +53,22 @@ python organize.py ~/Downloads --undo organize_log_20260630_213845.json
 
 ## How it works
 
+```mermaid
+flowchart LR
+  IN["target folder"] --> SCAN["scan files<br>skip subfolders and hidden"]
+  SCAN --> SORT["sort entries<br>iteration order is otherwise unspecified"]
+  SORT --> CAT["categorize by extension"]
+  CAT --> COL{"name already taken?"}
+  COL -->|yes| REN["rename to report_1.pdf"]
+  COL -->|no| KEEP["keep the name"]
+  REN --> PLAN["move plan"]
+  KEEP --> PLAN
+  PLAN --> DRY{"dry run?"}
+  DRY -->|yes| PRINT["print the plan,<br>touch nothing"]
+  DRY -->|no| MOVE["move the files"]
+  MOVE --> LOG["write JSON log,<br>which is what makes undo possible"]
+```
+
 1. **Scan** the target folder for files (ignoring subfolders and hidden files).
 2. **Categorize** each file by looking up its extension in the category rules.
 3. **Resolve collisions** so an existing file is never overwritten.

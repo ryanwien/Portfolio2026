@@ -25,6 +25,21 @@ sale price. On held-out test data it explains **94% of the variance in price
 This project walks through the standard supervised-learning workflow taught in
 the course:
 
+```mermaid
+flowchart LR
+  CSV["housing.csv<br>2,000 rows"] --> SPLIT["frozen split<br>split_indices.txt, committed"]
+  SPLIT --> TR["train, 80%"]
+  SPLIT --> TE["test, 20%"]
+  TR --> SC["standardize features"]
+  SC --> GD["gradient descent<br>SGDRegressor"]
+  SC --> NE["normal equation<br>closed form baseline"]
+  GD --> EV["evaluate on held out data"]
+  NE --> EV
+  TE --> EV
+  EV --> M["RMSE · MAE · R²"]
+  EV --> EXP["export_model.py writes the<br>weights into demo.html"]
+```
+
 1. **Data exploration:** inspecting shape, ranges, and feature/target
    correlations to understand the problem before modeling.
 2. **Train/test split:** holding out 20% of the data so performance is

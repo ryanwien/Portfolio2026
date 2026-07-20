@@ -19,6 +19,23 @@ See [C# implementation](#c-implementation).
 Point it at a log of login/probe events and it flags the patterns that matter,
 each with a severity and the ATT&CK technique it maps to:
 
+```mermaid
+flowchart LR
+  L["auth events<br>JSON Lines"] --> P["parse and validate"]
+  P --> R["rule engine<br>thresholded, tunable"]
+  R --> R1["brute force"]
+  R --> R2["password spraying"]
+  R --> R3["impossible travel<br>haversine geo velocity"]
+  R --> R4["port scan"]
+  R --> R5["off hours privileged access"]
+  R1 --> RANK["rank by severity"]
+  R2 --> RANK
+  R3 --> RANK
+  R4 --> RANK
+  R5 --> RANK
+  RANK --> OUT["ranked, ATT&CK tagged alerts"]
+```
+
 | Detection | What it catches | Severity | ATT&CK |
 |-----------|-----------------|----------|--------|
 | Brute force | Many failed logins from one source IP in a short window | HIGH | [T1110](https://attack.mitre.org/techniques/T1110/) |
