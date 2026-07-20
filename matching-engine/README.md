@@ -23,6 +23,18 @@ python demo.py         # annotated walkthrough
 
 ## What it does
 
+```mermaid
+flowchart LR
+  O["incoming order"] --> M["match against the<br>opposite side, best price first"]
+  M --> TR["trade prints at the<br>resting order's price"]
+  TR --> TAPE["trade tape"]
+  M --> REM{"remainder left?"}
+  REM -->|market| DROP["discard it"]
+  REM -->|limit| REST["rest on the book"]
+  REST --> LVL["price level<br>FIFO queue, time priority"]
+  LVL --> IDX["id map<br>gives O(1) cancel"]
+```
+
 - **Limit & market orders** on both sides
 - **Matching** with price priority across levels and time priority within a level
 - **Partial fills:** remainder of a limit order rests on the book; an unfilled

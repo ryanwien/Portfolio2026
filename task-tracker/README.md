@@ -25,16 +25,12 @@ easy to follow.
 
 ## Architecture
 
-```
-┌─────────────────┐        HTTP / JSON        ┌──────────────────┐
-│   Frontend      │  ───────────────────────► │   Flask API      │
-│  (HTML/CSS/JS)  │                            │   (Python)       │
-│                 │  ◄───────────────────────  │                  │
-└─────────────────┘                            └────────┬─────────┘
-                                                        │ SQL
-                                                ┌───────▼────────┐
-                                                │  SQLite DB     │
-                                                └────────────────┘
+```mermaid
+flowchart LR
+  UI["frontend<br>HTML · CSS · JS"] -->|"fetch, JSON"| API["REST API<br>Flask or ASP.NET Core"]
+  API -->|"JSON"| UI
+  API -->|"parameterized SQL"| DB[("SQLite")]
+  DB --> API
 ```
 
 - **Frontend:** plain HTML, CSS, and JavaScript. Uses the `fetch` API to call
