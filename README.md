@@ -26,6 +26,21 @@ machine learning (DeepLearning.AI).
 Each project has a **live browser demo** and a **written design rationale**. The
 reasoning matters more than the line count.
 
+```mermaid
+flowchart TD
+  P["Portfolio2026"]
+  P --> M["Order Book<br>C++ · Python · JS"]
+  P --> S["Security Log Analyzer<br>C# · Python · JS"]
+  P --> T["Task Tracker<br>C# · Python · JS"]
+  P --> F["File Organizer<br>C++ · Python · JS"]
+  P --> H["House Prices<br>Python · C++ · JS"]
+  M --> MD["live terminal"]
+  S --> SD["live SOC console"]
+  T --> TD["live demo"]
+  F --> FD["live demo"]
+  H --> HD["live predictor"]
+```
+
 | Project | What it is | Languages |
 |---|---|---|
 | **[Order Book Matching Engine](matching-engine/)** <br> [▶ live demo](https://ryanwien.github.io/Portfolio2026/matching-engine/orderbook_terminal.html) | A price-time-priority limit order book with limit/market orders, partial fills and O(1) cancels, wired to a live depth-ladder terminal and order-flow simulator. | C++20 · Python · JS |
@@ -39,6 +54,19 @@ reasoning matters more than the line count.
 Several projects exist in more than one language. Rather than claim the
 implementations agree, each pair is **tested against the other**, because a port
 that silently diverges is worse than no port at all.
+
+```mermaid
+flowchart LR
+  FIX["Committed fixture<br>same log, same split,<br>same scenario"]
+  FIX --> A["Implementation A<br>Python"]
+  FIX --> B["Implementation B<br>C++ or C#"]
+  A --> RA["Report A"]
+  B --> RB["Report B"]
+  RA --> D{"diff"}
+  RB --> D
+  D -->|identical| OK["Equivalence holds"]
+  D -->|differs| BAD["The port has drifted<br>and the build is wrong"]
+```
 
 | Project | Equivalence check | Tests |
 |---|---|---|
@@ -79,6 +107,11 @@ cd matching-engine/cpp && cmake -B build && cmake --build build
 
 The C++ projects ship a `CMakeLists.txt` as the portable entry point and a
 `build.bat` for MSVC. Local verification was done with MSVC on Windows.
+
+## 📄 License
+
+Released under the [MIT License](LICENSE). Use the code however you like; the
+only condition is that the copyright notice travels with it.
 
 ## 📫 Reach me
 
