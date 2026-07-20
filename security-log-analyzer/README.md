@@ -1,17 +1,17 @@
-# Security Log Analyzer — SIEM-style Threat Detection
+# Security Log Analyzer: SIEM-style Threat Detection
 
 A detection engine that ingests authentication/access logs and turns them into
-ranked, **MITRE ATT&CK**-tagged alerts — the core task a SOC analyst performs
-against a SIEM (Splunk, Microsoft Sentinel, Elastic) every day. Built while
+ranked, **MITRE ATT&CK**-tagged alerts. That is the core task a SOC analyst
+performs against a SIEM (Splunk, Microsoft Sentinel, Elastic) every day. Built while
 working through the **Microsoft Cybersecurity Analyst** certificate.
 
-**▶ [Live demo](https://ryanwien.github.io/Portfolio2026/security-log-analyzer/demo.html)** — a SOC console running the real detection rules in your browser: ranked alert cards, a tunable brute-force threshold, and click-to-trace from any alert back to the raw events.
+**▶ [Live demo](https://ryanwien.github.io/Portfolio2026/security-log-analyzer/demo.html)**. A SOC console running the real detection rules in your browser: ranked alert cards, a tunable brute-force threshold, and click-to-trace from any alert back to the raw events.
 
 ![Security Log Analyzer SOC console](screenshot.png)
 
 **Implementations:** C# / .NET 9 (`csharp/`) · Python (`analyze.py`) · JavaScript (the console).
-Run the C# and Python engines over the same log and the reports are byte-for-byte identical —
-see [C# implementation](#c-implementation).
+Run the C# and Python engines over the same log and the reports are byte-for-byte identical.
+See [C# implementation](#c-implementation).
 
 
 ## What it does
@@ -22,7 +22,7 @@ each with a severity and the ATT&CK technique it maps to:
 | Detection | What it catches | Severity | ATT&CK |
 |-----------|-----------------|----------|--------|
 | Brute force | Many failed logins from one source IP in a short window | HIGH | [T1110](https://attack.mitre.org/techniques/T1110/) |
-| Brute-force success | A successful login right after a failed burst — likely compromise | CRITICAL | [T1110](https://attack.mitre.org/techniques/T1110/) |
+| Brute-force success | A successful login right after a failed burst, likely compromise | CRITICAL | [T1110](https://attack.mitre.org/techniques/T1110/) |
 | Password spraying | One source trying a few passwords across many accounts | HIGH | [T1110.003](https://attack.mitre.org/techniques/T1110/003/) |
 | Port scan | One source probing many ports/services quickly | MEDIUM | [T1046](https://attack.mitre.org/techniques/T1046/) |
 | Impossible travel | One user, two logins too far apart to be physically possible | HIGH | [T1078](https://attack.mitre.org/techniques/T1078/) |
@@ -41,22 +41,22 @@ python analyze.py --format json          # machine-readable alerts (for a SIEM/S
 python analyze.py --bf-threshold 5       # tune brute-force sensitivity
 ```
 
-No installation needed — Python standard library only.
+No installation needed: Python standard library only.
 
 ## Run it on your own logs (Windows · macOS · Linux)
 
 The bundled log is synthetic, but you can analyze your **own machine's real
-logs** — two ways, both fully local (nothing is ever uploaded):
+logs**, two ways, both fully local (nothing is ever uploaded):
 
-**In the browser** — the [live demo](https://ryanwien.github.io/Portfolio2026/security-log-analyzer/demo.html)
+**In the browser:** the [live demo](https://ryanwien.github.io/Portfolio2026/security-log-analyzer/demo.html)
 detects your OS and browser, shows the exact export command, and has a **Load
 your own log** button. It reads JSON Lines (from the collectors below) or a raw
 Linux/macOS `sshd` auth log directly, and runs the same detections client-side.
-This works on **iOS and Android** too — a phone can't export its *own* system
+This works on **iOS and Android** too. A phone can't export its *own* system
 logs (the OS sandboxes them), but it can analyze a log you collect elsewhere and
 move over via AirDrop, Drive, or Files.
 
-**On the command line** — collect your logs to JSON Lines, then analyze:
+**On the command line:** collect your logs to JSON Lines, then analyze:
 
 ```bash
 # Windows (elevated PowerShell for the Security log's failed logons):
@@ -72,19 +72,19 @@ bash collect_macos.sh > events.jsonl
 python3 analyze.py events.jsonl
 ```
 
-The **Windows** collector reads the Security log (Event IDs 4624/4625 — the
+The **Windows** collector reads the Security log (Event IDs 4624/4625, the
 canonical source with failed logons; needs admin), or falls back to
 TerminalServices session logons (no admin, successful logons only). **Linux**
 and **macOS** collectors parse `sshd` auth events.
 
 A clean run with **no alerts is the expected, healthy result** for a personal
-machine — the detections fire on hosts that have actually seen attacks (e.g. an
+machine. The detections fire on hosts that have actually seen attacks (e.g. an
 internet-exposed SSH/RDP server). Any log you collect is git-ignored, so it
 never leaves your machine.
 
 ## C# implementation
 
-The same detection engine, written in **C# / .NET 9** under [`csharp/`](csharp/) —
+The same detection engine, written in **C# / .NET 9** under [`csharp/`](csharp/),
 the stack a SOC analyst actually meets in the Microsoft security ecosystem
 (Sentinel, Defender, and the .NET tooling around them).
 
@@ -107,7 +107,7 @@ The xUnit suite pins every field of all six alerts the sample log produces, so
 the two engines can't silently drift apart. It also covers the pieces worth
 testing in isolation: haversine against a known great-circle distance,
 privileged-account matching, the business-hours boundary, and the two cases
-impossible travel must *not* fire on — short hops and plausible long-haul
+impossible travel must *not* fire on: short hops and plausible long-haul
 flights.
 
 ## Sample output
@@ -143,19 +143,19 @@ JSON Lines (one event per line):
 
 ## Design decisions
 
-- **Detection as thresholded rules** — each rule is a small, testable function
+- **Detection as thresholded rules:** each rule is a small, testable function
   over the event stream. Sliding time windows drive the brute-force and
   port-scan detections; a geo-velocity (haversine) check drives impossible
   travel. Thresholds live in one place so sensitivity is easy to tune.
-- **Map everything to ATT&CK** — alerts carry a technique ID, the shared
+- **Map everything to ATT&CK:** alerts carry a technique ID, the shared
   language every SOC and threat-intel team uses. It makes findings actionable
   and comparable across tools.
-- **Rank by severity** — a `CRITICAL` compromise (brute force *then a success*)
+- **Rank by severity:** a `CRITICAL` compromise (brute force *then a success*)
   is separated from a `HIGH` brute-force attempt, so an analyst triages the real
   incident first.
-- **Synthetic data, self-contained** — the sample log is generated, so nothing
+- **Synthetic data, self-contained:** the sample log is generated, so nothing
   sensitive is involved and the tool (and its browser demo) run anywhere.
-- **One engine, two front-ends** — the browser demo re-implements the exact same
+- **One engine, two front-ends:** the browser demo re-implements the exact same
   rules the Python CLI runs, over the exact same sample log.
 
 ## What this demonstrates
@@ -163,14 +163,14 @@ JSON Lines (one event per line):
 Skills central to a SOC analyst role and the **Microsoft Cybersecurity Analyst**
 curriculum:
 
-- **Detection engineering** — writing and tuning rules that turn raw telemetry
+- **Detection engineering:** writing and tuning rules that turn raw telemetry
   into actionable alerts (the SIEM query/analytics workflow behind Microsoft
   Sentinel and KQL).
-- **MITRE ATT&CK** — mapping observed activity to a shared technique taxonomy so
+- **MITRE ATT&CK:** mapping observed activity to a shared technique taxonomy so
   findings are comparable and actionable.
-- **Incident triage** — severity ranking so the genuine compromise (brute force
+- **Incident triage:** severity ranking so the genuine compromise (brute force
   *then* a success) surfaces above lower-priority noise.
-- **Threat recognition** — brute force, password spraying, account compromise,
+- **Threat recognition:** brute force, password spraying, account compromise,
   network reconnaissance, and anomalous sign-ins (impossible travel).
 
 ## Possible next steps
