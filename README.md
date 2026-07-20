@@ -27,18 +27,13 @@ Each project has a **live browser demo** and a **written design rationale**. The
 reasoning matters more than the line count.
 
 ```mermaid
-flowchart TD
+flowchart LR
   P["Portfolio2026"]
-  P --> M["Order Book<br>C++ · Python · JS"]
-  P --> S["Security Log Analyzer<br>C# · Python · JS"]
-  P --> T["Task Tracker<br>C# · Python · JS"]
-  P --> F["File Organizer<br>C++ · Python · JS"]
-  P --> H["House Prices<br>Python · C++ · JS"]
-  M --> MD["live terminal"]
-  S --> SD["live SOC console"]
-  T --> TD["live demo"]
-  F --> FD["live demo"]
-  H --> HD["live predictor"]
+  P --> M["Order Book<br>C++ · Python · JS"] --> MD["live terminal"]
+  P --> S["Security Log Analyzer<br>C# · Python · JS"] --> SD["live SOC console"]
+  P --> T["Task Tracker<br>C# · Python · JS"] --> TD["live demo"]
+  P --> F["File Organizer<br>C++ · Python · JS"] --> FD["live demo"]
+  P --> H["House Prices<br>Python · C++ · JS"] --> HD["live predictor"]
 ```
 
 | Project | What it is | Languages |
@@ -56,7 +51,7 @@ implementations agree, each pair is **tested against the other**, because a port
 that silently diverges is worse than no port at all.
 
 ```mermaid
-flowchart LR
+flowchart TD
   FIX["Committed fixture<br>same log, same split,<br>same scenario"]
   FIX --> A["Implementation A<br>Python"]
   FIX --> B["Implementation B<br>C++ or C#"]
