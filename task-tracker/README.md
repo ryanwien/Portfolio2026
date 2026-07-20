@@ -2,7 +2,7 @@
 
 A full-stack task management web application with a REST API backend and a
 vanilla-JavaScript frontend. Built to practice clean API design, database
-operations, and frontend–backend integration.
+operations, and integration between the frontend and the backend.
 
 **▶ [Live demo](https://ryanwien.github.io/Portfolio2026/task-tracker/demo.html)**. A self-contained, in-browser walkthrough of the UI (no backend required).
 
@@ -47,7 +47,7 @@ easy to follow.
 
 | Method | Endpoint              | Description                          |
 |--------|-----------------------|--------------------------------------|
-| GET    | `/api/tasks`          | List all tasks (optional `?completed=true|false`) |
+| GET    | `/api/tasks`          | List all tasks (optional `?completed=true\|false`) |
 | GET    | `/api/tasks/<id>`     | Get a single task                    |
 | POST   | `/api/tasks`          | Create a task                        |
 | PUT    | `/api/tasks/<id>`     | Update a task (partial updates ok)   |
