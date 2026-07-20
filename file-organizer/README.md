@@ -1,16 +1,16 @@
 # File Organizer
 
 A command-line tool that automatically sorts the files in a folder into
-subfolders by type — images, documents, audio, video, archives, code, and
+subfolders by type: images, documents, audio, video, archives, code, and
 more. Built as a practical Python automation utility.
 
-**▶ [Live demo](https://ryanwien.github.io/Portfolio2026/file-organizer/demo.html)** — an interactive, in-browser walkthrough running the real algorithm: dry-run preview, collision-safe renaming, and undo.
+**▶ [Live demo](https://ryanwien.github.io/Portfolio2026/file-organizer/demo.html)**. An interactive, in-browser walkthrough running the real algorithm: dry-run preview, collision-safe renaming, and undo.
 
 ![File Organizer demo](screenshot.png)
 
 **Implementations:** C++20 (`cpp/`) · Python (`organize.py`) · JavaScript (the demo).
-Both sort identical folders into identical trees, collision renames included —
-see [C++ implementation](#c-implementation).
+Both sort identical folders into identical trees, collision renames included.
+See [C++ implementation](#c-implementation).
 
 
 ## What it does
@@ -29,14 +29,14 @@ Downloads/                      Downloads/
 
 ## Features
 
-- **Dry-run mode** — preview exactly what will happen before any file is moved.
-- **Safe collision handling** — if a file with the same name already exists, the
+- **Dry-run mode:** preview exactly what will happen before any file is moved.
+- **Safe collision handling:** if a file with the same name already exists, the
   tool renames the new one (`report_1.pdf`) instead of overwriting.
-- **Undo** — every run writes a log file, and you can fully reverse it with one
+- **Undo:** every run writes a log file, and you can fully reverse it with one
   command.
-- **Configurable rules** — categories and extensions are defined in one place
+- **Configurable rules:** categories and extensions are defined in one place
   and easy to extend.
-- **Zero dependencies** — uses only the Python standard library.
+- **Zero dependencies:** uses only the Python standard library.
 
 ## Usage
 
@@ -62,8 +62,8 @@ python organize.py ~/Downloads --undo organize_log_20260630_213845.json
 
 ## C++ implementation
 
-The same organizer in **C++20** under [`cpp/`](cpp/), built on `std::filesystem` —
-native tooling being the job C++ is actually reached for here.
+The same organizer in **C++20** under [`cpp/`](cpp/), built on `std::filesystem`.
+Native tooling is the job C++ is actually reached for here.
 
 ```bash
 cd cpp
@@ -72,9 +72,9 @@ build.bat                                                          # or MSVC dir
 build\organize.exe ~/Downloads --dry-run
 ```
 
-Both implementations were run over identical folders — including a
+Both implementations were run over identical folders (including a
 pre-existing `Documents/notes.md` to force a collision, and a `screenshot.PNG`
-to exercise case-insensitive matching — and produced **identical directory
+to exercise case-insensitive matching) and produced **identical directory
 trees**, `notes_1.md` included.
 
 Planning is separated from execution, so a dry run and a real run share one
@@ -86,22 +86,22 @@ Writing the move path in C++ surfaced a failure the Python version also has:
 when another process holds a file open, Windows refuses the rename, the
 copy-and-delete fallback fails too, and the error escaped as an unhandled
 exception. `apply_move` now reports which file was blocked and why, and if the
-copy succeeds but the original can't be deleted it rolls the copy back — so a
+copy succeeds but the original can't be deleted it rolls the copy back, so a
 file is never silently left in two places. The suite covers that case.
 
 45 assertions, no test framework to install.
 
 ## Design decisions
 
-- **Dry-run by request** — destructive operations (moving files) should always
+- **Dry-run by request:** destructive operations (moving files) should always
   be previewable. The `--dry-run` flag runs the entire logic and reports the
   plan without touching the filesystem.
-- **Never overwrite** — collision resolution guarantees no data is lost, even if
+- **Never overwrite:** collision resolution guarantees no data is lost, even if
   two files share a name.
-- **Undo via logging** — rather than tracking state in memory, each run persists
+- **Undo via logging:** rather than tracking state in memory, each run persists
   a simple JSON record of every move, making the undo operation trivial and
   transparent.
-- **Standard library only** — `pathlib`, `shutil`, `argparse`, and `json` cover
+- **Standard library only:** `pathlib`, `shutil`, `argparse`, and `json` cover
   everything, so the tool runs anywhere Python does with no installation.
 
 ## Possible next steps
