@@ -33,7 +33,7 @@ flowchart LR
   R3 --> RANK
   R4 --> RANK
   R5 --> RANK
-  RANK --> OUT["ranked, ATT&CK tagged alerts"]
+  RANK --> OUT["ranked ATT&CK alerts"]
 ```
 
 | Detection | What it catches | Severity | ATT&CK |

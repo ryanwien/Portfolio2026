@@ -24,8 +24,8 @@ python demo.py         # annotated walkthrough
 ## What it does
 
 ```mermaid
-flowchart LR
-  O["incoming order"] --> M["match against the<br>opposite side, best price first"]
+flowchart TD
+  O["incoming order"] --> M["match against the<br>opposite side<br>best price first"]
   M --> TR["trade prints at the<br>resting order's price"]
   TR --> TAPE["trade tape"]
   M --> REM{"remainder left?"}
