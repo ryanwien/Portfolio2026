@@ -3,15 +3,45 @@
    reveal class is only added from JS, so content is never hidden if this file
    fails to run. */
 (function () {
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* Stop every 3D emblem spinning. Called on load and again if the visitor
+     turns the preference on mid-visit — model-viewer has no reduced-motion
+     handling of its own, so this is the only thing holding the models still. */
+  function stopRotation() {
+    document.querySelectorAll('model-viewer[auto-rotate]').forEach(function (mv) {
+      mv.removeAttribute('auto-rotate');
+    });
+  }
+
+  /* Drop the reveal classes once the element has arrived. Leaving them on
+     would keep a filled animation sitting in the cascade on top of whatever
+     the element does next — most visibly .site-card's hover lift. */
+  function settle(el) {
+    el.classList.remove('site-reveal', 'site-in');
+    el.style.removeProperty('--reveal-delay');
+  }
+
+  function reveal(el) {
+    el.classList.add('site-in');
+    el.addEventListener('animationend', function handler(e) {
+      if (e.animationName !== 'site-reveal-in') return;
+      el.removeEventListener('animationend', handler);
+      settle(el);
+    });
+  }
+
+  if (motionQuery.addEventListener) {
+    motionQuery.addEventListener('change', function (e) {
+      if (!e.matches) return;
+      stopRotation();
+      document.querySelectorAll('.site-reveal').forEach(settle);
+    });
+  }
 
   document.addEventListener('DOMContentLoaded', function () {
-    /* Vestibular safety: model-viewer has no built-in reduced-motion handling,
-       so spinning is opt-out here — models stay interactive, just still. */
-    if (reduce) {
-      document.querySelectorAll('model-viewer[auto-rotate]').forEach(function (mv) {
-        mv.removeAttribute('auto-rotate');
-      });
+    if (motionQuery.matches) {
+      stopRotation();
       return; /* no reveals, no rotator — the page simply appears */
     }
 
@@ -24,8 +54,8 @@
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
-            entry.target.classList.add('site-in');
             io.unobserve(entry.target);
+            reveal(entry.target);
           }
         });
       }, { rootMargin: '0px 0px -70px 0px', threshold: 0.05 });
@@ -37,21 +67,52 @@
         el.classList.add('site-reveal');
         io.observe(el);
       });
+
+      /* Tabbing runs ahead of scrolling, and the observer hasn't fired for
+         rows further down the page yet. Without this, keyboard users can land
+         on a link inside a block that is still at opacity:0. */
+      document.addEventListener('focusin', function (e) {
+        var hidden = e.target.closest && e.target.closest('.site-reveal:not(.site-in)');
+        if (hidden) {
+          io.unobserve(hidden);
+          settle(hidden);
+        }
+      });
     }
 
-    /* Rotating role word: <span data-rotate='["a","b"]'>a</span> */
+    /* Rotating word: <span data-rotate='["a","b"]'>a</span> */
     document.querySelectorAll('[data-rotate]').forEach(function (el) {
       var words;
       try { words = JSON.parse(el.getAttribute('data-rotate')); } catch (e) { return; }
       if (!Array.isArray(words) || words.length < 2) return;
+
+      /* Reserve the widest word so the surrounding line never reflows. */
+      var original = el.textContent;
+      var widest = 0;
+      words.forEach(function (w) {
+        el.textContent = w;
+        widest = Math.max(widest, el.getBoundingClientRect().width);
+      });
+      el.textContent = original;
+      el.style.minWidth = Math.ceil(widest) + 'px';
+
       var i = 0;
-      setInterval(function () {
+      var timer = null;
+      function swap() {
         i = (i + 1) % words.length;
         el.textContent = words[i];
         el.classList.remove('site-role-swap');
         void el.offsetWidth; /* restart the animation */
         el.classList.add('site-role-swap');
-      }, 2200);
+      }
+      function start() { if (!timer) timer = setInterval(swap, 2200); }
+      function stop() { clearInterval(timer); timer = null; }
+
+      start();
+      /* A background tab shouldn't keep repainting a gradient word. */
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) stop(); else start();
+      });
     });
   });
 })();
