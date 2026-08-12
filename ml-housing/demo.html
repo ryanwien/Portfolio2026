@@ -19,25 +19,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/site.css" />
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script src="../assets/space.js" defer></script>
 <style>
   :root{
     --site-w:960px;
-    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#5C6673;
-    --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-soft:rgba(45,78,245,.14); --accent-ink:#FFFFFF;
-    --pos:#2D4EF5; --neg:#E8622C;
+    --bg:#070B15; --surface:#0E1524; --sunken:#0A101C; --ink:#E9EEF8; --muted:#94A1B7;
+    --line:#1D2839; --line-strong:#2B3A52; --accent:#6E86FF; --accent-soft:rgba(110,134,255,.18); --accent-ink:#070B15;
+    --pos:#6E86FF; --neg:#FB8C5E;
     --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
     --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
     --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   }
-  @media (prefers-color-scheme:dark){
-    :root{
-      --bg:#0E1218; --surface:#151B24; --sunken:#10151C; --ink:#EAEEF3; --muted:#8A95A3;
-      --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-soft:rgba(110,134,255,.18); --accent-ink:#0E1218;
-      --pos:#6E86FF; --neg:#FB8C5E;
-    }
-  }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:var(--body); background:var(--bg); color:var(--ink); line-height:1.5;
+  /* body stays unpainted so the site.css starfield shows through */
+  body{font-family:var(--body); color:var(--ink); line-height:1.5;
     padding:0; -webkit-font-smoothing:antialiased}
   .wrap{max-width:var(--site-w); margin:0 auto;
     padding:clamp(1.5rem,4vw,2.75rem) var(--site-pad) 1rem}
@@ -159,6 +155,7 @@
 
 <main class="wrap">
   <div class="eyebrow">Machine learning</div>
+  <model-viewer class="site-model site-model-head" src="../assets/models/housing.glb" poster="../assets/models/posters/housing.png" alt="3D model of a geodesic dome habitat on a Mars terrain base" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
   <h1>House Price Prediction</h1>
   <p class="lead">A supervised <b>linear-regression</b> model trained on 2,000 homes to predict sale price from six features. This page runs the <b>real trained model</b>, the exact learned weights, right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b>.</p>
   <div class="site-chips">

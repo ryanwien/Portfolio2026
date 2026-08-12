@@ -10,33 +10,26 @@
    Load this BEFORE the page's inline <style> so the page always wins.
 --------------------------------------------------------------------------- */
 
+/* Deep-space theme: the site commits to a single dark cosmic look, so there is
+   no light palette. color-scheme:dark keeps form controls and scrollbars in
+   step with it. */
 :root{
-  --site-bg:#E7EAEE;
-  --site-surface:#FFFFFF;
-  --site-ink:#131922;
-  --site-muted:#5C6673;
-  --site-line:#D3D9E0;
-  --site-line-strong:#B9C2CC;
-  --site-accent:#2D4EF5;
-  --site-accent-ink:#FFFFFF;
+  color-scheme:dark;
+  --site-bg:#070B15;
+  --site-surface:#0E1524;
+  --site-ink:#E9EEF8;
+  --site-muted:#94A1B7;
+  --site-line:#1D2839;
+  --site-line-strong:#2B3A52;
+  --site-accent:#6E86FF;
+  --site-accent-ink:#070B15;
+  --site-nebula:#B48CFF;
   --site-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --site-display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
   --site-body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   /* Each page sets this to its own content width so the chrome lines up. */
   --site-w:1000px;
   --site-pad:1.25rem;
-}
-@media (prefers-color-scheme:dark){
-  :root{
-    --site-bg:#0E1218;
-    --site-surface:#151B24;
-    --site-ink:#EAEEF3;
-    --site-muted:#8A95A3;
-    --site-line:#232C38;
-    --site-line-strong:#313C4B;
-    --site-accent:#6E86FF;
-    --site-accent-ink:#0E1218;
-  }
 }
 
 /* Paint the root element, not just body. Body's background normally propagates
@@ -51,6 +44,44 @@ html{background:var(--site-bg)}
    dead space under it, which reads as the page failing to finish. */
 body{min-height:100vh; display:flex; flex-direction:column}
 body > .site-footer{margin-top:auto}
+
+/* ---- starfield ----------------------------------------------------------- */
+
+/* Fixed pseudo-element at z-index:-1: it paints above the root canvas colour
+   but below every in-flow box, so cards and panels naturally occlude the sky.
+   For this to show, pages must leave body's own background transparent — the
+   demo pages were edited to match. Two tilings of the same star SVG at
+   different scales fake depth; the radial gradients are the nebula. */
+body::before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background-image:
+    radial-gradient(ellipse 60% 45% at 18% 8%, rgba(110,134,255,.14), transparent 70%),
+    radial-gradient(ellipse 55% 40% at 85% 25%, rgba(180,140,255,.09), transparent 70%),
+    radial-gradient(ellipse 70% 50% at 55% 100%, rgba(110,134,255,.07), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cg fill='%23E9EEF8'%3E%3Ccircle cx='34' cy='51' r='1'/%3E%3Ccircle cx='142' cy='19' r='.7'/%3E%3Ccircle cx='240' cy='84' r='1.2' opacity='.8'/%3E%3Ccircle cx='329' cy='38' r='.6' opacity='.6'/%3E%3Ccircle cx='437' cy='121' r='.9'/%3E%3Ccircle cx='512' cy='62' r='.7' opacity='.7'/%3E%3Ccircle cx='623' cy='140' r='1.1'/%3E%3Ccircle cx='58' cy='187' r='.8' opacity='.6'/%3E%3Ccircle cx='198' cy='232' r='1' opacity='.9'/%3E%3Ccircle cx='302' cy='176' r='.6'/%3E%3Ccircle cx='398' cy='259' r='1.2' opacity='.7'/%3E%3Ccircle cx='511' cy='204' r='.7'/%3E%3Ccircle cx='648' cy='287' r='.9' opacity='.8'/%3E%3Ccircle cx='81' cy='331' r='1.1'/%3E%3Ccircle cx='176' cy='389' r='.6' opacity='.6'/%3E%3Ccircle cx='289' cy='344' r='.9'/%3E%3Ccircle cx='417' cy='401' r='.7' opacity='.8'/%3E%3Ccircle cx='534' cy='352' r='1'/%3E%3Ccircle cx='612' cy='428' r='.6' opacity='.6'/%3E%3Ccircle cx='47' cy='474' r='.9' opacity='.9'/%3E%3Ccircle cx='159' cy='522' r='1.2'/%3E%3Ccircle cx='273' cy='487' r='.6' opacity='.7'/%3E%3Ccircle cx='366' cy='548' r='.9'/%3E%3Ccircle cx='487' cy='509' r='.7' opacity='.6'/%3E%3Ccircle cx='592' cy='561' r='1.1' opacity='.9'/%3E%3Ccircle cx='94' cy='614' r='.7'/%3E%3Ccircle cx='217' cy='659' r='1' opacity='.8'/%3E%3Ccircle cx='341' cy='622' r='.6'/%3E%3Ccircle cx='459' cy='671' r='.9' opacity='.7'/%3E%3Ccircle cx='571' cy='639' r='.7'/%3E%3Ccircle cx='667' cy='598' r='1.2' opacity='.8'/%3E%3Ccircle cx='688' cy='341' r='.7' opacity='.6'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cg fill='%23E9EEF8'%3E%3Ccircle cx='34' cy='51' r='1'/%3E%3Ccircle cx='142' cy='19' r='.7'/%3E%3Ccircle cx='240' cy='84' r='1.2' opacity='.8'/%3E%3Ccircle cx='329' cy='38' r='.6' opacity='.6'/%3E%3Ccircle cx='437' cy='121' r='.9'/%3E%3Ccircle cx='512' cy='62' r='.7' opacity='.7'/%3E%3Ccircle cx='623' cy='140' r='1.1'/%3E%3Ccircle cx='58' cy='187' r='.8' opacity='.6'/%3E%3Ccircle cx='198' cy='232' r='1' opacity='.9'/%3E%3Ccircle cx='302' cy='176' r='.6'/%3E%3Ccircle cx='398' cy='259' r='1.2' opacity='.7'/%3E%3Ccircle cx='511' cy='204' r='.7'/%3E%3Ccircle cx='648' cy='287' r='.9' opacity='.8'/%3E%3Ccircle cx='81' cy='331' r='1.1'/%3E%3Ccircle cx='176' cy='389' r='.6' opacity='.6'/%3E%3Ccircle cx='289' cy='344' r='.9'/%3E%3Ccircle cx='417' cy='401' r='.7' opacity='.8'/%3E%3Ccircle cx='534' cy='352' r='1'/%3E%3Ccircle cx='612' cy='428' r='.6' opacity='.6'/%3E%3Ccircle cx='47' cy='474' r='.9' opacity='.9'/%3E%3Ccircle cx='159' cy='522' r='1.2'/%3E%3Ccircle cx='273' cy='487' r='.6' opacity='.7'/%3E%3Ccircle cx='366' cy='548' r='.9'/%3E%3Ccircle cx='487' cy='509' r='.7' opacity='.6'/%3E%3Ccircle cx='592' cy='561' r='1.1' opacity='.9'/%3E%3Ccircle cx='94' cy='614' r='.7'/%3E%3Ccircle cx='217' cy='659' r='1' opacity='.8'/%3E%3Ccircle cx='341' cy='622' r='.6'/%3E%3Ccircle cx='459' cy='671' r='.9' opacity='.7'/%3E%3Ccircle cx='571' cy='639' r='.7'/%3E%3Ccircle cx='667' cy='598' r='1.2' opacity='.8'/%3E%3Ccircle cx='688' cy='341' r='.7' opacity='.6'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:auto, auto, auto, 700px 700px, 1150px 1150px;
+  background-position:0 0, 0 0, 0 0, 0 0, 380px 240px;
+}
+
+/* ---- 3D models ------------------------------------------------------------ */
+
+/* model-viewer elements. Three sizes: the homepage hero centerpiece, the
+   homepage project-card emblem, and the demo-page header emblem. The radial
+   glow behind each model stands in for a floor so the object doesn't float in
+   nothing. */
+model-viewer.site-model{
+  --poster-color:transparent;
+  background:radial-gradient(closest-side, rgba(110,134,255,.16), transparent);
+  border:none; outline:none;
+}
+model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outline-offset:4px; border-radius:8px}
+.site-model-hero{width:min(340px,80vw); height:min(340px,80vw)}
+.site-model-card{width:118px; height:118px; flex:none}
+.site-model-head{width:150px; height:150px; flex:none; float:right; margin:.25rem 0 .5rem 1.25rem}
+@media (max-width:720px){
+  .site-model-head{width:110px; height:110px}
+}
 
 /* ---- top nav ------------------------------------------------------------ */
 
