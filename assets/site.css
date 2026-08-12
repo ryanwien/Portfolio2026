@@ -218,6 +218,9 @@ model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outl
   padding-right:.06em;
   animation:site-grad-shift 6s ease infinite;
 }
+/* A rotating word changes width on every swap. Reserving the widest word's
+   width (measured in space.js) stops the line reflowing every 2 seconds. */
+.site-accent-word[data-rotate]{display:inline-block; text-align:left}
 
 /* ---- motion --------------------------------------------------------------- */
 
@@ -246,16 +249,28 @@ model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outl
 body::before{animation:site-twinkle 8s ease-in-out infinite}
 
 /* Scroll-triggered reveals. space.js tags the targets, so with JS disabled
-   nothing is ever hidden. */
-.site-reveal{
-  opacity:0; transform:translateY(28px);
-  transition:opacity .8s cubic-bezier(.25,.1,.25,1), transform .8s cubic-bezier(.25,.1,.25,1);
-  transition-delay:var(--reveal-delay,0ms);
-}
-.site-reveal.site-in{opacity:1; transform:none}
+   nothing is ever hidden.
 
-/* Rotating role word re-triggers this on each swap. */
-.site-role-swap{animation:site-rolein .4s ease-out}
+   These run as an animation, not a transition, on purpose. A transition here
+   would be silently cancelled by any page that declares its own `transition`
+   shorthand on the same element (index.html's `.proj` and this file's own
+   `.site-card` both do) — the reveal would then pop instead of rising, and the
+   card's hover timing would inherit the reveal's 800ms + stagger delay.
+   Animations don't share that cascade slot, so both survive. space.js strips
+   the classes once the animation ends, leaving the element in its natural
+   state. */
+@keyframes site-reveal-in{
+  from{opacity:0; transform:translateY(28px)} to{opacity:1; transform:none}
+}
+.site-reveal{opacity:0}
+.site-reveal.site-in{
+  animation:site-reveal-in .8s cubic-bezier(.25,.1,.25,1) var(--reveal-delay,0ms) both;
+}
+
+/* Rotating role word re-triggers this on each swap. The gradient shift is
+   repeated here because `animation` is a shorthand — naming only site-rolein
+   would drop the gradient animation this element also carries. */
+.site-role-swap{animation:site-rolein .4s ease-out, site-grad-shift 6s ease infinite}
 
 /* Scroll cue: label over a thin line with a travelling highlight. */
 .site-scrollcue{
@@ -285,8 +300,10 @@ body::before{animation:site-twinkle 8s ease-in-out infinite}
 
 @media (prefers-reduced-motion:reduce){
   body::before{animation:none}
-  .site-accent-word{animation:none}
-  .site-reveal{opacity:1; transform:none; transition:none}
+  .site-accent-word,.site-role-swap{animation:none}
+  /* Belt and braces: space.js also skips tagging, but if the preference is
+     switched on mid-visit the already-tagged elements must not stay hidden. */
+  .site-reveal,.site-reveal.site-in{opacity:1; transform:none; animation:none}
   .site-scrollcue-line::after{animation:none}
   .site-avail::before{animation:none}
   .site-card{transition:none}

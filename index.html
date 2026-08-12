@@ -19,8 +19,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/site.css" />
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<!-- space.js first: deferred scripts run in document order, so putting the
+     CDN module ahead of it would hold the reveals (and DOMContentLoaded)
+     hostage to that fetch, showing the page and then hiding it again. -->
 <script src="assets/space.js" defer></script>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 <style>
   :root{
     --site-w:820px;
@@ -137,7 +140,10 @@
   }
   .runs-local{font-family:var(--mono); font-size:.68rem; color:var(--muted); text-align:center; letter-spacing:.04em}
 
-  a:focus-visible,.btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
+  a:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
+  /* The buttons are pills; the shared rule above would square them off the
+     moment they take keyboard focus. */
+  .btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:999px}
 
   @media (max-width:560px){
     .proj{grid-template-columns:auto 1fr; gap:.3rem 1rem}

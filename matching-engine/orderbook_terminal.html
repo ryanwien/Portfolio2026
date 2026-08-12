@@ -19,8 +19,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/site.css" />
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 <script src="../assets/space.js" defer></script>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 <style>
   :root{
     /* This page is a trading terminal — always dark, amber accent. Re-point the
@@ -30,6 +30,10 @@
     --site-bg:#0A0E14; --site-surface:#0E141D; --site-ink:#D6DEE8; --site-muted:#7A8A9E;
     --site-line:#1B2430; --site-line-strong:#2A3746;
     --site-accent:#F5A623; --site-accent-ink:#0A0E14;
+    /* The gradient chrome (nav mark, card borders and glows) reads these, so
+       they need an amber pairing here or the terminal wears the homepage's
+       blue-violet. */
+    --site-nebula:#F5D06A; --site-grad:linear-gradient(137deg,#F5A623 0%,#F5D06A 55%,#F5A623 100%);
     --site-display:'Space Grotesk',system-ui,-apple-system,sans-serif;
     --bg:#0A0E14; --panel:#0E141D; --panel-2:#0B1017; --line:#1B2430; --line-2:#141C26;
     --text:#D6DEE8; --muted:#7A8A9E; --muted-2:#75859A;
