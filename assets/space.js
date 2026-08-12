@@ -39,11 +39,82 @@
     });
   }
 
+  /* First-visit launch sequence. Runs only when the page's head guard put
+     .launching on <html> (index.html, motion allowed, not seen this session).
+     Counter 000→100 with rotating words, then the overlay fades as the hero
+     entrance plays. */
+  function runLaunch() {
+    var root = document.documentElement;
+    if (!root.classList.contains('launching')) return;
+
+    var overlay = document.createElement('div');
+    overlay.className = 'site-launch';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.innerHTML =
+      '<div class="site-launch-label">Portfolio · 2026</div>' +
+      '<div class="site-launch-word site-accent-word">Design</div>' +
+      '<div class="site-launch-count">000</div>' +
+      '<div class="site-launch-bar"><span></span></div>';
+    document.body.appendChild(overlay);
+
+    var wordEl = overlay.querySelector('.site-launch-word');
+    var countEl = overlay.querySelector('.site-launch-count');
+    var barEl = overlay.querySelector('.site-launch-bar span');
+
+    var words = ['Design', 'Build', 'Launch'];
+    var wi = 0;
+    var wordTimer = setInterval(function () {
+      wi = (wi + 1) % words.length;
+      wordEl.textContent = words[wi];
+      wordEl.classList.remove('site-role-swap');
+      void wordEl.offsetWidth;
+      wordEl.classList.add('site-role-swap');
+    }, 850);
+
+    var DURATION = 2400;
+    var t0 = performance.now();
+    function frame(now) {
+      var p = Math.min(1, (now - t0) / DURATION);
+      var eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      var count = Math.round(eased * 100);
+      countEl.textContent = ('00' + count).slice(-3);
+      barEl.style.transform = 'scaleX(' + count / 100 + ')';
+      if (p < 1) { requestAnimationFrame(frame); return; }
+
+      clearInterval(wordTimer);
+      setTimeout(function () {
+        try { sessionStorage.setItem('rw-launch-seen', '1'); } catch (e) {}
+        root.classList.remove('launching');        /* hero entrance starts   */
+        overlay.classList.add('site-launch-done'); /* ...as the overlay fades */
+        overlay.addEventListener('transitionend', function () { overlay.remove(); });
+        setTimeout(function () { if (overlay.parentNode) overlay.remove(); }, 1200);
+      }, 350);
+    }
+    requestAnimationFrame(frame);
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     if (motionQuery.matches) {
       stopRotation();
-      return; /* no reveals, no rotator — the page simply appears */
+      document.documentElement.classList.remove('launching');
+      return; /* no reveals, no rotator, no launch — the page simply appears */
     }
+
+    runLaunch();
+
+    /* Scroll-story parallax: keep --scroll at scrollY (unitless; the CSS
+       multiplies it into px). rAF-throttled, transform-only consumers. */
+    var pending = false;
+    function onScroll() {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(function () {
+        document.documentElement.style.setProperty('--scroll', window.scrollY);
+        pending = false;
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
 
     /* Scroll reveals. Tag the shared building blocks plus anything opting in
        with data-reveal, then stagger siblings that share a parent. */

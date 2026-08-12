@@ -50,21 +50,38 @@ body > .site-footer{margin-top:auto}
 
 /* ---- starfield ----------------------------------------------------------- */
 
-/* Fixed pseudo-element at z-index:-1: it paints above the root canvas colour
-   but below every in-flow box, so cards and panels naturally occlude the sky.
-   For this to show, pages must leave body's own background transparent — the
-   demo pages were edited to match. Two tilings of the same star SVG at
-   different scales fake depth; the radial gradients are the nebula. */
+/* Two fixed pseudo-elements at z-index:-1: they paint above the root canvas
+   colour but below every in-flow box, so cards and panels naturally occlude
+   the sky. For this to show, pages must leave body's own background
+   transparent — the demo pages were edited to match.
+
+   The sky is split across ::before (nebula + far stars) and ::after (near
+   stars) so scrolling can drift them at different speeds: space.js keeps the
+   unitless --scroll custom property at window.scrollY, and each layer
+   translates by its own fraction of it. transform + opacity only, so the
+   parallax composites on the GPU. The oversized inset hides the edges the
+   translation would otherwise reveal. */
 body::before{
-  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  content:""; position:fixed; inset:-18% 0 0; z-index:-1; pointer-events:none;
+  transform:translate3d(0, calc(var(--scroll,0) * -0.03px), 0);
   background-image:
     radial-gradient(ellipse 60% 45% at 18% 8%, rgba(110,134,255,.14), transparent 70%),
     radial-gradient(ellipse 55% 40% at 85% 25%, rgba(180,140,255,.09), transparent 70%),
     radial-gradient(ellipse 70% 50% at 55% 100%, rgba(110,134,255,.07), transparent 70%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cg fill='%23E9EEF8'%3E%3Ccircle cx='34' cy='51' r='1'/%3E%3Ccircle cx='142' cy='19' r='.7'/%3E%3Ccircle cx='240' cy='84' r='1.2' opacity='.8'/%3E%3Ccircle cx='329' cy='38' r='.6' opacity='.6'/%3E%3Ccircle cx='437' cy='121' r='.9'/%3E%3Ccircle cx='512' cy='62' r='.7' opacity='.7'/%3E%3Ccircle cx='623' cy='140' r='1.1'/%3E%3Ccircle cx='58' cy='187' r='.8' opacity='.6'/%3E%3Ccircle cx='198' cy='232' r='1' opacity='.9'/%3E%3Ccircle cx='302' cy='176' r='.6'/%3E%3Ccircle cx='398' cy='259' r='1.2' opacity='.7'/%3E%3Ccircle cx='511' cy='204' r='.7'/%3E%3Ccircle cx='648' cy='287' r='.9' opacity='.8'/%3E%3Ccircle cx='81' cy='331' r='1.1'/%3E%3Ccircle cx='176' cy='389' r='.6' opacity='.6'/%3E%3Ccircle cx='289' cy='344' r='.9'/%3E%3Ccircle cx='417' cy='401' r='.7' opacity='.8'/%3E%3Ccircle cx='534' cy='352' r='1'/%3E%3Ccircle cx='612' cy='428' r='.6' opacity='.6'/%3E%3Ccircle cx='47' cy='474' r='.9' opacity='.9'/%3E%3Ccircle cx='159' cy='522' r='1.2'/%3E%3Ccircle cx='273' cy='487' r='.6' opacity='.7'/%3E%3Ccircle cx='366' cy='548' r='.9'/%3E%3Ccircle cx='487' cy='509' r='.7' opacity='.6'/%3E%3Ccircle cx='592' cy='561' r='1.1' opacity='.9'/%3E%3Ccircle cx='94' cy='614' r='.7'/%3E%3Ccircle cx='217' cy='659' r='1' opacity='.8'/%3E%3Ccircle cx='341' cy='622' r='.6'/%3E%3Ccircle cx='459' cy='671' r='.9' opacity='.7'/%3E%3Ccircle cx='571' cy='639' r='.7'/%3E%3Ccircle cx='667' cy='598' r='1.2' opacity='.8'/%3E%3Ccircle cx='688' cy='341' r='.7' opacity='.6'/%3E%3C/g%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cg fill='%23E9EEF8'%3E%3Ccircle cx='34' cy='51' r='1'/%3E%3Ccircle cx='142' cy='19' r='.7'/%3E%3Ccircle cx='240' cy='84' r='1.2' opacity='.8'/%3E%3Ccircle cx='329' cy='38' r='.6' opacity='.6'/%3E%3Ccircle cx='437' cy='121' r='.9'/%3E%3Ccircle cx='512' cy='62' r='.7' opacity='.7'/%3E%3Ccircle cx='623' cy='140' r='1.1'/%3E%3Ccircle cx='58' cy='187' r='.8' opacity='.6'/%3E%3Ccircle cx='198' cy='232' r='1' opacity='.9'/%3E%3Ccircle cx='302' cy='176' r='.6'/%3E%3Ccircle cx='398' cy='259' r='1.2' opacity='.7'/%3E%3Ccircle cx='511' cy='204' r='.7'/%3E%3Ccircle cx='648' cy='287' r='.9' opacity='.8'/%3E%3Ccircle cx='81' cy='331' r='1.1'/%3E%3Ccircle cx='176' cy='389' r='.6' opacity='.6'/%3E%3Ccircle cx='289' cy='344' r='.9'/%3E%3Ccircle cx='417' cy='401' r='.7' opacity='.8'/%3E%3Ccircle cx='534' cy='352' r='1'/%3E%3Ccircle cx='612' cy='428' r='.6' opacity='.6'/%3E%3Ccircle cx='47' cy='474' r='.9' opacity='.9'/%3E%3Ccircle cx='159' cy='522' r='1.2'/%3E%3Ccircle cx='273' cy='487' r='.6' opacity='.7'/%3E%3Ccircle cx='366' cy='548' r='.9'/%3E%3Ccircle cx='487' cy='509' r='.7' opacity='.6'/%3E%3Ccircle cx='592' cy='561' r='1.1' opacity='.9'/%3E%3Ccircle cx='94' cy='614' r='.7'/%3E%3Ccircle cx='217' cy='659' r='1' opacity='.8'/%3E%3Ccircle cx='341' cy='622' r='.6'/%3E%3Ccircle cx='459' cy='671' r='.9' opacity='.7'/%3E%3Ccircle cx='571' cy='639' r='.7'/%3E%3Ccircle cx='667' cy='598' r='1.2' opacity='.8'/%3E%3Ccircle cx='688' cy='341' r='.7' opacity='.6'/%3E%3C/g%3E%3C/svg%3E");
-  background-size:auto, auto, auto, 700px 700px, 1150px 1150px;
-  background-position:0 0, 0 0, 0 0, 0 0, 380px 240px;
+  background-size:auto, auto, auto, 700px 700px;
+  background-position:0 0, 0 0, 0 0, 0 0;
+}
+/* Near star layer: same tile, larger scale, its own drift speed and a
+   slower counter-phased twinkle. */
+body::after{
+  content:""; position:fixed; inset:-18% 0 0; z-index:-1; pointer-events:none;
+  transform:translate3d(0, calc(var(--scroll,0) * -0.08px), 0);
+  background-image:
+url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cg fill='%23E9EEF8'%3E%3Ccircle cx='34' cy='51' r='1'/%3E%3Ccircle cx='142' cy='19' r='.7'/%3E%3Ccircle cx='240' cy='84' r='1.2' opacity='.8'/%3E%3Ccircle cx='329' cy='38' r='.6' opacity='.6'/%3E%3Ccircle cx='437' cy='121' r='.9'/%3E%3Ccircle cx='512' cy='62' r='.7' opacity='.7'/%3E%3Ccircle cx='623' cy='140' r='1.1'/%3E%3Ccircle cx='58' cy='187' r='.8' opacity='.6'/%3E%3Ccircle cx='198' cy='232' r='1' opacity='.9'/%3E%3Ccircle cx='302' cy='176' r='.6'/%3E%3Ccircle cx='398' cy='259' r='1.2' opacity='.7'/%3E%3Ccircle cx='511' cy='204' r='.7'/%3E%3Ccircle cx='648' cy='287' r='.9' opacity='.8'/%3E%3Ccircle cx='81' cy='331' r='1.1'/%3E%3Ccircle cx='176' cy='389' r='.6' opacity='.6'/%3E%3Ccircle cx='289' cy='344' r='.9'/%3E%3Ccircle cx='417' cy='401' r='.7' opacity='.8'/%3E%3Ccircle cx='534' cy='352' r='1'/%3E%3Ccircle cx='612' cy='428' r='.6' opacity='.6'/%3E%3Ccircle cx='47' cy='474' r='.9' opacity='.9'/%3E%3Ccircle cx='159' cy='522' r='1.2'/%3E%3Ccircle cx='273' cy='487' r='.6' opacity='.7'/%3E%3Ccircle cx='366' cy='548' r='.9'/%3E%3Ccircle cx='487' cy='509' r='.7' opacity='.6'/%3E%3Ccircle cx='592' cy='561' r='1.1' opacity='.9'/%3E%3Ccircle cx='94' cy='614' r='.7'/%3E%3Ccircle cx='217' cy='659' r='1' opacity='.8'/%3E%3Ccircle cx='341' cy='622' r='.6'/%3E%3Ccircle cx='459' cy='671' r='.9' opacity='.7'/%3E%3Ccircle cx='571' cy='639' r='.7'/%3E%3Ccircle cx='667' cy='598' r='1.2' opacity='.8'/%3E%3Ccircle cx='688' cy='341' r='.7' opacity='.6'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:1150px 1150px;
+  background-position:380px 240px;
+  animation:site-twinkle 11s ease-in-out 2s infinite;
 }
 
 /* ---- 3D models ------------------------------------------------------------ */
@@ -298,8 +315,46 @@ body::before{animation:site-twinkle 8s ease-in-out infinite}
   background:#34D399; animation:site-pulse 2.4s ease-in-out infinite;
 }
 
+/* ---- launch sequence ------------------------------------------------------ */
+
+/* First-visit preloader. The overlay is created entirely by space.js, and only
+   on pages whose head guard put .launching on <html> — no JS, no overlay. The
+   guard also arms a timeout that removes the class even if space.js dies, so
+   nothing can stay hidden behind it. */
+html.launching{overflow:hidden}
+.site-launch{
+  position:fixed; inset:0; z-index:9999;
+  display:flex; align-items:center; justify-content:center;
+  background:
+    radial-gradient(ellipse 70% 55% at 30% 15%, rgba(110,134,255,.10), transparent 70%),
+    var(--site-bg);
+  transition:opacity .65s ease, visibility .65s;
+}
+.site-launch-done{opacity:0; visibility:hidden}
+.site-launch-label{
+  position:absolute; top:1.5rem; left:1.6rem;
+  font-family:var(--site-mono); font-size:.68rem; font-weight:500;
+  letter-spacing:.3em; text-transform:uppercase; color:var(--site-muted);
+}
+.site-launch-word{font-size:clamp(2.6rem,8vw,4.6rem); line-height:1.1}
+.site-launch-count{
+  position:absolute; right:1.5rem; bottom:1.6rem;
+  font-family:var(--site-display); font-weight:700; line-height:1;
+  font-size:clamp(3.2rem,10vw,6.5rem); letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums; color:var(--site-ink);
+}
+.site-launch-bar{
+  position:absolute; left:0; right:0; bottom:0; height:3px;
+  background:color-mix(in srgb, var(--site-line) 60%, transparent);
+}
+.site-launch-bar span{
+  display:block; height:100%; background:var(--site-grad);
+  transform:scaleX(0); transform-origin:left;
+  box-shadow:0 0 12px rgba(110,134,255,.45);
+}
+
 @media (prefers-reduced-motion:reduce){
-  body::before{animation:none}
+  body::before,body::after{animation:none}
   .site-accent-word,.site-role-swap{animation:none}
   /* Belt and braces: space.js also skips tagging, but if the preference is
      switched on mid-visit the already-tagged elements must not stay hidden. */
@@ -307,6 +362,8 @@ body::before{animation:site-twinkle 8s ease-in-out infinite}
   .site-scrollcue-line::after{animation:none}
   .site-avail::before{animation:none}
   .site-card{transition:none}
+  .site-launch{display:none}
+  html.launching{overflow:auto}
 }
 
 /* ---- footer ------------------------------------------------------------- */

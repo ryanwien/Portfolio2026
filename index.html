@@ -19,6 +19,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/site.css" />
+<!-- Launch-sequence guard: decides synchronously (before first paint) whether
+     this visit gets the preloader. space.js builds the actual overlay; the
+     timeout is a failsafe that unfreezes the hero even if that never runs. -->
+<script>
+try {
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && !sessionStorage.getItem('rw-launch-seen')) {
+    document.documentElement.classList.add('launching');
+    setTimeout(function () { document.documentElement.classList.remove('launching'); }, 5000);
+  }
+} catch (e) {}
+</script>
 <!-- space.js first: deferred scripts run in document order, so putting the
      CDN module ahead of it would hold the reveals (and DOMContentLoaded)
      hostage to that fetch, showing the page and then hiding it again. -->
@@ -51,15 +62,30 @@
     .hero{grid-template-columns:1fr; justify-items:center; text-align:center}
     .hero-copy{text-align:left}
   }
-  /* Cinematic entrance: name rises, everything else blurs in on a stagger. */
+  /* Cinematic entrance: name rises, everything else blurs in on a stagger.
+     While the launch overlay is up, everything holds at its first keyframe
+     (paused, fill:both) and starts the moment .launching is lifted. */
   .hero h1{animation:site-rise 1.1s cubic-bezier(.22,.9,.26,1) both .05s}
   .hero .eyebrow{animation:site-blurin 1s ease-out both .3s}
   .hero .lead{animation:site-blurin 1s ease-out both .45s}
   .hero .hero-role{animation:site-blurin 1s ease-out both .6s}
   .hero model-viewer{animation:site-blurin 1.2s ease-out both .5s}
   .hero-scrollcue{margin:1.6rem 0 .4rem; animation:site-blurin 1s ease-out both .9s}
+  html.launching .hero h1, html.launching .hero .eyebrow, html.launching .hero .lead,
+  html.launching .hero .hero-role, html.launching .hero model-viewer,
+  html.launching .hero-scrollcue{animation-play-state:paused}
   @media (prefers-reduced-motion:reduce){
     .hero h1,.hero .eyebrow,.hero .lead,.hero .hero-role,.hero model-viewer,.hero-scrollcue{animation:none}
+  }
+  /* Scroll story: the planet recedes faster than the copy, and the scroll cue
+     dissolves. Parallax lives on wrappers, not the animated elements — their
+     entrance animations fill forwards and would override the transform. */
+  .hero-visual{transform:translate3d(0, calc(var(--scroll,0) * 0.14px), 0)}
+  .hero-copy{transform:translate3d(0, calc(var(--scroll,0) * 0.05px), 0)}
+  .scrollcue-wrap{opacity:clamp(0, calc(1 - var(--scroll,0) / 240), 1)}
+  @media (prefers-reduced-motion:reduce){
+    .hero-visual,.hero-copy{transform:none}
+    .scrollcue-wrap{opacity:1}
   }
   .hero-role{
     font-family:var(--mono); font-size:.85rem; color:var(--muted);
@@ -178,10 +204,12 @@
         <p class="lead">Software engineer building <span class="site-accent-word">full-stack applications</span>, <span class="site-accent-word">automation tools</span>, and <span class="site-accent-word">data-driven programs</span>, with an eye for clean, well-documented code. All five projects below run live, right in your browser.</p>
         <p class="hero-role">CURRENTLY BUILDING → <span class="site-accent-word" data-rotate='["full-stack apps","trading systems","ML pipelines","security tooling","CLI tools"]'>full-stack apps</span></p>
       </div>
-      <model-viewer class="site-model site-model-hero" src="assets/models/hero.glb" poster="assets/models/posters/hero.png" alt="3D model of a ringed planet with two orbiting moons" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
+      <div class="hero-visual">
+        <model-viewer class="site-model site-model-hero" src="assets/models/hero.glb" poster="assets/models/posters/hero.png" alt="3D model of a ringed planet with two orbiting moons" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
+      </div>
     </header>
 
-    <div class="site-scrollcue hero-scrollcue">Scroll<span class="site-scrollcue-line"></span></div>
+    <div class="scrollcue-wrap"><div class="site-scrollcue hero-scrollcue">Scroll<span class="site-scrollcue-line"></span></div></div>
 
     <main>
       <div class="section-label" data-reveal><span>Mission Log</span><span>05</span></div>
