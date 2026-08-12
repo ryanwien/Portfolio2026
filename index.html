@@ -17,7 +17,7 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/site.css" />
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 <script src="assets/space.js" defer></script>
@@ -48,6 +48,22 @@
     .hero{grid-template-columns:1fr; justify-items:center; text-align:center}
     .hero-copy{text-align:left}
   }
+  /* Cinematic entrance: name rises, everything else blurs in on a stagger. */
+  .hero h1{animation:site-rise 1.1s cubic-bezier(.22,.9,.26,1) both .05s}
+  .hero .eyebrow{animation:site-blurin 1s ease-out both .3s}
+  .hero .lead{animation:site-blurin 1s ease-out both .45s}
+  .hero .hero-role{animation:site-blurin 1s ease-out both .6s}
+  .hero model-viewer{animation:site-blurin 1.2s ease-out both .5s}
+  .hero-scrollcue{margin:1.6rem 0 .4rem; animation:site-blurin 1s ease-out both .9s}
+  @media (prefers-reduced-motion:reduce){
+    .hero h1,.hero .eyebrow,.hero .lead,.hero .hero-role,.hero model-viewer,.hero-scrollcue{animation:none}
+  }
+  .hero-role{
+    font-family:var(--mono); font-size:.85rem; color:var(--muted);
+    letter-spacing:.04em; margin-top:1rem;
+  }
+  .hero-role .site-accent-word{font-size:1.25em; letter-spacing:0}
+  .lead .site-accent-word{font-size:1.12em}
   .eyebrow{
     font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
     text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center;
@@ -62,18 +78,26 @@
 
   /* ---- section label ---- */
   .section-label{
-    font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.12em;
+    font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.24em;
     text-transform:uppercase; color:var(--muted);
     display:flex; justify-content:space-between; align-items:baseline;
     margin:clamp(2.5rem,6vw,3.5rem) 0 .25rem; padding-bottom:.6rem;
     border-bottom:1px solid var(--line-strong);
   }
+  .section-title{
+    font-family:var(--display); font-weight:700; letter-spacing:-.015em;
+    font-size:clamp(1.7rem,4.5vw,2.4rem); margin:1.1rem 0 .2rem;
+  }
+  .section-sub{color:var(--muted); font-size:.95rem; max-width:38em; margin-bottom:.4rem}
 
   /* ---- project rows ---- */
   .proj{
     display:grid; grid-template-columns:auto 1fr auto; gap:.4rem 1.5rem;
-    padding:1.4rem 0; border-bottom:1px solid var(--line); align-items:start;
+    padding:1.4rem 1.1rem; margin:0 -1.1rem;
+    border-bottom:1px solid var(--line); border-radius:18px; align-items:start;
+    transition:background .3s ease;
   }
+  .proj:hover{background:color-mix(in srgb, var(--surface) 55%, transparent)}
   .proj-model{grid-column:1; grid-row:1 / span 3; align-self:center}
   .proj-head{grid-column:2; display:flex; align-items:baseline; gap:.75rem; flex-wrap:wrap}
   .proj-title{font-family:var(--display); font-weight:600; font-size:1.4rem; letter-spacing:-.01em}
@@ -88,13 +112,29 @@
   .actions{grid-column:3; grid-row:1 / span 3; display:flex; flex-direction:column; gap:.5rem; align-items:stretch}
   .btn{
     font-family:var(--mono); font-size:.78rem; font-weight:600; letter-spacing:.02em;
-    text-decoration:none; text-align:center; padding:.5rem .9rem; border-radius:3px;
-    white-space:nowrap; transition:transform .12s ease, background .12s ease, border-color .12s ease;
+    text-decoration:none; text-align:center; padding:.55rem 1.15rem; border-radius:999px;
+    white-space:nowrap;
+    transition:transform .22s cubic-bezier(.25,.1,.25,1), box-shadow .22s ease,
+      border-color .22s ease, background .22s ease, color .22s ease;
   }
   .btn-demo{background:var(--accent); color:var(--accent-ink); border:1px solid var(--accent)}
-  .btn-demo:hover{transform:translateY(-1px)}
-  .btn-src{background:transparent; color:var(--ink); border:1px solid var(--line-strong)}
-  .btn-src:hover{border-color:var(--ink)}
+  .btn-demo:hover{
+    transform:translateY(-2px) scale(1.02);
+    box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 65%, transparent),
+      0 10px 28px -10px var(--accent);
+  }
+  .btn-src{
+    color:var(--ink); border:1px solid transparent;
+    background:
+      linear-gradient(var(--bg),var(--bg)) padding-box,
+      linear-gradient(137deg, var(--line-strong), var(--line)) border-box;
+  }
+  .btn-src:hover{
+    transform:translateY(-2px);
+    background:
+      linear-gradient(var(--bg),var(--bg)) padding-box,
+      var(--site-grad) border-box;
+  }
   .runs-local{font-family:var(--mono); font-size:.68rem; color:var(--muted); text-align:center; letter-spacing:.04em}
 
   a:focus-visible,.btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
@@ -129,13 +169,18 @@
       <div class="hero-copy">
         <div class="eyebrow">Portfolio · 2026</div>
         <h1>Ryan Wien</h1>
-        <p class="lead">Software engineer building <strong>full-stack applications</strong>, <strong>automation tools</strong>, and <strong>data-driven programs</strong>, with an eye for clean, well-documented code. All five projects below run live, right in your browser.</p>
+        <p class="lead">Software engineer building <span class="site-accent-word">full-stack applications</span>, <span class="site-accent-word">automation tools</span>, and <span class="site-accent-word">data-driven programs</span>, with an eye for clean, well-documented code. All five projects below run live, right in your browser.</p>
+        <p class="hero-role">CURRENTLY BUILDING → <span class="site-accent-word" data-rotate='["full-stack apps","trading systems","ML pipelines","security tooling","CLI tools"]'>full-stack apps</span></p>
       </div>
       <model-viewer class="site-model site-model-hero" src="assets/models/hero.glb" poster="assets/models/posters/hero.png" alt="3D model of a ringed planet with two orbiting moons" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
     </header>
 
+    <div class="site-scrollcue hero-scrollcue">Scroll<span class="site-scrollcue-line"></span></div>
+
     <main>
-      <h2 class="section-label"><span>Projects</span><span>05</span></h2>
+      <div class="section-label" data-reveal><span>Mission Log</span><span>05</span></div>
+      <h2 class="section-title" data-reveal>Featured <span class="site-accent-word">projects</span></h2>
+      <p class="section-sub" data-reveal>Five builds spanning full-stack, systems, machine learning, tooling, and security — every one runs live in your browser.</p>
 
       <!-- Task Tracker -->
       <article class="proj">
@@ -220,6 +265,7 @@
       <div class="site-footer-brand">
         <div class="site-footer-name">Ryan Wien</div>
         <p class="site-footer-tag">Software engineer building full-stack applications, automation tools, and data-driven programs.</p>
+        <div class="site-avail">Available for projects</div>
       </div>
       <div class="site-footer-col">
         <div class="site-footer-h">Projects</div>

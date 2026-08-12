@@ -24,8 +24,10 @@
   --site-accent:#6E86FF;
   --site-accent-ink:#070B15;
   --site-nebula:#B48CFF;
+  --site-grad:linear-gradient(137deg,#6E86FF 0%,#B48CFF 55%,#6E86FF 100%);
   --site-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --site-display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
+  --site-serif:'Instrument Serif',Georgia,serif;
   --site-body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   /* Each page sets this to its own content width so the chrome lines up. */
   --site-w:1000px;
@@ -37,7 +39,8 @@
    the page scroll horizontally — the leftover strip renders as bare white.
    Setting it here means the canvas is painted whatever else happens. Each page
    re-points --site-bg to its own palette, so this follows the page's theme. */
-html{background:var(--site-bg)}
+html{background:var(--site-bg); scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 
 /* Hold the footer at the bottom of the window when a page is shorter than the
    viewport. Without this the footer floats partway up on a tall screen with
@@ -85,17 +88,24 @@ model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outl
 
 /* ---- top nav ------------------------------------------------------------ */
 
+/* Floating glass pill, centered under the top edge. The nav element itself is
+   transparent so the starfield runs behind the capsule. */
 .site-nav{
   position:sticky; top:0; z-index:50;
-  background:color-mix(in srgb, var(--site-bg) 88%, transparent);
-  border-bottom:1px solid var(--site-line);
-}
-@supports (backdrop-filter:blur(1px)){
-  .site-nav{backdrop-filter:saturate(180%) blur(12px)}
+  padding:.7rem var(--site-pad) .35rem;
+  background:transparent; border-bottom:none;
 }
 .site-nav-inner{
-  max-width:var(--site-w); margin:0 auto; padding:0 var(--site-pad);
-  display:flex; align-items:center; gap:1.25rem; min-height:52px;
+  max-width:var(--site-w); margin:0 auto;
+  padding:.32rem .55rem .32rem .65rem;
+  display:flex; align-items:center; gap:1rem; min-height:48px;
+  border:1px solid color-mix(in srgb, var(--site-ink) 12%, transparent);
+  border-radius:999px;
+  background:color-mix(in srgb, var(--site-surface) 82%, transparent);
+  box-shadow:0 12px 32px -18px rgba(0,0,0,.85);
+}
+@supports (backdrop-filter:blur(1px)){
+  .site-nav-inner{backdrop-filter:saturate(160%) blur(14px)}
 }
 .site-brand{
   display:flex; align-items:center; gap:.5rem; flex:none;
@@ -103,12 +113,14 @@ model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outl
   letter-spacing:-.01em; color:var(--site-ink); text-decoration:none;
 }
 .site-brand .site-mark{
-  width:22px; height:22px; flex:none; border-radius:5px;
-  background:var(--site-accent); color:var(--site-accent-ink);
+  width:24px; height:24px; flex:none; border-radius:999px;
+  background:var(--site-grad); color:var(--site-accent-ink);
   font-family:var(--site-mono); font-size:.6rem; font-weight:700; letter-spacing:.02em;
   display:flex; align-items:center; justify-content:center;
+  transition:transform .25s ease;
 }
 .site-brand:hover{color:var(--site-accent)}
+.site-brand:hover .site-mark{transform:scale(1.1) rotate(-6deg)}
 
 /* Link strip. Scrolls sideways on narrow screens rather than wrapping or
    collapsing behind a menu button — no JS, and every demo stays one tap away. */
@@ -158,12 +170,28 @@ model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outl
 /* Bottom margin mirrors the label's top margin, so the cards sit in their own
    band instead of crowding whatever demo follows. Adjacent-sibling margins
    collapse, so a following element with its own top margin won't double up. */
-.site-how{display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem;
+.site-how{display:grid; grid-template-columns:repeat(3,1fr); gap:.9rem;
   margin-bottom:2.2rem}
+/* Gradient hairline border (padding-box/border-box trick) with a blurred
+   gradient glow behind each card that breathes in on hover. */
 .site-card{
-  background:var(--site-surface); border:1px solid var(--site-line);
-  border-radius:10px; padding:1.05rem 1.15rem;
+  position:relative; z-index:0;
+  border:1px solid transparent; border-radius:18px; padding:1.15rem 1.25rem;
+  background:
+    linear-gradient(var(--site-surface),var(--site-surface)) padding-box,
+    linear-gradient(137deg,
+      color-mix(in srgb, var(--site-accent) 55%, transparent),
+      color-mix(in srgb, var(--site-nebula) 22%, transparent) 45%,
+      color-mix(in srgb, var(--site-accent) 10%, transparent)) border-box;
+  transition:transform .35s cubic-bezier(.25,.1,.25,1);
 }
+.site-card::after{
+  content:""; position:absolute; inset:-2px; border-radius:inherit; z-index:-1;
+  background:var(--site-grad); filter:blur(26px); opacity:.08;
+  transition:opacity .45s ease; pointer-events:none;
+}
+.site-card:hover{transform:translateY(-4px)}
+.site-card:hover::after{opacity:.3}
 .site-card .site-card-n{
   font-family:var(--site-mono); font-size:.66rem; font-weight:600;
   letter-spacing:.1em; color:var(--site-accent);
@@ -178,11 +206,97 @@ model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outl
   background:var(--site-bg); border-radius:3px; padding:.05em .3em;
 }
 
+/* ---- typography accents --------------------------------------------------- */
+
+/* Serif-italic gradient word, the "featured *projects*" move. Pages that use it
+   must load the Instrument Serif italic font. */
+.site-accent-word{
+  font-family:var(--site-serif); font-style:italic; font-weight:400;
+  background:var(--site-grad); background-size:200% 100%;
+  -webkit-background-clip:text; background-clip:text;
+  color:transparent; -webkit-text-fill-color:transparent;
+  padding-right:.06em;
+  animation:site-grad-shift 6s ease infinite;
+}
+
+/* ---- motion --------------------------------------------------------------- */
+
+@keyframes site-grad-shift{
+  0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%}
+}
+@keyframes site-rise{
+  from{opacity:0; transform:translateY(46px)} to{opacity:1; transform:none}
+}
+@keyframes site-blurin{
+  from{opacity:0; filter:blur(10px); transform:translateY(18px)}
+  to{opacity:1; filter:blur(0); transform:none}
+}
+@keyframes site-rolein{
+  from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}
+}
+@keyframes site-scrolldown{
+  from{transform:translateY(-110%)} to{transform:translateY(210%)}
+}
+@keyframes site-pulse{
+  0%,100%{opacity:1; box-shadow:0 0 8px #34D399} 50%{opacity:.55; box-shadow:0 0 2px #34D399}
+}
+@keyframes site-twinkle{
+  0%,100%{opacity:1} 50%{opacity:.72}
+}
+body::before{animation:site-twinkle 8s ease-in-out infinite}
+
+/* Scroll-triggered reveals. space.js tags the targets, so with JS disabled
+   nothing is ever hidden. */
+.site-reveal{
+  opacity:0; transform:translateY(28px);
+  transition:opacity .8s cubic-bezier(.25,.1,.25,1), transform .8s cubic-bezier(.25,.1,.25,1);
+  transition-delay:var(--reveal-delay,0ms);
+}
+.site-reveal.site-in{opacity:1; transform:none}
+
+/* Rotating role word re-triggers this on each swap. */
+.site-role-swap{animation:site-rolein .4s ease-out}
+
+/* Scroll cue: label over a thin line with a travelling highlight. */
+.site-scrollcue{
+  display:flex; flex-direction:column; align-items:center; gap:.55rem;
+  font-family:var(--site-mono); font-size:.62rem; font-weight:500;
+  letter-spacing:.24em; text-transform:uppercase; color:var(--site-muted);
+}
+.site-scrollcue-line{
+  width:1px; height:40px; background:var(--site-line-strong);
+  position:relative; overflow:hidden;
+}
+.site-scrollcue-line::after{
+  content:""; position:absolute; inset:0;
+  background:var(--site-grad);
+  animation:site-scrolldown 1.6s ease-in-out infinite;
+}
+
+/* Pulsing availability dot for the footer. */
+.site-avail{
+  display:inline-flex; align-items:center; gap:.55rem; margin-top:.85rem;
+  font-family:var(--site-mono); font-size:.72rem; color:var(--site-ink);
+}
+.site-avail::before{
+  content:""; width:8px; height:8px; border-radius:50%; flex:none;
+  background:#34D399; animation:site-pulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion:reduce){
+  body::before{animation:none}
+  .site-accent-word{animation:none}
+  .site-reveal{opacity:1; transform:none; transition:none}
+  .site-scrollcue-line::after{animation:none}
+  .site-avail::before{animation:none}
+  .site-card{transition:none}
+}
+
 /* ---- footer ------------------------------------------------------------- */
 
 .site-footer{
   border-top:1px solid var(--site-line); margin-top:clamp(2.5rem,7vw,4rem);
-  background:var(--site-bg);
+  background:transparent;
 }
 .site-footer-inner{
   max-width:var(--site-w); margin:0 auto; padding:2rem var(--site-pad) 2.5rem;
