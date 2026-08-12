@@ -19,6 +19,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/site.css" />
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script src="../assets/space.js" defer></script>
 <style>
   :root{
     /* This page is a trading terminal — always dark, amber accent. Re-point the
@@ -39,10 +41,19 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
+  /* No background-color here: html carries --site-bg and the site.css starfield
+     sits between them, so the terminal floats in space. The amber radial keeps
+     the page's own glow. */
   body{
-    background:var(--bg); color:var(--text); font-family:var(--sans);
+    color:var(--text); font-family:var(--sans);
     -webkit-font-smoothing:antialiased; font-size:14px; line-height:1.4;
     background-image:radial-gradient(1200px 600px at 70% -10%, rgba(245,166,35,.04), transparent 60%);
+  }
+  /* Seat the 3D gantry emblem as the first cell of the how-it-works band. */
+  .site-how{grid-template-columns:auto repeat(3,1fr); align-items:center}
+  .site-how model-viewer{justify-self:center}
+  @media (max-width:720px){
+    .site-how{grid-template-columns:1fr}
   }
   .wrap{max-width:var(--site-w); margin:0 auto; padding:22px var(--site-pad) 30px}
 
@@ -246,6 +257,7 @@
 
   <h2 class="site-section-label"><span>How it works</span><span>Behind the demo</span></h2>
   <div class="site-how">
+    <model-viewer class="site-model site-model-card" src="../assets/models/orderbook.glb" poster="../assets/models/posters/orderbook.png" alt="3D model of twin launch gantry towers with a rocket between them" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
     <div class="site-card">
       <div class="site-card-n">01</div>
       <h3>Price-time priority</h3>

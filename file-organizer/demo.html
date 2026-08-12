@@ -19,31 +19,24 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/site.css" />
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script src="../assets/space.js" defer></script>
 <style>
   :root{
     --site-w:960px;
-    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#5C6673;
-    --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
-    --warn:#B45309; --warn-bg:#FFF4E5; --warn-line:#F3C98B;
-    --term-bg:#141A24; --term-ink:#D6DEE8; --term-muted:#7C8A9C; --term-green:#4FB477; --term-blue:#7CA0FF;
-    --c-images:#2D4EF5; --c-documents:#0E9F6E; --c-audio:#9333EA; --c-video:#E8622C;
-    --c-archives:#B45309; --c-code:#0891B2; --c-other:#6B7280;
+    --bg:#070B15; --surface:#0E1524; --sunken:#0A101C; --ink:#E9EEF8; --muted:#94A1B7;
+    --line:#1D2839; --line-strong:#2B3A52; --accent:#6E86FF; --accent-ink:#070B15;
+    --warn:#F0A83C; --warn-bg:#2A2011; --warn-line:#5C4718;
+    --term-bg:#0A0E14; --term-ink:#D6DEE8; --term-muted:#7C8A9C; --term-green:#4FB477; --term-blue:#7CA0FF;
+    --c-images:#6E86FF; --c-documents:#34D399; --c-audio:#C084FC; --c-video:#FB8C5E;
+    --c-archives:#F0A83C; --c-code:#22D3EE; --c-other:#94A3B8;
     --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
     --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
     --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   }
-  @media (prefers-color-scheme:dark){
-    :root{
-      --bg:#0E1218; --surface:#151B24; --sunken:#10151C; --ink:#EAEEF3; --muted:#8A95A3;
-      --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-ink:#0E1218;
-      --warn:#F0A83C; --warn-bg:#2A2011; --warn-line:#5C4718;
-      --term-bg:#0A0E14; --term-ink:#D6DEE8;
-      --c-images:#6E86FF; --c-documents:#34D399; --c-audio:#C084FC; --c-video:#FB8C5E;
-      --c-archives:#F0A83C; --c-code:#22D3EE; --c-other:#94A3B8;
-    }
-  }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:var(--body); background:var(--bg); color:var(--ink); line-height:1.5;
+  /* body stays unpainted so the site.css starfield shows through */
+  body{font-family:var(--body); color:var(--ink); line-height:1.5;
     padding:0; -webkit-font-smoothing:antialiased}
   .wrap{max-width:var(--site-w); margin:0 auto;
     padding:clamp(1.5rem,4vw,2.75rem) var(--site-pad) 1rem}
@@ -160,6 +153,7 @@
 
 <main class="wrap">
   <div class="eyebrow">Tooling</div>
+  <model-viewer class="site-model site-model-head" src="../assets/models/files.glb" poster="../assets/models/posters/files.png" alt="3D model of a stack of three space cargo pods" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
   <h1>File Organizer</h1>
   <p class="lead">A Python CLI that sorts a messy folder into subfolders by file type. This page runs the <b>real algorithm</b>: the same categorization, <code>--dry-run</code> preview, collision-safe renaming, and undo. Try the built-in sample, or pick a real folder and it will actually organize it.</p>
   <div class="site-chips">

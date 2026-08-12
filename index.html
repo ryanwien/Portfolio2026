@@ -19,25 +19,22 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/site.css" />
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script src="assets/space.js" defer></script>
 <style>
   :root{
     --site-w:820px;
-    --bg:#E7EAEE; --surface:#FFFFFF; --ink:#131922; --muted:#5C6673;
-    --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
+    --bg:#070B15; --surface:#0E1524; --ink:#E9EEF8; --muted:#94A1B7;
+    --line:#1D2839; --line-strong:#2B3A52; --accent:#6E86FF; --accent-ink:#070B15;
     --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
     --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
     --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --bg:#0E1218; --surface:#151B24; --ink:#EAEEF3; --muted:#8A95A3;
-      --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-ink:#0E1218;
-    }
-  }
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  /* body stays unpainted so the site.css starfield shows through */
   body{
-    font-family:var(--body); background:var(--bg); color:var(--ink);
+    font-family:var(--body); color:var(--ink);
     line-height:1.5; padding:0;
     -webkit-font-smoothing:antialiased;
   }
@@ -45,6 +42,12 @@
     padding:clamp(1.75rem,5vw,3.5rem) var(--site-pad) 1rem}
 
   /* ---- header ---- */
+  .hero{display:grid; grid-template-columns:1fr auto; gap:1rem 2rem; align-items:center}
+  .hero-copy{min-width:0}
+  @media (max-width:640px){
+    .hero{grid-template-columns:1fr; justify-items:center; text-align:center}
+    .hero-copy{text-align:left}
+  }
   .eyebrow{
     font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
     text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center;
@@ -68,20 +71,21 @@
 
   /* ---- project rows ---- */
   .proj{
-    display:grid; grid-template-columns:1fr auto; gap:.4rem 1.5rem;
+    display:grid; grid-template-columns:auto 1fr auto; gap:.4rem 1.5rem;
     padding:1.4rem 0; border-bottom:1px solid var(--line); align-items:start;
   }
-  .proj-head{display:flex; align-items:baseline; gap:.75rem; flex-wrap:wrap}
+  .proj-model{grid-column:1; grid-row:1 / span 3; align-self:center}
+  .proj-head{grid-column:2; display:flex; align-items:baseline; gap:.75rem; flex-wrap:wrap}
   .proj-title{font-family:var(--display); font-weight:600; font-size:1.4rem; letter-spacing:-.01em}
   .tag{
     font-family:var(--mono); font-size:.66rem; font-weight:500; letter-spacing:.08em;
     text-transform:uppercase; color:var(--muted);
     border:1px solid var(--line-strong); border-radius:2px; padding:.15rem .4rem;
   }
-  .proj-desc{color:var(--muted); font-size:.95rem; margin-top:.35rem; max-width:42em; grid-column:1}
-  .proj-meta{font-family:var(--mono); font-size:.75rem; color:var(--muted); margin-top:.55rem; grid-column:1}
+  .proj-desc{color:var(--muted); font-size:.95rem; margin-top:.35rem; max-width:42em; grid-column:2}
+  .proj-meta{font-family:var(--mono); font-size:.75rem; color:var(--muted); margin-top:.55rem; grid-column:2}
 
-  .actions{grid-column:2; grid-row:1 / span 3; display:flex; flex-direction:column; gap:.5rem; align-items:stretch}
+  .actions{grid-column:3; grid-row:1 / span 3; display:flex; flex-direction:column; gap:.5rem; align-items:stretch}
   .btn{
     font-family:var(--mono); font-size:.78rem; font-weight:600; letter-spacing:.02em;
     text-decoration:none; text-align:center; padding:.5rem .9rem; border-radius:3px;
@@ -96,8 +100,11 @@
   a:focus-visible,.btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
 
   @media (max-width:560px){
-    .proj{grid-template-columns:1fr; gap:.3rem}
-    .actions{grid-column:1; grid-row:auto; flex-direction:row; flex-wrap:wrap; margin-top:.9rem}
+    .proj{grid-template-columns:auto 1fr; gap:.3rem 1rem}
+    .proj-model{grid-row:1 / span 2; width:84px; height:84px}
+    .proj-head,.proj-desc{grid-column:2}
+    .proj-meta{grid-column:1 / -1}
+    .actions{grid-column:1 / -1; grid-row:auto; flex-direction:row; flex-wrap:wrap; margin-top:.9rem}
     .btn{flex:1 1 auto}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -118,10 +125,13 @@
   </nav>
 
   <div class="wrap">
-    <header>
-      <div class="eyebrow">Portfolio · 2026</div>
-      <h1>Ryan Wien</h1>
-      <p class="lead">Software engineer building <strong>full-stack applications</strong>, <strong>automation tools</strong>, and <strong>data-driven programs</strong>, with an eye for clean, well-documented code. All five projects below run live, right in your browser.</p>
+    <header class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Portfolio · 2026</div>
+        <h1>Ryan Wien</h1>
+        <p class="lead">Software engineer building <strong>full-stack applications</strong>, <strong>automation tools</strong>, and <strong>data-driven programs</strong>, with an eye for clean, well-documented code. All five projects below run live, right in your browser.</p>
+      </div>
+      <model-viewer class="site-model site-model-hero" src="assets/models/hero.glb" poster="assets/models/posters/hero.png" alt="3D model of a ringed planet with two orbiting moons" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
     </header>
 
     <main>
@@ -129,6 +139,7 @@
 
       <!-- Task Tracker -->
       <article class="proj">
+        <model-viewer class="site-model site-model-card proj-model" src="assets/models/tasks.glb" poster="assets/models/posters/tasks.png" alt="3D model of a mission-control console with a checkmark screen" auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
         <div class="proj-head">
           <span class="proj-title">Task Tracker</span>
           <span class="tag">full-stack</span>
@@ -143,6 +154,7 @@
 
       <!-- Matching Engine -->
       <article class="proj">
+        <model-viewer class="site-model site-model-card proj-model" src="assets/models/orderbook.glb" poster="assets/models/posters/orderbook.png" alt="3D model of twin launch gantry towers with a rocket between them" auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
         <div class="proj-head">
           <span class="proj-title">Order Book Matching Engine</span>
           <span class="tag">systems</span>
@@ -157,6 +169,7 @@
 
       <!-- House Price Prediction -->
       <article class="proj">
+        <model-viewer class="site-model site-model-card proj-model" src="assets/models/housing.glb" poster="assets/models/posters/housing.png" alt="3D model of a geodesic dome habitat on a Mars terrain base" auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
         <div class="proj-head">
           <span class="proj-title">House Price Prediction</span>
           <span class="tag">machine-learning</span>
@@ -171,6 +184,7 @@
 
       <!-- File Organizer -->
       <article class="proj">
+        <model-viewer class="site-model site-model-card proj-model" src="assets/models/files.glb" poster="assets/models/posters/files.png" alt="3D model of a stack of three space cargo pods" auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
         <div class="proj-head">
           <span class="proj-title">File Organizer</span>
           <span class="tag">tooling</span>
@@ -185,6 +199,7 @@
 
       <!-- Security Log Analyzer -->
       <article class="proj">
+        <model-viewer class="site-model site-model-card proj-model" src="assets/models/security.glb" poster="assets/models/posters/security.png" alt="3D model of a guardian satellite holding a hexagonal shield" auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
         <div class="proj-head">
           <span class="proj-title">Security Log Analyzer</span>
           <span class="tag">security</span>

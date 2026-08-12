@@ -19,36 +19,27 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/site.css" />
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script src="../assets/space.js" defer></script>
 <style>
   :root{
     --site-w:1000px;
-    --bg:#E7EAEE; --surface:#FFFFFF; --sunken:#F2F4F7; --ink:#131922; --muted:#5C6673;
-    --line:#D3D9E0; --line-strong:#B9C2CC; --accent:#2D4EF5; --accent-ink:#FFFFFF;
-    --crit:#DC2626; --high:#EA580C; --med:#D97706; --low:#2563EB;
-    --ok:#0E9F6E;
+    --bg:#070B15; --surface:#0E1524; --sunken:#0A101C; --ink:#E9EEF8; --muted:#94A1B7;
+    --line:#1D2839; --line-strong:#2B3A52; --accent:#6E86FF; --accent-ink:#070B15;
+    --crit:#F87171; --high:#FB923C; --med:#FBBF24; --low:#60A5FA; --ok:#34D399;
     /* The vivid severity colours above carry borders and the large tile
        numerals, which are exempt from the 4.5:1 small-text minimum. Filled
-       badges and small status text need their own values: darker backgrounds
-       in light mode, and dark text on the bright badges in dark mode. */
-    --sev-ink:#FFFFFF;
-    --crit-bg:#DC2626; --high-bg:#C2410C; --med-bg:#A45A05; --low-bg:#2563EB;
-    --st-fail:#C2410C;
+       badges get dark text on the bright badge fills. */
+    --sev-ink:#0E1218;
+    --crit-bg:#F87171; --high-bg:#FB923C; --med-bg:#FBBF24; --low-bg:#60A5FA;
+    --st-fail:#FB923C;
     --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
     --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
     --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   }
-  @media (prefers-color-scheme:dark){
-    :root{
-      --bg:#0E1218; --surface:#151B24; --sunken:#10151C; --ink:#EAEEF3; --muted:#8A95A3;
-      --line:#232C38; --line-strong:#313C4B; --accent:#6E86FF; --accent-ink:#0E1218;
-      --crit:#F87171; --high:#FB923C; --med:#FBBF24; --low:#60A5FA; --ok:#34D399;
-      --sev-ink:#0E1218;
-      --crit-bg:#F87171; --high-bg:#FB923C; --med-bg:#FBBF24; --low-bg:#60A5FA;
-      --st-fail:#FB923C;
-    }
-  }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:var(--body); background:var(--bg); color:var(--ink); line-height:1.5;
+  /* body stays unpainted so the site.css starfield shows through */
+  body{font-family:var(--body); color:var(--ink); line-height:1.5;
     padding:0; -webkit-font-smoothing:antialiased}
   .wrap{max-width:var(--site-w); margin:0 auto;
     padding:clamp(1.5rem,4vw,2.75rem) var(--site-pad) 1rem}
@@ -178,6 +169,7 @@
 
 <main class="wrap">
   <div class="eyebrow">Security</div>
+  <model-viewer class="site-model site-model-head" src="../assets/models/security.glb" poster="../assets/models/posters/security.png" alt="3D model of a guardian satellite holding a hexagonal shield" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
   <h1>Security Log Analyzer</h1>
   <p class="lead">A SIEM-style detection engine that turns raw authentication logs into ranked, <b>MITRE ATT&amp;CK</b>-tagged alerts, the core of a SOC analyst's day. This page runs the <b>real detection rules</b> in your browser over a sample day of <b id="evCount">…</b> synthetic log events. Adjust the detection threshold and watch the alerts recompute, then click an alert to trace it back to the raw events.</p>
   <div class="site-chips">
