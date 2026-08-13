@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/site.css" />
 <script src="../assets/space.js" defer></script>
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script type="module" src="../assets/space3d.js"></script>
 <style>
   :root{
     --site-w:960px;
@@ -155,7 +155,7 @@
 
 <main class="wrap">
   <div class="eyebrow">Machine learning</div>
-  <model-viewer class="site-model site-model-head" src="../assets/models/housing.glb" poster="../assets/models/posters/housing.png" alt="3D model of a geodesic dome habitat on a Mars terrain base" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
+  <div class="site-model site-model-head" data-emblem="dome" role="img" aria-label="Stylized 3D habitat dome"></div>
   <h1>House Price Prediction</h1>
   <p class="lead">A supervised <b>linear-regression</b> model trained on 2,000 homes to predict sale price from six features. This page runs the <b>real trained model</b>, the exact learned weights, right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b>.</p>
   <div class="site-chips">

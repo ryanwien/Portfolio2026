@@ -5,14 +5,8 @@
 (function () {
   var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* Stop every 3D emblem spinning. Called on load and again if the visitor
-     turns the preference on mid-visit — model-viewer has no reduced-motion
-     handling of its own, so this is the only thing holding the models still. */
-  function stopRotation() {
-    document.querySelectorAll('model-viewer[auto-rotate]').forEach(function (mv) {
-      mv.removeAttribute('auto-rotate');
-    });
-  }
+  /* The 3D emblems live in space3d.js, which handles its own motion and
+     reduced-motion behaviour. */
 
   /* Drop the reveal classes once the element has arrived. Leaving them on
      would keep a filled animation sitting in the cascade on top of whatever
@@ -34,7 +28,6 @@
   if (motionQuery.addEventListener) {
     motionQuery.addEventListener('change', function (e) {
       if (!e.matches) return;
-      stopRotation();
       document.querySelectorAll('.site-reveal').forEach(settle);
     });
   }
@@ -349,7 +342,6 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     if (motionQuery.matches) {
-      stopRotation();
       document.documentElement.classList.remove('launching');
       return; /* no reveals, no rotator, no launch — the page simply appears */
     }

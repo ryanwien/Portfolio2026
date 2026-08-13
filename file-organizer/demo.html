@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/site.css" />
 <script src="../assets/space.js" defer></script>
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script type="module" src="../assets/space3d.js"></script>
 <style>
   :root{
     --site-w:960px;
@@ -153,7 +153,7 @@
 
 <main class="wrap">
   <div class="eyebrow">Tooling</div>
-  <model-viewer class="site-model site-model-head" src="../assets/models/files.glb" poster="../assets/models/posters/files.png" alt="3D model of a stack of three space cargo pods" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
+  <div class="site-model site-model-head" data-emblem="pods" role="img" aria-label="Stylized 3D stack of cargo pods"></div>
   <h1>File Organizer</h1>
   <p class="lead">A Python CLI that sorts a messy folder into subfolders by file type. This page runs the <b>real algorithm</b>: the same categorization, <code>--dry-run</code> preview, collision-safe renaming, and undo. Try the built-in sample, or pick a real folder and it will actually organize it.</p>
   <div class="site-chips">

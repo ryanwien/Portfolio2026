@@ -86,16 +86,16 @@ url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' he
 
 /* ---- 3D models ------------------------------------------------------------ */
 
-/* model-viewer elements. Three sizes: the homepage hero centerpiece, the
-   homepage project-card emblem, and the demo-page header emblem. The radial
-   glow behind each model stands in for a floor so the object doesn't float in
-   nothing. */
-model-viewer.site-model{
-  --poster-color:transparent;
+/* Procedural three.js emblems (space3d.js draws into these). Three sizes:
+   the homepage hero centerpiece, the homepage project-card emblem, and the
+   demo-page header emblem. The radial glow behind each stands in for a floor
+   so the object doesn't float in nothing. */
+.site-model{
   background:radial-gradient(closest-side, rgba(110,134,255,.16), transparent);
-  border:none; outline:none;
+  border:none; outline:none; touch-action:pan-y; cursor:grab;
 }
-model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outline-offset:4px; border-radius:8px}
+.site-model:active{cursor:grabbing}
+.site-model canvas{display:block; width:100%; height:100%}
 .site-model-hero{width:min(340px,80vw); height:min(340px,80vw)}
 .site-model-card{width:118px; height:118px; flex:none}
 .site-model-head{width:150px; height:150px; flex:none; float:right; margin:.25rem 0 .5rem 1.25rem}
