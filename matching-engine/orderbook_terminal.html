@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/site.css" />
 <script src="../assets/space.js" defer></script>
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script type="module" src="../assets/space3d.js"></script>
 <style>
   :root{
     /* This page is a trading terminal — always dark, amber accent. Re-point the
@@ -55,7 +55,7 @@
   }
   /* Seat the 3D gantry emblem as the first cell of the how-it-works band. */
   .site-how{grid-template-columns:auto repeat(3,1fr); align-items:center}
-  .site-how model-viewer{justify-self:center}
+  .site-how .site-model{justify-self:center}
   @media (max-width:720px){
     .site-how{grid-template-columns:1fr}
   }
@@ -261,7 +261,7 @@
 
   <h2 class="site-section-label"><span>How it works</span><span>Behind the demo</span></h2>
   <div class="site-how">
-    <model-viewer class="site-model site-model-card" src="../assets/models/orderbook.glb" poster="../assets/models/posters/orderbook.png" alt="3D model of twin launch gantry towers with a rocket between them" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
+    <div class="site-model site-model-card" data-emblem="ladder" role="img" aria-label="Stylized 3D depth-ladder towers"></div>
     <div class="site-card">
       <div class="site-card-n">01</div>
       <h3>Price-time priority</h3>
@@ -282,7 +282,7 @@
   <div class="grid">
     <!-- LADDER -->
     <div class="card">
-      <div class="cap">Order Book <span class="hint">click a level to load its price</span></div>
+      <div class="cap">Order Book <span class="hint">click to fill the ticket</span></div>
       <div class="ladder">
         <div class="colhead"><span>Size</span><span>Price</span><span>Cumulative</span></div>
         <div class="rows" id="asks"></div>

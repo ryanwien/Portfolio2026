@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../assets/site.css" />
     <script src="../assets/space.js" defer></script>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+    <script type="module" src="../assets/space3d.js"></script>
     <style>
       :root{
         --site-w:760px;
@@ -147,7 +147,7 @@
 
     <main class="container">
         <div class="eyebrow">Full-stack</div>
-        <model-viewer class="site-model site-model-head" src="../assets/models/tasks.glb" poster="../assets/models/posters/tasks.png" alt="3D model of a mission-control console with a checkmark screen" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
+        <div class="site-model site-model-head" data-emblem="console" role="img" aria-label="Stylized 3D mission console with a glowing checkmark screen"></div>
         <h1>Task Tracker</h1>
         <p class="lead">A task manager with <b>priority ranking</b>, filtering, and live counts. This demo keeps its tasks in memory; the full version stores them in <b>SQLite</b> behind a Flask REST API.</p>
         <div class="site-chips">
@@ -249,9 +249,9 @@
          * calls to a Flask server backed by SQLite.
          */
         let tasks = [
-            { id: 1, title: "Review pull request", description: "Check the new API changes", priority: "high", completed: false },
-            { id: 2, title: "Update documentation", description: "", priority: "medium", completed: false },
-            { id: 3, title: "Set up project repo", description: "Push to GitHub", priority: "low", completed: true },
+            { id: 1, title: "Fix the nav overlapping the hero", description: "Title ghosts through the pill on scroll", priority: "high", completed: false },
+            { id: 2, title: "Tune the order book simulator", description: "Fills bunch up too close to the mid", priority: "medium", completed: false },
+            { id: 3, title: "Ship portfolio to GitHub Pages", description: "Live at ryanwien.github.io", priority: "low", completed: true },
         ];
         let nextId = 4;
         let currentFilter = "all";

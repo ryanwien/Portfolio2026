@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/site.css" />
 <script src="../assets/space.js" defer></script>
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script type="module" src="../assets/space3d.js"></script>
 <style>
   :root{
     --site-w:1000px;
@@ -169,7 +169,7 @@
 
 <main class="wrap">
   <div class="eyebrow">Security</div>
-  <model-viewer class="site-model site-model-head" src="../assets/models/security.glb" poster="../assets/models/posters/security.png" alt="3D model of a guardian satellite holding a hexagonal shield" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
+  <div class="site-model site-model-head" data-emblem="satellite" role="img" aria-label="Stylized 3D guardian satellite"></div>
   <h1>Security Log Analyzer</h1>
   <p class="lead">A SIEM-style detection engine that turns raw authentication logs into ranked, <b>MITRE ATT&amp;CK</b>-tagged alerts. This page runs the <b>real detection rules</b> over a sample day of <b id="evCount">…</b> synthetic log events. Adjust the threshold and the alerts recompute; click one to see the raw events behind it.</p>
   <div class="site-chips">

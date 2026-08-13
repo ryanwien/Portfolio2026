@@ -34,7 +34,7 @@ try {
      CDN module ahead of it would hold the reveals (and DOMContentLoaded)
      hostage to that fetch, showing the page and then hiding it again. -->
 <script src="assets/space.js" defer></script>
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script type="module" src="assets/space3d.js"></script>
 <style>
   :root{
     --site-w:820px;
@@ -69,13 +69,13 @@ try {
   .hero .eyebrow{animation:site-blurin 1s ease-out both .3s}
   .hero .lead{animation:site-blurin 1s ease-out both .45s}
   .hero .hero-role{animation:site-blurin 1s ease-out both .6s}
-  .hero model-viewer{animation:site-blurin 1.2s ease-out both .5s}
+  .hero .site-model{animation:site-blurin 1.2s ease-out both .5s}
   .hero-scrollcue{margin:1.6rem 0 .4rem; animation:site-blurin 1s ease-out both .9s}
   html.launching .hero h1, html.launching .hero .eyebrow, html.launching .hero .lead,
-  html.launching .hero .hero-role, html.launching .hero model-viewer,
+  html.launching .hero .hero-role, html.launching .hero .site-model,
   html.launching .hero-scrollcue{animation-play-state:paused}
   @media (prefers-reduced-motion:reduce){
-    .hero h1,.hero .eyebrow,.hero .lead,.hero .hero-role,.hero model-viewer,.hero-scrollcue{animation:none}
+    .hero h1,.hero .eyebrow,.hero .lead,.hero .hero-role,.hero .site-model,.hero-scrollcue{animation:none}
   }
   /* Scroll story: the planet recedes faster than the copy, and the scroll cue
      dissolves. Parallax lives on wrappers, not the animated elements — their
@@ -219,7 +219,7 @@ try {
         <p class="hero-role">CURRENTLY BUILDING → <span class="site-accent-word" data-rotate='["full-stack apps","trading systems","ML pipelines","security tooling","CLI tools"]'>full-stack apps</span></p>
       </div>
       <div class="hero-visual">
-        <model-viewer class="site-model site-model-hero" src="assets/models/hero.glb" poster="assets/models/posters/hero.png" alt="3D model of a ringed planet with two orbiting moons" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
+        <div class="site-model site-model-hero" data-emblem="planet" role="img" aria-label="Stylized 3D ringed planet with two orbiting moons"></div>
       </div>
     </header>
 
@@ -232,12 +232,12 @@ try {
 
       <!-- Task Tracker -->
       <article class="proj">
-        <model-viewer class="site-model site-model-card proj-model" src="assets/models/tasks.glb" poster="assets/models/posters/tasks.png" alt="3D model of a mission-control console with a checkmark screen" auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
+        <div class="site-model site-model-card proj-model" data-emblem="console" role="img" aria-label="Stylized 3D mission console with a glowing checkmark screen"></div>
         <div class="proj-head">
           <span class="proj-title">Task Tracker</span>
           <span class="tag">full-stack</span>
         </div>
-        <p class="proj-desc">A task management app with full CRUD, input validation, and SQL-injection protection. Create, filter, and complete tasks with live summary stats.</p>
+        <p class="proj-desc">A to-do app with priorities, filters, and live counts. I wrote the backend twice, once in Flask and once in ASP.NET Core, with the same validation and injection-safe SQL in both.</p>
         <p class="proj-meta">C# · ASP.NET Core · Flask · REST API · SQLite</p>
         <div class="actions">
           <a class="btn btn-demo" href="task-tracker/demo.html">Launch demo &#8599;</a>
@@ -247,7 +247,7 @@ try {
 
       <!-- Matching Engine -->
       <article class="proj">
-        <model-viewer class="site-model site-model-card proj-model" src="assets/models/orderbook.glb" poster="assets/models/posters/orderbook.png" alt="3D model of twin launch gantry towers with a rocket between them" auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
+        <div class="site-model site-model-card proj-model" data-emblem="ladder" role="img" aria-label="Stylized 3D depth-ladder towers"></div>
         <div class="proj-head">
           <span class="proj-title">Order Book Matching Engine</span>
           <span class="tag">systems</span>
@@ -262,7 +262,7 @@ try {
 
       <!-- House Price Prediction -->
       <article class="proj">
-        <model-viewer class="site-model site-model-card proj-model" src="assets/models/housing.glb" poster="assets/models/posters/housing.png" alt="3D model of a geodesic dome habitat on a Mars terrain base" auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
+        <div class="site-model site-model-card proj-model" data-emblem="dome" role="img" aria-label="Stylized 3D habitat dome"></div>
         <div class="proj-head">
           <span class="proj-title">House Price Prediction</span>
           <span class="tag">machine-learning</span>
@@ -277,12 +277,12 @@ try {
 
       <!-- File Organizer -->
       <article class="proj">
-        <model-viewer class="site-model site-model-card proj-model" src="assets/models/files.glb" poster="assets/models/posters/files.png" alt="3D model of a stack of three space cargo pods" auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
+        <div class="site-model site-model-card proj-model" data-emblem="pods" role="img" aria-label="Stylized 3D stack of cargo pods"></div>
         <div class="proj-head">
           <span class="proj-title">File Organizer</span>
           <span class="tag">tooling</span>
         </div>
-        <p class="proj-desc">A command-line tool that sorts files by type, with dry-run preview, collision-safe renaming, and full undo support.</p>
+        <p class="proj-desc">A CLI that cleans up a messy downloads folder, sorting everything into subfolders by type. Preview first with a dry run; undo puts it all back.</p>
         <p class="proj-meta">Python · C++ · CLI</p>
         <div class="actions">
           <a class="btn btn-demo" href="file-organizer/demo.html">Launch demo &#8599;</a>
@@ -292,7 +292,7 @@ try {
 
       <!-- Security Log Analyzer -->
       <article class="proj">
-        <model-viewer class="site-model site-model-card proj-model" src="assets/models/security.glb" poster="assets/models/posters/security.png" alt="3D model of a guardian satellite holding a hexagonal shield" auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
+        <div class="site-model site-model-card proj-model" data-emblem="satellite" role="img" aria-label="Stylized 3D guardian satellite"></div>
         <div class="proj-head">
           <span class="proj-title">Security Log Analyzer</span>
           <span class="tag">security</span>
