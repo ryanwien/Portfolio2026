@@ -155,7 +155,7 @@
 
 <main class="wrap">
   <div class="eyebrow">Machine learning</div>
-  <model-viewer class="site-model site-model-head" src="../assets/models/housing.glb" poster="../assets/models/posters/housing.png" alt="3D model of a geodesic dome habitat on a Mars terrain base" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
+  <model-viewer class="site-model site-model-head" src="../assets/models/housing.glb" poster="../assets/models/posters/housing.png" alt="3D model of a geodesic dome habitat on a Mars terrain base" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
   <h1>House Price Prediction</h1>
   <p class="lead">A supervised <b>linear-regression</b> model trained on 2,000 homes to predict sale price from six features. This page runs the <b>real trained model</b>, the exact learned weights, right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b>.</p>
   <div class="site-chips">
@@ -171,17 +171,17 @@
     <div class="site-card">
       <div class="site-card-n">01</div>
       <h3>Ordinary least squares</h3>
-      <p>Features are standardized, then the coefficients are solved in closed form via the normal equation. Those are the same weights this page ships and predicts with.</p>
+      <p>Features are standardized, then the coefficients are solved in closed form with the normal equation. No gradient descent needed at this size. This page predicts with those exact weights.</p>
     </div>
     <div class="site-card">
       <div class="site-card-n">02</div>
       <h3>Held-out evaluation</h3>
-      <p>1,600 homes train the model, 400 are kept back. Every metric above (<code>R²</code>, RMSE, MAE) is measured on homes the model never saw.</p>
+      <p>The model trains on 1,600 homes and is scored on 400 it never saw. Every metric above (<code>R²</code>, RMSE, MAE) comes from that held-out set.</p>
     </div>
     <div class="site-card">
       <div class="site-card-n">03</div>
       <h3>Comparable importance</h3>
-      <p>Raw coefficients live in different units, so they're rescaled by each feature's spread. That's what makes the influence bars honest against each other.</p>
+      <p>Raw coefficients are in different units (dollars per square foot vs. dollars per bathroom), so the influence bars rescale each one by its feature's spread before comparing them.</p>
     </div>
   </div>
 
@@ -223,7 +223,7 @@
   <div class="site-footer-inner">
     <div class="site-footer-brand">
       <div class="site-footer-name">Ryan Wien</div>
-      <p class="site-footer-tag">Software engineer building full-stack applications, automation tools, and data-driven programs.</p>
+      <p class="site-footer-tag">I build full-stack apps, automation tools, and data-driven programs.</p>
     </div>
     <div class="site-footer-col">
       <div class="site-footer-h">This project</div>
