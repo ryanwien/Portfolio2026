@@ -248,7 +248,7 @@ function init(el) {
   camera.position.set(0, dist * 0.18, dist);
   camera.lookAt(0, -0.05, 0);
 
-  const entry = { el, renderer, scene, camera, emblem, visible: false, dragging: false, userSpin: null };
+  const entry = { el, renderer, scene, camera, emblem, visible: false, dragging: false, userSpin: null, userTilt: null };
 
   function resize() {
     const w = el.clientWidth || 1;
@@ -262,18 +262,25 @@ function init(el) {
   resize();
   new ResizeObserver(resize).observe(el);
 
-  /* Drag to spin. Taking hold cancels the automatic sway for this emblem. */
-  let px = 0;
+  /* Drag to spin — both axes. Taking hold cancels the automatic sway for
+     this emblem, and the tilt clamps shy of the poles so nothing ends up
+     upside down. The CSS keeps touch-action:pan-y, so on phones a vertical
+     swipe still scrolls the page and only sideways drags rotate. */
+  let px = 0, py = 0;
   el.addEventListener('pointerdown', (e) => {
     entry.dragging = true;
     entry.userSpin = entry.userSpin ?? emblem.group.rotation.y;
+    entry.userTilt = entry.userTilt ?? emblem.group.rotation.x;
     px = e.clientX;
+    py = e.clientY;
     el.setPointerCapture(e.pointerId);
   });
   el.addEventListener('pointermove', (e) => {
     if (!entry.dragging) return;
     entry.userSpin += (e.clientX - px) * 0.012;
+    entry.userTilt = Math.max(-1.1, Math.min(1.1, entry.userTilt + (e.clientY - py) * 0.01));
     px = e.clientX;
+    py = e.clientY;
   });
   el.addEventListener('pointerup', () => { entry.dragging = false; });
   el.addEventListener('pointercancel', () => { entry.dragging = false; });
@@ -282,6 +289,7 @@ function init(el) {
   entry.render = (s) => {
     if (!motionQuery.matches) emblem.tick(s);
     emblem.group.rotation.y = entry.userSpin ?? (motionQuery.matches ? 0 : Math.sin(s * 0.18) * 0.26);
+    if (entry.userTilt !== null) emblem.group.rotation.x = entry.userTilt;
     renderer.render(scene, camera);
   };
   entry.render(0); /* first paint even before the observer fires */
