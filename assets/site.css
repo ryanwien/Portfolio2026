@@ -109,8 +109,15 @@ model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outl
    transparent so the starfield runs behind the capsule. */
 .site-nav{
   position:sticky; top:0; z-index:50;
-  padding:.7rem var(--site-pad) .35rem;
-  background:transparent; border-bottom:none;
+  padding:.7rem var(--site-pad) .55rem;
+  border-bottom:none;
+  /* Content scrolls under the floating pill; this veil fades it out before
+     it collides with the capsule instead of letting headlines ghost through
+     the gaps around it. */
+  background:linear-gradient(to bottom,
+    var(--site-bg) 0%,
+    color-mix(in srgb, var(--site-bg) 86%, transparent) 62%,
+    transparent 100%);
 }
 .site-nav-inner{
   max-width:var(--site-w); margin:0 auto;
@@ -118,8 +125,12 @@ model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outl
   display:flex; align-items:center; gap:1rem; min-height:48px;
   border:1px solid color-mix(in srgb, var(--site-ink) 12%, transparent);
   border-radius:999px;
-  background:color-mix(in srgb, var(--site-surface) 82%, transparent);
+  background:color-mix(in srgb, var(--site-surface) 94%, transparent);
   box-shadow:0 12px 32px -18px rgba(0,0,0,.85);
+}
+@supports (backdrop-filter:blur(1px)){
+  /* With the blur underneath, the capsule can afford to stay glassier. */
+  .site-nav-inner{background:color-mix(in srgb, var(--site-surface) 86%, transparent)}
 }
 @supports (backdrop-filter:blur(1px)){
   .site-nav-inner{backdrop-filter:saturate(160%) blur(14px)}

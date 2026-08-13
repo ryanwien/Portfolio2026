@@ -169,9 +169,9 @@
 
 <main class="wrap">
   <div class="eyebrow">Security</div>
-  <model-viewer class="site-model site-model-head" src="../assets/models/security.glb" poster="../assets/models/posters/security.png" alt="3D model of a guardian satellite holding a hexagonal shield" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
+  <model-viewer class="site-model site-model-head" src="../assets/models/security.glb" poster="../assets/models/posters/security.png" alt="3D model of a guardian satellite holding a hexagonal shield" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
   <h1>Security Log Analyzer</h1>
-  <p class="lead">A SIEM-style detection engine that turns raw authentication logs into ranked, <b>MITRE ATT&amp;CK</b>-tagged alerts, the core of a SOC analyst's day. This page runs the <b>real detection rules</b> in your browser over a sample day of <b id="evCount">…</b> synthetic log events. Adjust the detection threshold and watch the alerts recompute, then click an alert to trace it back to the raw events.</p>
+  <p class="lead">A SIEM-style detection engine that turns raw authentication logs into ranked, <b>MITRE ATT&amp;CK</b>-tagged alerts. This page runs the <b>real detection rules</b> over a sample day of <b id="evCount">…</b> synthetic log events. Adjust the threshold and the alerts recompute; click one to see the raw events behind it.</p>
   <div class="site-chips">
     <span class="site-chip">Python</span>
     <span class="site-chip">C# / .NET 9</span>
@@ -185,7 +185,7 @@
     <div class="site-card">
       <div class="site-card-n">01</div>
       <h3>Sliding-window rules</h3>
-      <p>Brute force, spraying, and port scans are counted over a moving time window. Every threshold lives in one <code>DEFAULTS</code> block, because tuning sensitivity is the actual job.</p>
+      <p>Brute force, spraying, and port scans are counted over sliding time windows. All the thresholds sit in one <code>DEFAULTS</code> block, so tuning them takes one edit.</p>
     </div>
     <div class="site-card">
       <div class="site-card-n">02</div>
@@ -195,7 +195,7 @@
     <div class="site-card">
       <div class="site-card-n">03</div>
       <h3>Ranked and mapped</h3>
-      <p>Each alert carries a severity and a MITRE ATT&amp;CK technique ID, so a genuine compromise sorts above the noise and speaks the language every SOC uses.</p>
+      <p>Each alert carries a severity and a MITRE ATT&amp;CK technique ID, so the serious ones sort to the top and map onto a framework analysts already use.</p>
     </div>
   </div>
 
@@ -248,7 +248,7 @@
   <div class="site-footer-inner">
     <div class="site-footer-brand">
       <div class="site-footer-name">Ryan Wien</div>
-      <p class="site-footer-tag">Software engineer building full-stack applications, automation tools, and data-driven programs.</p>
+      <p class="site-footer-tag">I build full-stack apps, automation tools, and data-driven programs.</p>
     </div>
     <div class="site-footer-col">
       <div class="site-footer-h">This project</div>

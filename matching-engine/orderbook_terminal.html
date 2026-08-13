@@ -261,21 +261,21 @@
 
   <h2 class="site-section-label"><span>How it works</span><span>Behind the demo</span></h2>
   <div class="site-how">
-    <model-viewer class="site-model site-model-card" src="../assets/models/orderbook.glb" poster="../assets/models/posters/orderbook.png" alt="3D model of twin launch gantry towers with a rocket between them" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none" loading="lazy"></model-viewer>
+    <model-viewer class="site-model site-model-card" src="../assets/models/orderbook.glb" poster="../assets/models/posters/orderbook.png" alt="3D model of twin launch gantry towers with a rocket between them" camera-controls auto-rotate auto-rotate-delay="0" disable-zoom disable-pan interaction-prompt="none"></model-viewer>
     <div class="site-card">
       <div class="site-card-n">01</div>
       <h3>Price-time priority</h3>
-      <p>Orders rest at a price level in arrival order. The best price fills first, and ties break in favour of whoever was there first. It's the rule every real exchange runs on.</p>
+      <p>Orders queue at each price level in the order they arrived. Best price trades first; ties go to whoever got there first. Real exchanges match the same way.</p>
     </div>
     <div class="site-card">
       <div class="site-card-n">02</div>
       <h3>O(1) cancels</h3>
-      <p>An id→order map points straight at each resting order's node, so cancelling unlinks it in constant time instead of scanning the book.</p>
+      <p>A hash map points from order id straight to the order's node in the book, so a cancel unlinks it immediately. No scanning.</p>
     </div>
     <div class="site-card">
       <div class="site-card-n">03</div>
       <h3>Partial fills</h3>
-      <p>A large order walks the opposing side, consuming level after level until it's filled, or rests as the new best quote with whatever quantity is left.</p>
+      <p>A big order eats through the opposing side level by level. Anything left over rests in the book as the new best quote.</p>
     </div>
   </div>
 
@@ -354,7 +354,7 @@
   <div class="site-footer-inner">
     <div class="site-footer-brand">
       <div class="site-footer-name">Ryan Wien</div>
-      <p class="site-footer-tag">Software engineer building full-stack applications, automation tools, and data-driven programs.</p>
+      <p class="site-footer-tag">I build full-stack apps, automation tools, and data-driven programs.</p>
     </div>
     <div class="site-footer-col">
       <div class="site-footer-h">This project</div>
