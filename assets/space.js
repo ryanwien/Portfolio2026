@@ -93,6 +93,260 @@
     requestAnimationFrame(frame);
   }
 
+  /* Ambient sound: a synthesized deep-space drone, built entirely from the
+     Web Audio API — no file to download, no loop seam. Off by default; the
+     nav toggle is the only way in, which also satisfies browser autoplay
+     rules (the first start always rides a user gesture). */
+  var audio = null;
+  var soundActive = false;
+  var SOUND_LEVEL = 0.35;
+
+  function buildAudio() {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    var ctx = new Ctx();
+    var master = ctx.createGain();
+    master.gain.value = 0;
+    master.connect(ctx.destination);
+
+    /* A feedback delay stands in for reverb: anything sent here repeats
+       every 0.44s a little darker and quieter, which reads as the size of
+       the room — and the room is enormous. */
+    var echo = ctx.createDelay(1);
+    echo.delayTime.value = 0.44;
+    var echoTone = ctx.createBiquadFilter();
+    echoTone.type = 'lowpass';
+    echoTone.frequency.value = 2400;
+    var echoFb = ctx.createGain();
+    echoFb.gain.value = 0.38;
+    echo.connect(echoTone);
+    echoTone.connect(echoFb);
+    echoFb.connect(echo);
+    var echoOut = ctx.createGain();
+    echoOut.gain.value = 0.5;
+    echoTone.connect(echoOut);
+    echoOut.connect(master);
+
+    /* Everything sustained plays into a "bed" whose level breathes very
+       slowly, so the pad swells and recedes instead of holding one static
+       tone. The master above it stays clean for the on/off fades. */
+    var bed = ctx.createGain();
+    bed.gain.value = 0.9;
+    bed.connect(master);
+    var breath = ctx.createOscillator();
+    breath.frequency.value = 0.06;
+    var breathDepth = ctx.createGain();
+    breathDepth.gain.value = 0.08;
+    breath.connect(breathDepth);
+    breathDepth.connect(bed.gain);
+    breath.start();
+
+    /* The pad: A-major add9, voiced mid-register so it floats instead of
+       looming — the ninth (B4) and the faint major third (C#5) are what keep
+       it hopeful rather than ominous. A light octave floor underneath gives
+       headphones some warmth without dragging the mood down. The fractional
+       detunes make layers beat slowly instead of sounding like an organ. */
+    [
+      [55, 0.2], [110, 0.15],
+      [220, 0.14], [220.6, 0.1],
+      [329.6, 0.12], [330.4, 0.08],
+      [440, 0.09],
+      [493.9, 0.07],
+      [554.4, 0.05]
+    ].forEach(function (pair) {
+      var osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = pair[0];
+      var g = ctx.createGain();
+      g.gain.value = pair[1];
+      osc.connect(g);
+      g.connect(bed);
+      osc.start();
+    });
+
+    /* Cosmic air: looping noise through a high band-pass whose centre
+       wanders on a very slow LFO — a thin bright breeze, not a rumble. */
+    var len = ctx.sampleRate * 2;
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    var data = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    var noise = ctx.createBufferSource();
+    noise.buffer = buf;
+    noise.loop = true;
+    var band = ctx.createBiquadFilter();
+    band.type = 'bandpass';
+    band.frequency.value = 1400;
+    band.Q.value = 0.8;
+    var windGain = ctx.createGain();
+    windGain.gain.value = 0.2;
+    noise.connect(band);
+    band.connect(windGain);
+    windGain.connect(bed);
+    noise.start();
+    var lfo = ctx.createOscillator();
+    lfo.frequency.value = 0.045;
+    var lfoDepth = ctx.createGain();
+    lfoDepth.gain.value = 600;
+    lfo.connect(lfoDepth);
+    lfoDepth.connect(band.frequency);
+    lfo.start();
+
+    /* Star pings: every few seconds a soft pentatonic chime rings out from a
+       random point in the stereo field and trails away through the echo. */
+    var PENTA = [659.3, 880, 987.8, 1108.7, 1318.5];
+    function ping() {
+      if (!soundActive || ctx.state !== 'running') return;
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = PENTA[Math.floor(Math.random() * PENTA.length)];
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.05 + Math.random() * 0.05, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
+      osc.connect(g);
+      var out = g;
+      if (ctx.createStereoPanner) {
+        var pan = ctx.createStereoPanner();
+        pan.pan.value = Math.random() * 1.6 - 0.8;
+        g.connect(pan);
+        out = pan;
+      }
+      out.connect(master);
+      out.connect(echo);
+      osc.start(t);
+      osc.stop(t + 2);
+    }
+    setInterval(function () { if (Math.random() < 0.65) ping(); }, 2600);
+
+    return { ctx: ctx, master: master, echo: echo };
+  }
+
+  function soundOn() {
+    if (!audio) audio = buildAudio();
+    if (!audio) return false;
+    soundActive = true;
+    audio.ctx.resume();
+    var g = audio.master.gain;
+    g.cancelScheduledValues(audio.ctx.currentTime);
+    g.setValueAtTime(g.value, audio.ctx.currentTime);
+    g.linearRampToValueAtTime(SOUND_LEVEL, audio.ctx.currentTime + 1.4);
+    return true;
+  }
+
+  function soundOff() {
+    if (!audio) return;
+    soundActive = false;
+    var g = audio.master.gain;
+    g.cancelScheduledValues(audio.ctx.currentTime);
+    g.setValueAtTime(g.value, audio.ctx.currentTime);
+    g.linearRampToValueAtTime(0, audio.ctx.currentTime + 0.6);
+    /* Suspend once the fade lands, unless it was switched back on meanwhile —
+       a suspended context costs nothing while the visitor reads in silence. */
+    setTimeout(function () {
+      if (audio && !soundActive) audio.ctx.suspend();
+    }, 700);
+  }
+
+  /* UI tick: a soft console blip for clicks on pills, nav links, and the
+     toggle itself. Gated behind the ambient switch, so the toggle stays the
+     one master control for every sound the site makes. */
+  function tick() {
+    if (!audio || !soundActive) return;
+    var ctx = audio.ctx;
+    var t = ctx.currentTime;
+    var osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1320, t);
+    osc.frequency.exponentialRampToValueAtTime(880, t + 0.06);
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.3, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+    osc.connect(g);
+    g.connect(audio.master);
+    if (audio.echo) g.connect(audio.echo); /* the blip ricochets away */
+    osc.start(t);
+    osc.stop(t + 0.1);
+  }
+
+  function initSound() {
+    var nav = document.querySelector('.site-nav-inner');
+    if (!nav) return;
+
+    var btn = document.createElement('button');
+    btn.className = 'site-sound';
+    btn.type = 'button';
+    btn.setAttribute('aria-pressed', 'false');
+    btn.setAttribute('aria-label', 'Ambient sound');
+    btn.title = 'Ambient sound';
+    btn.innerHTML = '<span></span><span></span><span></span><span></span>';
+    nav.appendChild(btn);
+
+    var on = false;
+    function set(state) {
+      if (state && !soundOn()) state = false; /* no Web Audio support */
+      if (!state) soundOff();
+      on = state;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', String(on));
+      try { localStorage.setItem('rw-sound', on ? 'on' : 'off'); } catch (e) {}
+    }
+    btn.addEventListener('click', function () { set(!on); });
+
+    /* Delegated after the toggle's own handler, so switching ON blips a
+       confirmation and switching OFF stays silent. */
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('.btn, .site-link, .site-brand, .site-sound')) tick();
+    });
+
+    /* The visitor opted in on an earlier page. The browser still demands a
+       gesture on THIS page before audio may start, so arm a one-shot listener
+       — unless the gesture is the toggle itself, whose click handler decides. */
+    var pref = null;
+    try { pref = localStorage.getItem('rw-sound'); } catch (e) {}
+    if (pref === 'on') {
+      var disarm = function () {
+        window.removeEventListener('pointerdown', resume);
+        window.removeEventListener('keydown', resume);
+      };
+      var resume = function (e) {
+        disarm();
+        if (!btn.contains(e.target)) set(true);
+      };
+      window.addEventListener('pointerdown', resume);
+      window.addEventListener('keydown', resume);
+    }
+  }
+
+  /* Magnetic pills: the homepage project buttons lean toward the cursor and
+     spring back when it leaves. The .btn transform transition supplies the
+     elasticity. Fine pointers only — touch never hovers. */
+  function initMagnet() {
+    if (!window.matchMedia('(pointer:fine)').matches) return;
+    document.querySelectorAll('.proj .btn').forEach(function (btn) {
+      btn.addEventListener('pointermove', function (e) {
+        if (motionQuery.matches) return;
+        var r = btn.getBoundingClientRect();
+        var dx = e.clientX - (r.left + r.width / 2);
+        var dy = e.clientY - (r.top + r.height / 2);
+        btn.style.transform =
+          'translate(' + (dx * 0.18).toFixed(1) + 'px,' +
+          (dy * 0.3 - 2).toFixed(1) + 'px) scale(1.03)';
+      });
+      btn.addEventListener('pointerleave', function () {
+        btn.style.transform = '';
+      });
+    });
+  }
+
+  /* Sound stays available under reduced motion — audio is opt-in and not
+     motion — so it initializes outside the early return below. */
+  document.addEventListener('DOMContentLoaded', function () {
+    initSound();
+    initMagnet();
+  });
+
   document.addEventListener('DOMContentLoaded', function () {
     if (motionQuery.matches) {
       stopRotation();
