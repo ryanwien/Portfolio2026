@@ -102,11 +102,12 @@
     master.gain.value = 0;
     master.connect(ctx.destination);
 
-    /* A feedback delay stands in for reverb: anything sent here repeats
-       every 0.44s a little darker and quieter, which reads as the size of
-       the room — and the room is enormous. */
+    /* A feedback delay stands in for reverb: anything sent here repeats a
+       little darker and quieter, which reads as the size of the room — and
+       the room is enormous. 0.63s is a dotted eighth of the arpeggio's
+       0.42s step, the classic setting that turns plucks into phrases. */
     var echo = ctx.createDelay(1);
-    echo.delayTime.value = 0.44;
+    echo.delayTime.value = 0.63;
     var echoTone = ctx.createBiquadFilter();
     echoTone.type = 'lowpass';
     echoTone.frequency.value = 2400;
@@ -134,27 +135,40 @@
     breathDepth.connect(bed.gain);
     breath.start();
 
-    /* The pad: A-major add9, voiced mid-register so it floats instead of
-       looming — the ninth (B4) and the faint major third (C#5) are what keep
-       it hopeful rather than ominous. A light octave floor underneath gives
-       headphones some warmth without dragging the mood down. The fractional
-       detunes make layers beat slowly instead of sounding like an organ. */
-    [
-      [55, 0.2], [110, 0.15],
-      [220, 0.14], [220.6, 0.1],
-      [329.6, 0.12], [330.4, 0.08],
-      [440, 0.09],
-      [493.9, 0.07],
-      [554.4, 0.05]
-    ].forEach(function (pair) {
-      var osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = pair[0];
-      var g = ctx.createGain();
-      g.gain.value = pair[1];
-      osc.connect(g);
-      g.connect(bed);
-      osc.start();
+    /* The bed is four chords, not one: A add9 → F#m11 → Dmaj9 → E add9,
+       crossfaded every eight seconds so the music is always travelling
+       somewhere. Each chord is a bank of triangles plus a sine sub on the
+       root; the scheduler further down fades the banks in and out. */
+    var CHORDS = [
+      [110.0, 164.81, 246.94, 277.18],
+      [92.5, 138.59, 164.81, 246.94],
+      [146.83, 185.0, 220.0, 329.63],
+      [82.41, 207.65, 246.94, 329.63]
+    ];
+    var CHORD_LEN = 8;
+    var chordBanks = CHORDS.map(function (tones) {
+      var bank = ctx.createGain();
+      bank.gain.value = 0;
+      bank.connect(bed);
+      tones.forEach(function (f, i) {
+        var osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = f;
+        var g = ctx.createGain();
+        g.gain.value = i === 0 ? 0.11 : 0.065;
+        osc.connect(g);
+        g.connect(bank);
+        osc.start();
+      });
+      var sub = ctx.createOscillator();
+      sub.type = 'sine';
+      sub.frequency.value = tones[0] / 2;
+      var sg = ctx.createGain();
+      sg.gain.value = 0.22;
+      sub.connect(sg);
+      sg.connect(bank);
+      sub.start();
+      return bank;
     });
 
     /* Cosmic air: looping noise through a high band-pass whose centre
@@ -171,7 +185,7 @@
     band.frequency.value = 1400;
     band.Q.value = 0.8;
     var windGain = ctx.createGain();
-    windGain.gain.value = 0.2;
+    windGain.gain.value = 0.12; /* quieter now that the music carries it */
     noise.connect(band);
     band.connect(windGain);
     windGain.connect(bed);
@@ -184,33 +198,64 @@
     lfoDepth.connect(band.frequency);
     lfo.start();
 
-    /* Star pings: every few seconds a soft pentatonic chime rings out from a
-       random point in the stereo field and trails away through the echo. */
-    var PENTA = [659.3, 880, 987.8, 1108.7, 1318.5];
-    function ping() {
-      if (!soundActive || ctx.state !== 'running') return;
-      var t = ctx.currentTime;
+    /* The melody: a generative arpeggio over whichever chord is sounding.
+       Each step it either rests or plucks a chord tone an octave or two up
+       from a random point in the stereo field; the dotted-eighth echo turns
+       the plucks into phrases. A short lookahead keeps the scheduling
+       sample-accurate without queueing far ahead. */
+    var STEP = 0.42;
+    var chordIdx = -1;
+    var nextNote = 0;
+    var nextChord = 0;
+    function pluck(freq, t) {
       var osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = PENTA[Math.floor(Math.random() * PENTA.length)];
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
       var g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.05 + Math.random() * 0.05, t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
+      g.gain.exponentialRampToValueAtTime(0.17, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
+      var lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 2200;
       osc.connect(g);
-      var out = g;
+      g.connect(lp);
+      var out = lp;
       if (ctx.createStereoPanner) {
         var pan = ctx.createStereoPanner();
-        pan.pan.value = Math.random() * 1.6 - 0.8;
-        g.connect(pan);
+        pan.pan.value = Math.random() * 1.2 - 0.6;
+        lp.connect(pan);
         out = pan;
       }
-      out.connect(master);
+      out.connect(bed);
       out.connect(echo);
       osc.start(t);
-      osc.stop(t + 2);
+      osc.stop(t + 1.4);
     }
-    setInterval(function () { if (Math.random() < 0.65) ping(); }, 2600);
+    setInterval(function () {
+      if (!soundActive || ctx.state !== 'running') { nextNote = 0; return; }
+      var now = ctx.currentTime;
+      if (!nextNote) { nextNote = now + 0.15; nextChord = now; }
+      while (nextChord <= now + 0.6) {
+        chordIdx = (chordIdx + 1) % CHORDS.length;
+        var t = Math.max(now, nextChord);
+        chordBanks.forEach(function (bank, i) {
+          bank.gain.cancelScheduledValues(t);
+          bank.gain.setValueAtTime(bank.gain.value, t);
+          bank.gain.linearRampToValueAtTime(i === chordIdx ? 1 : 0, t + 2.5);
+        });
+        nextChord = t + CHORD_LEN;
+      }
+      while (nextNote <= now + 0.6) {
+        if (Math.random() < 0.7) {
+          var tones = CHORDS[Math.max(0, chordIdx)];
+          var f = tones[1 + Math.floor(Math.random() * (tones.length - 1))] *
+            (Math.random() < 0.6 ? 2 : 4);
+          pluck(f, nextNote);
+        }
+        nextNote += STEP;
+      }
+    }, 200);
 
     return { ctx: ctx, master: master, echo: echo };
   }
