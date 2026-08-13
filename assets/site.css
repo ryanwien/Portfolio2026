@@ -113,11 +113,13 @@ url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' he
   border-bottom:none;
   /* Content scrolls under the floating pill; this veil fades it out before
      it collides with the capsule instead of letting headlines ghost through
-     the gaps around it. */
+     the gaps around it. It ends at exactly the opacity the ::after strip
+     below starts with — any mismatch there paints a hard line across the
+     page. */
   background:linear-gradient(to bottom,
     var(--site-bg) 0%,
-    color-mix(in srgb, var(--site-bg) 86%, transparent) 62%,
-    transparent 100%);
+    color-mix(in srgb, var(--site-bg) 92%, transparent) 55%,
+    color-mix(in srgb, var(--site-bg) 72%, transparent) 100%);
 }
 .site-nav-inner{
   max-width:var(--site-w); margin:0 auto;
@@ -132,13 +134,15 @@ url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' he
   /* With the blur underneath, the capsule can afford to stay glassier. */
   .site-nav-inner{background:color-mix(in srgb, var(--site-surface) 86%, transparent)}
 }
-/* A short fade below the capsule: content slides out from under the nav
-   through a dimming strip instead of butting bright against its edge. */
+/* The veil's tail: picks up at the same 72% the nav ends on and eases the
+   rest of the way out, so there is no seam and no visible band edge. */
 .site-nav::after{
-  content:""; position:absolute; left:0; right:0; top:100%; height:34px;
+  content:""; position:absolute; left:0; right:0; top:100%; height:48px;
   pointer-events:none;
   background:linear-gradient(to bottom,
-    color-mix(in srgb, var(--site-bg) 78%, transparent), transparent);
+    color-mix(in srgb, var(--site-bg) 72%, transparent),
+    color-mix(in srgb, var(--site-bg) 38%, transparent) 45%,
+    transparent 100%);
 }
 @supports (backdrop-filter:blur(1px)){
   .site-nav-inner{backdrop-filter:saturate(160%) blur(14px)}
