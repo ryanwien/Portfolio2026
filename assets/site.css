@@ -68,7 +68,7 @@ body::before{
     radial-gradient(ellipse 60% 45% at 18% 8%, rgba(110,134,255,.14), transparent 70%),
     radial-gradient(ellipse 55% 40% at 85% 25%, rgba(180,140,255,.09), transparent 70%),
     radial-gradient(ellipse 70% 50% at 55% 100%, rgba(110,134,255,.07), transparent 70%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cg fill='%23E9EEF8'%3E%3Ccircle cx='34' cy='51' r='1'/%3E%3Ccircle cx='142' cy='19' r='.7'/%3E%3Ccircle cx='240' cy='84' r='1.2' opacity='.8'/%3E%3Ccircle cx='329' cy='38' r='.6' opacity='.6'/%3E%3Ccircle cx='437' cy='121' r='.9'/%3E%3Ccircle cx='512' cy='62' r='.7' opacity='.7'/%3E%3Ccircle cx='623' cy='140' r='1.1'/%3E%3Ccircle cx='58' cy='187' r='.8' opacity='.6'/%3E%3Ccircle cx='198' cy='232' r='1' opacity='.9'/%3E%3Ccircle cx='302' cy='176' r='.6'/%3E%3Ccircle cx='398' cy='259' r='1.2' opacity='.7'/%3E%3Ccircle cx='511' cy='204' r='.7'/%3E%3Ccircle cx='648' cy='287' r='.9' opacity='.8'/%3E%3Ccircle cx='81' cy='331' r='1.1'/%3E%3Ccircle cx='176' cy='389' r='.6' opacity='.6'/%3E%3Ccircle cx='289' cy='344' r='.9'/%3E%3Ccircle cx='417' cy='401' r='.7' opacity='.8'/%3E%3Ccircle cx='534' cy='352' r='1'/%3E%3Ccircle cx='612' cy='428' r='.6' opacity='.6'/%3E%3Ccircle cx='47' cy='474' r='.9' opacity='.9'/%3E%3Ccircle cx='159' cy='522' r='1.2'/%3E%3Ccircle cx='273' cy='487' r='.6' opacity='.7'/%3E%3Ccircle cx='366' cy='548' r='.9'/%3E%3Ccircle cx='487' cy='509' r='.7' opacity='.6'/%3E%3Ccircle cx='592' cy='561' r='1.1' opacity='.9'/%3E%3Ccircle cx='94' cy='614' r='.7'/%3E%3Ccircle cx='217' cy='659' r='1' opacity='.8'/%3E%3Ccircle cx='341' cy='622' r='.6'/%3E%3Ccircle cx='459' cy='671' r='.9' opacity='.7'/%3E%3Ccircle cx='571' cy='639' r='.7'/%3E%3Ccircle cx='667' cy='598' r='1.2' opacity='.8'/%3E%3Ccircle cx='688' cy='341' r='.7' opacity='.6'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cg fill='%23E9EEF8'%3E%3Ccircle cx='34' cy='51' r='1'/%3E%3Ccircle cx='142' cy='19' r='.7'/%3E%3Ccircle cx='240' cy='84' r='1.2' opacity='.8'/%3E%3Ccircle cx='329' cy='38' r='.6' opacity='.6'/%3E%3Ccircle cx='437' cy='121' r='.9'/%3E%3Ccircle cx='512' cy='62' r='.7' opacity='.7'/%3E%3Ccircle cx='623' cy='140' r='1.1'/%3E%3Ccircle cx='58' cy='187' r='.8' opacity='.6'/%3E%3Ccircle cx='198' cy='232' r='1' opacity='.9'/%3E%3Ccircle cx='302' cy='176' r='.6'/%3E%3Ccircle cx='398' cy='259' r='1.2' opacity='.7'/%3E%3Ccircle cx='511' cy='204' r='.7'/%3E%3Ccircle cx='648' cy='287' r='.9' opacity='.8'/%3E%3Ccircle cx='81' cy='331' r='1.1'/%3E%3Ccircle cx='176' cy='389' r='.6' opacity='.6'/%3E%3Ccircle cx='289' cy='344' r='.9'/%3E%3Ccircle cx='417' cy='401' r='.7' opacity='.8'/%3E%3Ccircle cx='534' cy='352' r='1'/%3E%3Ccircle cx='612' cy='428' r='.6' opacity='.6'/%3E%3Ccircle cx='47' cy='474' r='.9' opacity='.9'/%3E%3Ccircle cx='159' cy='522' r='1.2'/%3E%3Ccircle cx='273' cy='487' r='.6' opacity='.7'/%3E%3Ccircle cx='366' cy='548' r='.9'/%3E%3Ccircle cx='487' cy='509' r='.7' opacity='.6'/%3E%3Ccircle cx='592' cy='561' r='1.1' opacity='.9'/%3E%3Ccircle cx='94' cy='614' r='.7'/%3E%3Ccircle cx='217' cy='659' r='1' opacity='.8'/%3E%3Ccircle cx='341' cy='622' r='.6'/%3E%3Ccircle cx='459' cy='671' r='.9' opacity='.7'/%3E%3Ccircle cx='571' cy='639' r='.7'/%3E%3Ccircle cx='667' cy='598' r='1.2' opacity='.8'/%3E%3Ccircle cx='688' cy='341' r='.7' opacity='.6'/%3E%3C/g%3E%3C/svg%3E");
   background-size:auto, auto, auto, 700px 700px;
   background-position:0 0, 0 0, 0 0, 0 0;
 }
@@ -155,6 +155,38 @@ model-viewer.site-model:focus-visible{outline:2px solid var(--site-accent); outl
 }
 .site-link:hover{color:var(--site-ink); background:var(--site-line)}
 .site-link[aria-current="page"]{color:var(--site-accent); font-weight:600}
+
+/* Ambient-sound toggle. space.js injects this into every nav, so the control
+   only exists when the audio behind it can actually run. The equalizer bars
+   idle short and muted; they take the accent and dance while sound plays. */
+.site-sound{
+  flex:none; width:34px; height:34px; border-radius:999px; padding:0;
+  display:flex; align-items:center; justify-content:center; gap:2px;
+  background:transparent; cursor:pointer;
+  border:1px solid color-mix(in srgb, var(--site-ink) 14%, transparent);
+  transition:border-color .2s ease, background .2s ease;
+}
+.site-sound:hover{
+  border-color:var(--site-accent);
+  background:color-mix(in srgb, var(--site-accent) 12%, transparent);
+}
+.site-sound:focus-visible{outline:2px solid var(--site-accent); outline-offset:2px}
+.site-sound span{
+  width:2px; border-radius:1px; background:var(--site-muted);
+  transition:background .2s ease;
+}
+.site-sound span:nth-child(1){height:5px}
+.site-sound span:nth-child(2){height:9px}
+.site-sound span:nth-child(3){height:7px}
+.site-sound span:nth-child(4){height:4px}
+.site-sound.on span{background:var(--site-accent); animation:site-eq 1.1s ease-in-out infinite}
+.site-sound.on span:nth-child(2){animation-delay:.28s}
+.site-sound.on span:nth-child(3){animation-delay:.14s}
+.site-sound.on span:nth-child(4){animation-delay:.42s}
+@keyframes site-eq{
+  0%,100%{transform:scaleY(.6)}
+  50%{transform:scaleY(1.7)}
+}
 
 /* ---- hero furniture ----------------------------------------------------- */
 
@@ -361,6 +393,8 @@ html.launching{overflow:hidden}
   .site-reveal,.site-reveal.site-in{opacity:1; transform:none; animation:none}
   .site-scrollcue-line::after{animation:none}
   .site-avail::before{animation:none}
+  /* Audio itself is opt-in and not motion — only the dancing bars go still. */
+  .site-sound.on span{animation:none}
   .site-card{transition:none}
   .site-launch{display:none}
   html.launching{overflow:auto}

@@ -164,6 +164,17 @@ try {
       linear-gradient(var(--bg),var(--bg)) padding-box,
       var(--site-grad) border-box;
   }
+  /* Shine sweep: a slanted light strip crosses the pill once per hover, then
+     parks off the right edge until the pointer returns. */
+  .btn{position:relative; overflow:hidden}
+  .btn::after{
+    content:""; position:absolute; top:-30%; bottom:-30%; left:-60%; width:45%;
+    background:linear-gradient(105deg, transparent, rgba(255,255,255,.33), transparent);
+    transform:skewX(-18deg); pointer-events:none;
+  }
+  .btn:hover::after{animation:btn-shine .55s ease .04s forwards}
+  @keyframes btn-shine{to{transform:translateX(420%) skewX(-18deg)}}
+
   .runs-local{font-family:var(--mono); font-size:.68rem; color:var(--muted); text-align:center; letter-spacing:.04em}
 
   a:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
@@ -179,7 +190,10 @@ try {
     .actions{grid-column:1 / -1; grid-row:auto; flex-direction:row; flex-wrap:wrap; margin-top:.9rem}
     .btn{flex:1 1 auto}
   }
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important}
+    .btn:hover::after{animation:none}
+  }
 </style>
 </head>
 <body>
