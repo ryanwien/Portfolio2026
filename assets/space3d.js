@@ -39,25 +39,36 @@ const EMBLEMS = {
        edge-on (the visitor can drag anywhere) it stays a cream band instead
        of collapsing into a grey line. */
     const rings = new THREE.Group();
-    const band = new THREE.Mesh(new THREE.TorusGeometry(2.1, 0.32, 24, 128),
+    const band = new THREE.Mesh(new THREE.TorusGeometry(1.95, 0.3, 24, 128),
       mat(PALETTE.cream, { roughness: 0.4, metalness: 0.3 }));
     band.scale.z = 0.16;
-    const trim = new THREE.Mesh(new THREE.TorusGeometry(2.52, 0.05, 12, 128), mat(PALETTE.accent));
+    const trim = new THREE.Mesh(new THREE.TorusGeometry(2.35, 0.05, 12, 128), mat(PALETTE.accent));
     trim.scale.z = 0.5;
     rings.add(band, trim);
     rings.rotation.x = Math.PI / 2 - 0.35; /* ~20° tilt, never edge-on at rest */
+
+    /* Moons ride circular rails wider than the ring's outer edge (2.4), so
+       no point of either orbit can ever dip through the band. Each rail has
+       its own tilt for variety; the geometry keeps them clear regardless. */
+    const railA = new THREE.Group();
+    railA.rotation.set(0.55, 0, 0.2);
     const moonA = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 16), mat(PALETTE.nebula));
+    railA.add(moonA);
+    const railB = new THREE.Group();
+    railB.rotation.set(-0.4, 0, -0.5);
     const moonB = new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 14), mat(PALETTE.cream));
+    railB.add(moonB);
+
     group.add(atmo);
-    group.add(planet, rings, moonA, moonB);
+    group.add(planet, rings, railA, railB);
     group.rotation.z = -0.1;
     return {
       group,
-      radius: 2.6,
+      radius: 2.85,
       tick(s) {
         planet.rotation.y = s * 0.25;
-        moonA.position.set(Math.cos(s * 0.5) * 2.55, Math.sin(s * 0.5) * 0.85, Math.sin(s * 0.5) * 1.3);
-        moonB.position.set(Math.cos(s * 0.8 + 2) * 2.15, -Math.sin(s * 0.8 + 2) * 0.6, Math.sin(s * 0.8 + 2) * 1.05);
+        moonA.position.set(Math.cos(s * 0.5) * 2.65, 0, Math.sin(s * 0.5) * 2.65);
+        moonB.position.set(Math.cos(s * 0.8 + 2) * 2.62, 0, Math.sin(s * 0.8 + 2) * 2.62);
       },
     };
   },
