@@ -70,6 +70,12 @@ const EMBLEMS = {
         moonA.position.set(Math.cos(s * 0.5) * 2.65, 0, Math.sin(s * 0.5) * 2.65);
         moonB.position.set(Math.cos(s * 0.8 + 2) * 2.62, 0, Math.sin(s * 0.8 + 2) * 2.62);
       },
+      /* When the ambient score is playing, the atmosphere breathes with it
+         (space.js publishes the level through window.rwAudioLevel). */
+      react(level) {
+        atmo.material.opacity = 0.14 + level * 0.35;
+        atmo.scale.setScalar(1 + level * 0.05);
+      },
     };
   },
 
@@ -293,13 +299,30 @@ function init(el) {
     px = e.clientX;
     py = e.clientY;
   });
-  el.addEventListener('pointerup', () => { entry.dragging = false; });
-  el.addEventListener('pointercancel', () => { entry.dragging = false; });
+  el.addEventListener('pointerup', () => { entry.dragging = false; entry.releasedAt = performance.now(); });
+  el.addEventListener('pointercancel', () => { entry.dragging = false; entry.releasedAt = performance.now(); });
 
   scenes.push(entry);
   entry.render = (s) => {
     if (!motionQuery.matches) emblem.tick(s);
-    emblem.group.rotation.y = entry.userSpin ?? (motionQuery.matches ? 0 : Math.sin(s * 0.18) * 0.26);
+    if (emblem.react && !motionQuery.matches) {
+      emblem.react(typeof window.rwAudioLevel === 'function' ? window.rwAudioLevel() : 0);
+    }
+    /* A few seconds after the visitor lets go, drift back to the sway
+       instead of holding whatever pose they left the model in. */
+    const swayTarget = motionQuery.matches ? 0 : Math.sin(s * 0.18) * 0.26;
+    if (entry.userSpin !== null && !entry.dragging &&
+        performance.now() - (entry.releasedAt || 0) > 3000) {
+      const diff = ((swayTarget - entry.userSpin + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+      entry.userSpin += diff * 0.03;
+      entry.userTilt *= 0.96;
+      if (Math.abs(diff) < 0.01 && Math.abs(entry.userTilt) < 0.005) {
+        entry.userSpin = null;
+        entry.userTilt = null;
+        emblem.group.rotation.x = 0;
+      }
+    }
+    emblem.group.rotation.y = entry.userSpin ?? swayTarget;
     if (entry.userTilt !== null) emblem.group.rotation.x = entry.userTilt;
     renderer.render(scene, camera);
   };

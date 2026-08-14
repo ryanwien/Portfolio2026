@@ -423,6 +423,20 @@ html.launching{overflow:hidden}
   html.launching{overflow:auto}
 }
 
+/* ---- warp transitions ---------------------------------------------------- */
+
+/* Cross-document view transitions: navigating between pages does a short
+   warp — the old page blurs and stretches away, the new one snaps out of
+   the blur. Browsers without the API just navigate normally. */
+@view-transition{navigation:auto}
+@keyframes site-warp-out{to{transform:scale(1.05); filter:blur(8px); opacity:0}}
+@keyframes site-warp-in{from{transform:scale(.98); filter:blur(8px); opacity:0}}
+::view-transition-old(root){animation:site-warp-out .26s ease-in both}
+::view-transition-new(root){animation:site-warp-in .3s ease-out both}
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+}
+
 /* ---- footer ------------------------------------------------------------- */
 
 .site-footer{

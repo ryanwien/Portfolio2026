@@ -94,6 +94,19 @@
   var soundActive = false;
   var SOUND_LEVEL = 0.35;
 
+  /* Live level for anything that wants to move with the music (the hero
+     planet's atmosphere reads this from space3d.js). Returns 0..1-ish from
+     the low end of the spectrum, already smoothed by the analyser. */
+  var analyser = null;
+  var analyserBuf = null;
+  window.rwAudioLevel = function () {
+    if (!analyser || !soundActive) return 0;
+    analyser.getByteFrequencyData(analyserBuf);
+    var sum = 0;
+    for (var i = 0; i < 20; i++) sum += analyserBuf[i];
+    return sum / (20 * 255);
+  };
+
   function buildAudio() {
     var Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return null;
@@ -101,6 +114,12 @@
     var master = ctx.createGain();
     master.gain.value = 0;
     master.connect(ctx.destination);
+
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 128;
+    analyser.smoothingTimeConstant = 0.85;
+    analyserBuf = new Uint8Array(analyser.frequencyBinCount);
+    master.connect(analyser); /* a tap, not a link in the chain */
 
     /* A feedback delay stands in for reverb: anything sent here repeats a
        little darker and quieter, which reads as the size of the room — and
