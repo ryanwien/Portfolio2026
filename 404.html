@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>404 · Ryan Wien</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" href="/Portfolio2026/assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/Portfolio2026/assets/site.css" />
+<script src="/Portfolio2026/assets/space.js" defer></script>
+<script type="module" src="/Portfolio2026/assets/space3d.js"></script>
+<style>
+  :root{
+    --site-w:820px;
+    --bg:#070B15; --surface:#0E1524; --ink:#E9EEF8; --muted:#94A1B7;
+    --line:#1D2839; --line-strong:#2B3A52; --accent:#6E86FF; --accent-ink:#070B15;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
+    --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  /* body stays unpainted so the site.css starfield shows through */
+  body{font-family:var(--body); color:var(--ink); line-height:1.5;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--site-w); margin:0 auto;
+    padding:clamp(2rem,8vh,5rem) var(--site-pad) 2rem;
+    display:grid; grid-template-columns:1fr auto; gap:1rem 2.5rem; align-items:center}
+  @media (max-width:640px){
+    .wrap{grid-template-columns:1fr; justify-items:center; text-align:center}
+  }
+  .code{font-family:var(--mono); font-size:.78rem; font-weight:500; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted)}
+  h1{font-family:var(--display); font-weight:700; line-height:1;
+    font-size:clamp(4rem,16vw,7.5rem); letter-spacing:-.03em; margin:.3rem 0 .6rem}
+  .why{color:var(--muted); font-size:clamp(1rem,2.6vw,1.12rem); max-width:26em}
+  .back{display:inline-block; margin-top:1.6rem;
+    font-family:var(--mono); font-size:.8rem; font-weight:600; letter-spacing:.02em;
+    text-decoration:none; padding:.6rem 1.3rem; border-radius:999px;
+    background:var(--accent); color:var(--accent-ink); border:1px solid var(--accent);
+    transition:transform .22s cubic-bezier(.25,.1,.25,1), box-shadow .22s ease}
+  .back:hover{transform:translateY(-2px);
+    box-shadow:0 10px 28px -10px var(--accent)}
+  .back:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+</style>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Site">
+    <div class="site-nav-inner">
+      <a class="site-brand" href="/Portfolio2026/"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
+      <div class="site-links">
+        <a class="site-link" href="/Portfolio2026/task-tracker/demo.html">Tasks</a>
+        <a class="site-link" href="/Portfolio2026/matching-engine/orderbook_terminal.html">Order Book</a>
+        <a class="site-link" href="/Portfolio2026/ml-housing/demo.html">ML</a>
+        <a class="site-link" href="/Portfolio2026/file-organizer/demo.html">Files</a>
+        <a class="site-link" href="/Portfolio2026/security-log-analyzer/demo.html">Security</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <div>
+      <div class="code">Signal lost</div>
+      <h1>404</h1>
+      <p class="why">This page isn't on the flight plan. The link is either old, mistyped, or drifted somewhere I can't track.</p>
+      <a class="back" href="/Portfolio2026/">Return to base ↩</a>
+    </div>
+    <div class="site-model site-model-hero" data-emblem="satellite" role="img" aria-label="Stylized 3D guardian satellite, searching"></div>
+  </main>
+</body>
+</html>
