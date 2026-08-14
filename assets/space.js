@@ -376,6 +376,42 @@
     }
   }
 
+  /* Footer deploy line: ask GitHub for the newest commit on main and append
+     its date to the footer note. Cached per tab so hopping between pages
+     costs one API call, not six (unauthenticated limit is 60/hour). */
+  function initDeployLine() {
+    var note = document.querySelector('.site-footer-note');
+    if (!note || typeof fetch !== 'function') return;
+
+    function show(iso) {
+      var then = new Date(iso);
+      if (isNaN(then)) return;
+      var days = Math.floor((Date.now() - then.getTime()) / 86400000);
+      var when;
+      if (days <= 0) when = 'today';
+      else if (days === 1) when = 'yesterday';
+      else if (days < 7) when = days + ' days ago';
+      else when = then.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      var span = document.createElement('span');
+      span.textContent = ' · last deploy ' + when;
+      note.appendChild(span);
+    }
+
+    var cached = null;
+    try { cached = sessionStorage.getItem('rw-deploy'); } catch (e) {}
+    if (cached) { show(cached); return; }
+
+    fetch('https://api.github.com/repos/ryanwien/Portfolio2026/commits/main')
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        var iso = data && data.commit && data.commit.committer && data.commit.committer.date;
+        if (!iso) return; /* rate-limited or offline — the note reads fine without it */
+        try { sessionStorage.setItem('rw-deploy', iso); } catch (e) {}
+        show(iso);
+      })
+      .catch(function () {});
+  }
+
   /* Magnetic pills: the homepage project buttons lean toward the cursor and
      spring back when it leaves. The .btn transform transition supplies the
      elasticity. Fine pointers only — touch never hovers. */
@@ -402,6 +438,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     initSound();
     initMagnet();
+    initDeployLine();
   });
 
   document.addEventListener('DOMContentLoaded', function () {
