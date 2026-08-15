@@ -17,7 +17,9 @@
 <meta name="twitter:image" content="https://ryanwien.github.io/Portfolio2026/assets/og-image.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
 <link rel="stylesheet" href="../assets/site.css" />
 <script src="../assets/space.js" defer></script>
 <script type="module" src="../assets/space3d.js"></script>
@@ -55,6 +57,8 @@
     color:var(--accent); border:1px solid var(--accent); border-radius:3px; padding:.14rem .42rem}
   .pill.warnpill{color:var(--warn); border-color:var(--warn)}
   [hidden]{display:none!important}
+  /* visually hidden but still read by screen readers */
+  .vh{position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 
   /* mode + controls */
   .mode-row{display:flex; flex-wrap:wrap; gap:.6rem .8rem; align-items:center; margin:1.4rem 0 .4rem}
@@ -71,7 +75,8 @@
   .toggle{display:inline-flex; align-items:center; gap:.5rem; font-family:var(--mono);
     font-size:.78rem; color:var(--muted); cursor:pointer; -webkit-user-select:none; user-select:none; margin-left:.2rem}
   .toggle input{position:absolute;opacity:0;width:0;height:0}
-  .switch{width:34px; height:19px; border-radius:20px; background:var(--line-strong); position:relative; transition:background .15s ease}
+  /* track needs 3:1 against the page bg so the off state reads (non-text contrast) */
+  .switch{width:34px; height:19px; border-radius:20px; background:#56637A; position:relative; transition:background .15s ease}
   .switch::after{content:""; position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%;
     background:#fff; transition:transform .15s ease; box-shadow:0 1px 2px rgba(0,0,0,.3)}
   .toggle input:checked + .switch{background:var(--accent)}
@@ -164,7 +169,7 @@
     <span class="site-chip">Zero dependencies</span>
   </div>
 
-  <h2 class="site-section-label"><span>How it works</span><span>Behind the demo</span></h2>
+  <h2 class="site-section-label"><span>How it works</span><span aria-hidden="true">Behind the demo</span></h2>
   <div class="site-how">
     <div class="site-card">
       <div class="site-card-n">01</div>
@@ -187,7 +192,7 @@
 
   <div class="mode-row">
     <button class="btn btn-pick" id="pick">Choose a real folder on your computer…</button>
-    <span class="mode-note" id="modeNote"></span>
+    <span class="mode-note" id="modeNote" aria-live="polite"></span>
   </div>
 
   <div class="live-warn" id="liveWarn" hidden>
@@ -215,7 +220,7 @@
         <span class="tdot" style="background:#43C654"></span>
         <span class="label">organize.py</span>
       </div>
-      <div class="term-body" id="term"></div>
+      <div class="term-body" id="term" role="log" aria-live="polite"></div>
     </div>
   </div>
 
@@ -350,7 +355,8 @@
     var dot = name.lastIndexOf("."), stem = dot < 0 ? name : name.slice(0,dot);
     var d = document.createElement("span");
     d.className = "file";
-    d.innerHTML = '<span class="dot" style="background:var('+COLORVAR[cat]+')"></span>'+esc(stem)+'<span class="ext">'+esc(e)+'</span>';
+    d.title = cat;              // category in text too, so the dot isn't the only cue
+    d.innerHTML = '<span class="dot" style="background:var('+COLORVAR[cat]+')"></span><span class="vh">'+cat+': </span>'+esc(stem)+'<span class="ext">'+esc(e)+'</span>';
     return d;
   }
   function render(){

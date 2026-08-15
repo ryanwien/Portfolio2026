@@ -50,6 +50,13 @@
       '<div class="site-launch-bar"><span></span></div>';
     document.body.appendChild(overlay);
 
+    /* The overlay is opaque, so nothing behind it may take keyboard focus —
+       otherwise Tab lands on links whose focus ring is invisible. */
+    var covered = Array.prototype.filter.call(document.body.children, function (el) {
+      return el !== overlay;
+    });
+    covered.forEach(function (el) { el.inert = true; });
+
     var wordEl = overlay.querySelector('.site-launch-word');
     var countEl = overlay.querySelector('.site-launch-count');
     var barEl = overlay.querySelector('.site-launch-bar span');
@@ -64,7 +71,9 @@
       wordEl.classList.add('site-role-swap');
     }, 850);
 
-    var DURATION = 2400;
+    /* Short enough that a throttled first paint still lands well before the
+       10s mark auditors sample at — the hero entrance must be DONE by then. */
+    var DURATION = 1400;
     var t0 = performance.now();
     function frame(now) {
       var p = Math.min(1, (now - t0) / DURATION);
@@ -77,11 +86,12 @@
       clearInterval(wordTimer);
       setTimeout(function () {
         try { sessionStorage.setItem('rw-launch-seen', '1'); } catch (e) {}
+        covered.forEach(function (el) { el.inert = false; });
         root.classList.remove('launching');        /* hero entrance starts   */
         overlay.classList.add('site-launch-done'); /* ...as the overlay fades */
         overlay.addEventListener('transitionend', function () { overlay.remove(); });
         setTimeout(function () { if (overlay.parentNode) overlay.remove(); }, 1200);
-      }, 350);
+      }, 200);
     }
     requestAnimationFrame(frame);
   }
@@ -516,14 +526,19 @@
 
       var i = 0;
       var timer = null;
+      /* Auto-updating text needs a stopping point (WCAG 2.2.2): two full
+         passes, then rest on the original word for good. */
+      var swaps = 0;
+      var done = false;
       function swap() {
         i = (i + 1) % words.length;
         el.textContent = words[i];
         el.classList.remove('site-role-swap');
         void el.offsetWidth; /* restart the animation */
         el.classList.add('site-role-swap');
+        if (++swaps >= words.length * 2) { done = true; stop(); }
       }
-      function start() { if (!timer) timer = setInterval(swap, 2200); }
+      function start() { if (!timer && !done) timer = setInterval(swap, 2200); }
       function stop() { clearInterval(timer); timer = null; }
 
       start();

@@ -17,7 +17,9 @@
 <meta name="twitter:image" content="https://ryanwien.github.io/Portfolio2026/assets/og-image.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
 <link rel="stylesheet" href="../assets/site.css" />
 <script src="../assets/space.js" defer></script>
 <script type="module" src="../assets/space3d.js"></script>
@@ -129,6 +131,9 @@
 
   .note{font-family:var(--mono); font-size:.74rem; color:var(--muted); margin-top:1.3rem; line-height:1.65}
   .note b{color:var(--ink); font-weight:600}
+  /* visually hidden but still read by screen readers (the live prediction announcer) */
+  .sr-only{position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden;
+    clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0}
   a:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
 
   @media (max-width:640px){
@@ -166,7 +171,7 @@
     <span class="site-chip">Matplotlib</span>
   </div>
 
-  <h2 class="section-label"><span>How it works</span><span>Behind the demo</span></h2>
+  <h2 class="section-label"><span>How it works</span><span aria-hidden="true">Behind the demo</span></h2>
   <div class="site-how">
     <div class="site-card">
       <div class="site-card-n">01</div>
@@ -185,7 +190,7 @@
     </div>
   </div>
 
-  <div class="section-label"><span>Try the model</span><span>Live prediction</span></div>
+  <h2 class="section-label"><span>Try the model</span><span aria-hidden="true">Live prediction</span></h2>
   <div class="panel predict">
     <div class="sliders" id="sliders"></div>
     <div class="result">
@@ -194,10 +199,11 @@
       <span class="range" id="range"></span>
       <span class="vs" id="vs"></span>
       <span class="eqn">price = intercept + Σ (weight × feature)</span>
+      <span class="sr-only" id="announce" role="status"></span>
     </div>
   </div>
 
-  <div class="section-label"><span>Model performance</span><span>held-out test set</span></div>
+  <h2 class="section-label"><span>Model performance</span><span aria-hidden="true">held-out test set</span></h2>
   <div class="metrics">
     <div class="tile"><div class="m" id="mR2">—</div><div class="k">R² score</div><div class="d">variance explained</div></div>
     <div class="tile"><div class="m" id="mRMSE">—</div><div class="k">RMSE</div><div class="d">typical error</div></div>
@@ -206,10 +212,10 @@
   </div>
   <p class="caption">These score the trained model against the 400 held-out homes, so they stay fixed as you move the sliders. They describe the model itself, not the home you configured.</p>
 
-  <div class="section-label"><span>What the model learned</span><span>effect on price</span></div>
+  <h2 class="section-label"><span>What the model learned</span><span aria-hidden="true">effect on price</span></h2>
   <div class="infl" id="infl"></div>
 
-  <div class="section-label"><span>Actual vs. predicted</span><span>400 test homes</span></div>
+  <h2 class="section-label"><span>Actual vs. predicted</span><span aria-hidden="true">400 test homes</span></h2>
   <div class="scatter-wrap">
     <div id="scatter"></div>
     <p class="caption">Each dot is a test home the model never saw during training. The grey diagonal is a perfect prediction, so the tighter the cloud hugs it, the better the fit. Here it explains <b>94%</b> of the variance in price. The coloured line tracks the home you configured above: it has no actual sale price to plot against, so it sits on the predicted axis and moves as you drag.</p>
@@ -259,6 +265,7 @@
   var state = {};
   var touched = false;
   var scatterScale = null;   // set by buildScatter, used to place the prediction line
+  var announceTimer = null;  // debounces the screen-reader announcement in update()
   M.features.forEach(function(f){ state[f] = META[f].def; });
 
   function predict(){
@@ -292,12 +299,25 @@
     document.getElementById("price").textContent = usd(p);
     updateScatterMarker(p);
     var rmse = M.metrics.test.rmse;
-    document.getElementById("range").textContent = "typical range " + usd(p - rmse) + " – " + usd(p + rmse);
+    var range = "typical range " + usd(p - rmse) + " – " + usd(p + rmse);
+    document.getElementById("range").textContent = range;
     var med = M.priceStats.median;
     var diff = p - med, pct = Math.round(Math.abs(diff)/med*100);
-    document.getElementById("vs").textContent = diff >= 0
+    var vs = diff >= 0
       ? "≈ " + pct + "% above the dataset median (" + usd(med) + ")"
       : "≈ " + pct + "% below the dataset median (" + usd(med) + ")";
+    document.getElementById("vs").textContent = vs;
+    // The visible price changes on every input event — far too chatty to be a
+    // live region mid-drag. Instead a hidden status element gets one
+    // announcement 400ms after the value settles. Skipped until the user has
+    // actually moved a slider so the initial render stays silent.
+    if(touched){
+      clearTimeout(announceTimer);
+      announceTimer = setTimeout(function(){
+        document.getElementById("announce").textContent =
+          "Predicted price " + usd(p) + ", " + range + ", " + vs;
+      }, 400);
+    }
   }
 
   function buildMetrics(){
