@@ -5,8 +5,13 @@
 
    Scenes pause offscreen (IntersectionObserver) and render one still frame
    under prefers-reduced-motion. Dragging an emblem hands its rotation to the
-   visitor. */
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js';
+   visitor.
+
+   three.js is imported dynamically the first time an emblem nears the
+   viewport: its parse + scene setup cost ~2s of main thread on a throttled
+   phone, and none of it belongs in the critical path. The emblem hosts keep
+   their glow backdrop until the canvas pops in. */
+let THREE;
 
 const PALETTE = {
   accent: 0x6E86FF,
@@ -329,27 +334,67 @@ function init(el) {
   entry.render(0); /* first paint even before the observer fires */
 }
 
-document.querySelectorAll('[data-emblem]').forEach(init);
+/* Wiring shared by every awake emblem — one render loop, one visibility
+   observer, one reduced-motion listener — created on the first wake. */
+let visIO = null;
+function startShared() {
+  if (visIO) return;
+  /* Only visible, motion-friendly scenes render. */
+  visIO = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      const s = scenes.find((x) => x.el === e.target);
+      if (s) s.visible = e.isIntersecting;
+    });
+  }, { rootMargin: '60px' });
 
-/* One shared loop; only visible, motion-friendly scenes render. */
-const io = new IntersectionObserver((entries) => {
-  entries.forEach((e) => {
-    const s = scenes.find((x) => x.el === e.target);
-    if (s) s.visible = e.isIntersecting;
-  });
-}, { rootMargin: '60px' });
-scenes.forEach((s) => io.observe(s.el));
-
-function loop(t) {
+  function loop(t) {
+    requestAnimationFrame(loop);
+    if (motionQuery.matches) return; /* stills only; re-renders happen on change */
+    const s = t / 1000;
+    scenes.forEach((x) => { if (x.visible) x.render(s); });
+  }
   requestAnimationFrame(loop);
-  if (motionQuery.matches) return; /* stills only; re-renders happen on change */
-  const s = t / 1000;
-  scenes.forEach((x) => { if (x.visible) x.render(s); });
-}
-requestAnimationFrame(loop);
 
-if (motionQuery.addEventListener) {
-  motionQuery.addEventListener('change', () => {
-    scenes.forEach((x) => x.render(0)); /* settle to a clean still */
-  });
+  if (motionQuery.addEventListener) {
+    motionQuery.addEventListener('change', () => {
+      scenes.forEach((x) => x.render(0)); /* settle to a clean still */
+    });
+  }
 }
+
+/* three.js loads once, on demand, shared by every emblem. */
+let threeReady = null;
+const loadThree = () =>
+  (threeReady ??= import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js')
+    .then((m) => { THREE = m; }));
+
+async function wake(el) {
+  await loadThree();
+  init(el);
+  startShared();
+  visIO.observe(el);
+}
+
+function boot() {
+  const hosts = document.querySelectorAll('[data-emblem]');
+  if (!hosts.length) return;
+  /* Each emblem wakes as it approaches the viewport (about a scroll-screen
+     early), so offscreen scenes never cost main-thread time — a scene is a
+     WebGL context plus geometry, too much to build six of behind a page the
+     visitor is still reading the top of. */
+  const approach = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      approach.unobserve(e.target);
+      wake(e.target);
+    });
+  }, { rootMargin: '400px 0px' });
+  hosts.forEach((el) => approach.observe(el));
+}
+
+const schedule = () => {
+  if ('requestIdleCallback' in window) requestIdleCallback(boot, { timeout: 1500 });
+  else setTimeout(boot, 200); /* Safari */
+};
+if (document.readyState === 'complete') schedule();
+else window.addEventListener('load', schedule, { once: true });

@@ -510,5 +510,5 @@ html.launching{overflow:hidden}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .site-link,.site-brand,.site-footer-col a{transition:none!important}
+  .site-link,.site-brand,.site-brand .site-mark,.site-footer-col a{transition:none!important}
 }

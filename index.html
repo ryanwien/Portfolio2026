@@ -17,7 +17,11 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<!-- Loaded as print media then swapped, so text paints immediately in fallback
+     fonts (display=swap) instead of waiting on this stylesheet. -->
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" /></noscript>
 <link rel="stylesheet" href="assets/site.css" />
 <!-- Launch-sequence guard: decides synchronously (before first paint) whether
      this visit gets the preloader. space.js builds the actual overlay; the
@@ -175,8 +179,6 @@ try {
   .btn:hover::after{animation:btn-shine .55s ease .04s forwards}
   @keyframes btn-shine{to{transform:translateX(420%) skewX(-18deg)}}
 
-  .runs-local{font-family:var(--mono); font-size:.68rem; color:var(--muted); text-align:center; letter-spacing:.04em}
-
   a:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
   /* The buttons are pills; the shared rule above would square them off the
      moment they take keyboard focus. */
@@ -234,14 +236,14 @@ try {
       <article class="proj">
         <div class="site-model site-model-card proj-model" data-emblem="console" role="img" aria-label="Stylized 3D mission console with a glowing checkmark screen"></div>
         <div class="proj-head">
-          <span class="proj-title">Task Tracker</span>
+          <h3 class="proj-title">Task Tracker</h3>
           <span class="tag">full-stack</span>
         </div>
         <p class="proj-desc">A to-do app with priorities, filters, and live counts. I wrote the backend twice, once in Flask and once in ASP.NET Core, with the same validation and injection-safe SQL in both.</p>
         <p class="proj-meta">C# · ASP.NET Core · Flask · REST API · SQLite</p>
         <div class="actions">
-          <a class="btn btn-demo" href="task-tracker/demo.html">Launch demo &#8599;</a>
-          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/task-tracker">Source</a>
+          <a class="btn btn-demo" href="task-tracker/demo.html" aria-label="Launch the Task Tracker demo">Launch demo &#8599;</a>
+          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/task-tracker" aria-label="Task Tracker source on GitHub">Source</a>
         </div>
       </article>
 
@@ -249,14 +251,14 @@ try {
       <article class="proj">
         <div class="site-model site-model-card proj-model" data-emblem="ladder" role="img" aria-label="Stylized 3D depth-ladder towers"></div>
         <div class="proj-head">
-          <span class="proj-title">Order Book Matching Engine</span>
+          <h3 class="proj-title">Order Book Matching Engine</h3>
           <span class="tag">systems</span>
         </div>
         <p class="proj-desc">A price-time-priority limit order book with limit/market orders, partial fills, and O(1) cancels. The demo runs it inside a live depth-ladder terminal with an order-flow simulator.</p>
         <p class="proj-meta">C++ · Python core · zero-backend JS terminal</p>
         <div class="actions">
-          <a class="btn btn-demo" href="matching-engine/orderbook_terminal.html">Launch demo &#8599;</a>
-          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/matching-engine">Source</a>
+          <a class="btn btn-demo" href="matching-engine/orderbook_terminal.html" aria-label="Launch the Order Book Matching Engine demo">Launch demo &#8599;</a>
+          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/matching-engine" aria-label="Order Book Matching Engine source on GitHub">Source</a>
         </div>
       </article>
 
@@ -264,14 +266,14 @@ try {
       <article class="proj">
         <div class="site-model site-model-card proj-model" data-emblem="dome" role="img" aria-label="Stylized 3D habitat dome"></div>
         <div class="proj-head">
-          <span class="proj-title">House Price Prediction</span>
+          <h3 class="proj-title">House Price Prediction</h3>
           <span class="tag">machine-learning</span>
         </div>
         <p class="proj-desc">Linear regression that predicts house prices with R² = 0.94 on held-out data. The demo runs the actual trained weights in your browser.</p>
         <p class="proj-meta">C++ · scikit-learn · pandas · NumPy</p>
         <div class="actions">
-          <a class="btn btn-demo" href="ml-housing/demo.html">Launch demo &#8599;</a>
-          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">Source</a>
+          <a class="btn btn-demo" href="ml-housing/demo.html" aria-label="Launch the House Price Prediction demo">Launch demo &#8599;</a>
+          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing" aria-label="House Price Prediction source on GitHub">Source</a>
         </div>
       </article>
 
@@ -279,14 +281,14 @@ try {
       <article class="proj">
         <div class="site-model site-model-card proj-model" data-emblem="pods" role="img" aria-label="Stylized 3D stack of cargo pods"></div>
         <div class="proj-head">
-          <span class="proj-title">File Organizer</span>
+          <h3 class="proj-title">File Organizer</h3>
           <span class="tag">tooling</span>
         </div>
         <p class="proj-desc">A CLI that cleans up a messy downloads folder, sorting everything into subfolders by type. Preview first with a dry run; undo puts it all back.</p>
         <p class="proj-meta">Python · C++ · CLI</p>
         <div class="actions">
-          <a class="btn btn-demo" href="file-organizer/demo.html">Launch demo &#8599;</a>
-          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/file-organizer">Source</a>
+          <a class="btn btn-demo" href="file-organizer/demo.html" aria-label="Launch the File Organizer demo">Launch demo &#8599;</a>
+          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/file-organizer" aria-label="File Organizer source on GitHub">Source</a>
         </div>
       </article>
 
@@ -294,14 +296,14 @@ try {
       <article class="proj">
         <div class="site-model site-model-card proj-model" data-emblem="satellite" role="img" aria-label="Stylized 3D guardian satellite"></div>
         <div class="proj-head">
-          <span class="proj-title">Security Log Analyzer</span>
+          <h3 class="proj-title">Security Log Analyzer</h3>
           <span class="tag">security</span>
         </div>
         <p class="proj-desc">Scans auth logs for brute force, password spraying, impossible travel, and port scans, then ranks the alerts with MITRE ATT&amp;CK tags. Comes with a live SOC console and tunable thresholds.</p>
         <p class="proj-meta">Python · C# / .NET · detection rules · MITRE ATT&amp;CK</p>
         <div class="actions">
-          <a class="btn btn-demo" href="security-log-analyzer/demo.html">Launch demo &#8599;</a>
-          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/security-log-analyzer">Source</a>
+          <a class="btn btn-demo" href="security-log-analyzer/demo.html" aria-label="Launch the Security Log Analyzer demo">Launch demo &#8599;</a>
+          <a class="btn btn-src" href="https://github.com/ryanwien/Portfolio2026/tree/main/security-log-analyzer" aria-label="Security Log Analyzer source on GitHub">Source</a>
         </div>
       </article>
     </main>

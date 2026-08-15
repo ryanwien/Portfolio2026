@@ -17,7 +17,9 @@
 <meta name="twitter:image" content="https://ryanwien.github.io/Portfolio2026/assets/og-image.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" /></noscript>
 <link rel="stylesheet" href="../assets/site.css" />
 <script src="../assets/space.js" defer></script>
 <script type="module" src="../assets/space3d.js"></script>
@@ -114,7 +116,11 @@
   .colhead span:nth-child(2){text-align:center}
   .colhead span:nth-child(3){text-align:right}
   .rows{display:flex; flex-direction:column}
+  /* Rows are real <button>s (they're clickable, so keyboards need them) —
+     the font/background/border/width lines strip the UA chrome so they keep
+     the ladder look. */
   .row{
+    font:inherit; color:inherit; background:none; border:0; width:100%; text-align:inherit;
     position:relative; display:grid; grid-template-columns:1fr 1fr 1fr; gap:0;
     padding:3.5px 16px; font-family:var(--mono); font-size:13px; font-variant-numeric:tabular-nums;
     cursor:pointer; isolation:isolate;
@@ -124,9 +130,11 @@
     transition:width .28s cubic-bezier(.4,0,.2,1);
   }
   .row.ask .bar{background:var(--ask-dim)} .row.bid .bar{background:var(--bid-dim)}
-  .row .sz{color:var(--muted); text-align:left}
+  /* Size and cumulative sit on the tinted depth bars, where the muted grays
+     dip just under 4.5:1 — same lighter value as .spread .last. */
+  .row .sz{color:#9AA8BA; text-align:left}
   .row .px{text-align:center; font-weight:600}
-  .row .cum{color:var(--muted-2); text-align:right}
+  .row .cum{color:#9AA8BA; text-align:right}
   .row.ask .px{color:var(--ask)} .row.bid .px{color:var(--bid)}
   .row:hover{background:rgba(255,255,255,.02)}
   .row.touch::after{content:''; position:absolute; left:0; top:0; bottom:0; width:2px}
@@ -176,11 +184,13 @@
   }
   .submit.buy{background:var(--bid); color:#04140D} .submit.buy:hover{filter:brightness(1.08)}
   .submit.sell{background:var(--ask); color:#1B0509} .submit.sell:hover{filter:brightness(1.08)}
+  /* Off-screen but read aloud — the live region that narrates order outcomes. */
+  .vh{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 
   /* ---- tape ---- */
   .tape{max-height:210px; overflow-y:auto}
   .tape-row{
-    display:grid; grid-template-columns:1fr 1fr auto; gap:8px; padding:5px 14px;
+    display:grid; grid-template-columns:auto 1fr 1fr auto; gap:8px; padding:5px 14px;
     font-family:var(--mono); font-size:12px; font-variant-numeric:tabular-nums;
     border-bottom:1px solid var(--line-2); animation:slideIn .3s ease-out;
   }
@@ -188,7 +198,10 @@
      faster than a fade completes, so faded rows would be the normal state
      rather than a transient one, and they read well below contrast minimums. */
   @keyframes slideIn{from{transform:translateX(-6px)}to{transform:none}}
-  .tape-row .p{font-weight:600} .tape-row.buy .p{color:var(--bid)} .tape-row.sell .p{color:var(--ask)}
+  /* The B/S letter says the side in text, so color isn't the only signal. */
+  .tape-row .s,.tape-row .p{font-weight:600}
+  .tape-row.buy .s,.tape-row.buy .p{color:var(--bid)}
+  .tape-row.sell .s,.tape-row.sell .p{color:var(--ask)}
   .tape-row .q{color:var(--muted); text-align:left}
   .tape-row .t{color:var(--muted-2); text-align:right; font-size:11px}
   .empty{padding:20px 14px; color:var(--muted-2); font-family:var(--mono); font-size:11.5px; text-align:center}
@@ -284,14 +297,15 @@
     <div class="card">
       <div class="cap">Order Book <span class="hint">click to fill the ticket</span></div>
       <div class="ladder">
-        <div class="colhead"><span>Size</span><span>Price</span><span>Cumulative</span></div>
-        <div class="rows" id="asks"></div>
+        <!-- Decorative for AT: each row button's label already carries its columns. -->
+        <div class="colhead" aria-hidden="true"><span>Size</span><span>Price</span><span>Cumulative</span></div>
+        <div class="rows" id="asks" role="group" aria-label="Asks"></div>
         <div class="spread">
           <span class="lbl">Spread</span>
           <span id="spread-val">—</span>
           <span class="last">Last <b id="last-val">—</b></span>
         </div>
-        <div class="rows" id="bids"></div>
+        <div class="rows" id="bids" role="group" aria-label="Bids"></div>
       </div>
     </div>
 
@@ -317,12 +331,14 @@
             <input id="f-qty" type="number" step="1" min="1" value="10" inputmode="numeric" />
           </div>
           <button class="submit buy" id="submit">Buy Limit</button>
+          <div class="vh" id="order-status" role="status" aria-live="polite"></div>
         </div>
       </div>
 
       <div class="card">
         <div class="cap">Trade Tape</div>
-        <div class="tape" id="tape"><div class="empty">No executions yet</div></div>
+        <!-- tabindex so keyboards can scroll it; role/label survive the innerHTML rewrites -->
+        <div class="tape" id="tape" tabindex="0" role="log" aria-label="Trade tape"><div class="empty">No executions yet</div></div>
       </div>
 
       <div class="card">
@@ -474,6 +490,11 @@ function render(){
   const bids = book.bids.topN(DEPTH);           // best-first (highest)
   const maxQ = Math.max(1, ...asks.map(l=>l.totalQty), ...bids.map(l=>l.totalQty));
 
+  // The rebuild below destroys the focused row button, so note which one it
+  // was and hand focus to its replacement afterwards.
+  const fo = document.activeElement;
+  const keep = fo && fo.classList && fo.classList.contains('row') ? {side:fo.dataset.side, price:fo.dataset.price} : null;
+
   // asks: display highest at top, lowest (touch) at bottom
   let cum=0; const askRows=[];
   for(const l of asks){ cum+=l.totalQty; askRows.push(rowHTML('ask', l, maxQ, cum, l===asks[0])); }
@@ -493,16 +514,23 @@ function render(){
   $('#last-val').textContent = fmt(book.last);
 
   bindRows(); flash={};
+  if(keep){
+    const r=document.querySelector(`.row[data-side="${keep.side}"][data-price="${keep.price}"]`);
+    if(r) r.focus();
+  }
 }
 function rowHTML(side,l,maxQ,cum,touch){
   const w=(l.totalQty/maxQ*100).toFixed(1);
   const fl = flash[l.price]===side ? `flash-${side}` : '';
-  return `<div class="row ${side} ${touch?'touch':''} ${fl}" data-price="${l.price}" data-side="${side}">
+  // named by action (asks lift = buy, bids hit = sell) with the row's full
+  // data, so the aria-hidden column headers stay decorative
+  const verb = side==='ask' ? 'Buy' : 'Sell';
+  return `<button type="button" class="row ${side} ${touch?'touch':''} ${fl}" data-price="${l.price}" data-side="${side}" aria-label="${verb} ${l.totalQty} at ${l.price.toFixed(2)}, cumulative ${cum}">
     <span class="bar" style="width:${w}%"></span>
     <span class="sz">${l.totalQty}</span>
     <span class="px">${l.price.toFixed(2)}</span>
     <span class="cum">${cum}</span>
-  </div>`;
+  </button>`;
 }
 function bindRows(){
   document.querySelectorAll('.row').forEach(r=>{
@@ -520,7 +548,7 @@ function pushTrades(trades){
   for(const t of trades){ flash[t.price]=t.side; tape.unshift({...t, ts}); }
   tape=tape.slice(0,60);
   $('#tape').innerHTML = tape.length ? tape.map(t=>
-    `<div class="tape-row ${t.side}"><span class="p">${t.price.toFixed(2)}</span><span class="q">${t.qty}</span><span class="t">${t.ts}</span></div>`
+    `<div class="tape-row ${t.side}"><span class="s">${t.side==='buy'?'B':'S'}</span><span class="p">${t.price.toFixed(2)}</span><span class="q">${t.qty}</span><span class="t">${t.ts}</span></div>`
   ).join('') : `<div class="empty">No executions yet</div>`;
 }
 
@@ -546,7 +574,14 @@ $('#submit').onclick=()=>{
   const qty=Math.max(1, Math.floor(+$('#f-qty').value||0));
   const o={side:form.side, type:form.type, qty};
   if(form.type==='limit'){ const p=round(+$('#f-price').value||0); if(!p) return; o.price=p; } else o.price=null;
-  pushTrades(book.submit(o)); render();
+  const trades=book.submit(o);           // o.qty is the unfilled remainder after this
+  pushTrades(trades); render();
+  // Narrate the outcome here, not on the tape — the sim rewrites that constantly.
+  const filled=trades.reduce((s,t)=>s+t.qty,0);
+  const parts=[];
+  if(filled) parts.push(`${o.side==='buy'?'Bought':'Sold'} ${filled} at ${fmt(trades[trades.length-1].price)}`);
+  if(o.qty>0&&o.type==='limit') parts.push(`${o.qty} resting at ${fmt(o.price)}`);
+  $('#order-status').textContent = parts.join(', ') || 'Nothing filled';
 };
 
 /* ---------------- simulator ---------------- */
