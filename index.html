@@ -254,7 +254,7 @@ try {
           <h3 class="proj-title">Order Book Matching Engine</h3>
           <span class="tag">systems</span>
         </div>
-        <p class="proj-desc">A price-time-priority limit order book with limit/market orders, partial fills, and O(1) cancels. The demo runs it inside a live depth-ladder terminal with an order-flow simulator.</p>
+        <p class="proj-desc">A price-time-priority limit order book over ordered price levels and per-level FIFO queues, with an id index that cancels in about 50 ns. The C++ engine handles over 3 million orders a second; the demo runs it in a live depth-ladder terminal.</p>
         <p class="proj-meta">C++ · Python core · zero-backend JS terminal</p>
         <div class="actions">
           <a class="btn btn-demo" href="matching-engine/orderbook_terminal.html" aria-label="Launch the Order Book Matching Engine demo">Launch demo &#8599;</a>
@@ -269,7 +269,7 @@ try {
           <h3 class="proj-title">House Price Prediction</h3>
           <span class="tag">machine-learning</span>
         </div>
-        <p class="proj-desc">Linear regression that predicts house prices with R² = 0.94 on held-out data. The demo runs the actual trained weights in your browser.</p>
+        <p class="proj-desc">Linear regression on a synthetic 2,000-house dataset: trained on 1,600 rows, R² = 0.94 on the 400 held out. The demo runs the actual trained weights in your browser, no backend.</p>
         <p class="proj-meta">C++ · scikit-learn · pandas · NumPy</p>
         <div class="actions">
           <a class="btn btn-demo" href="ml-housing/demo.html" aria-label="Launch the House Price Prediction demo">Launch demo &#8599;</a>
