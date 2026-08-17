@@ -152,6 +152,44 @@ python export_split.py    # once, to freeze the split
 python export_model.py    # rewrites the model block in demo.html
 ```
 
+## How long does a prediction actually take?
+
+[`bench.html`](bench.html) times the model in the browser. It reads the weights
+out of `demo.html` at load rather than keeping its own copy, so the benchmark and
+the demo cannot disagree about what is being measured — the same reason the model
+block is generated rather than pasted. On a Ryzen 9 7940HS in Chrome a prediction
+costs **somewhere between 140 ns and 250 ns**, or four to seven million a second.
+That spread is real and is worth stating rather than hiding behind an average:
+repeated runs on an otherwise idle machine land anywhere in it, which is what
+clock speed scaling looks like from inside a browser.
+
+That is harder to measure than it sounds, and the page is built around three ways
+it could lie:
+
+- **The clock is deliberately blunt.** `performance.now()` is coarsened against
+  timing attacks, to 100 µs on this machine. One prediction is about a thousand
+  times shorter than that, so timing a single call reports either zero or one
+  whole tick. The page measures the real resolution at runtime instead of
+  assuming it, then sizes each batch to last 200 times longer.
+- **The optimiser deletes work nobody reads.** A prediction whose result is
+  discarded can be removed outright, and a loop with unchanging inputs can be
+  computed once and hoisted. Every prediction is summed into a total that gets
+  printed, and the square footage changes on each iteration.
+- **The loop is not free.** Iterating and mutating the input costs something, and
+  charging it to the model would overstate the result. The same loop runs a
+  second time without the prediction, and the quoted figure is the difference.
+
+The first version ran as soon as the page loaded and reported 566 ns, well above
+anything measured since, because it was competing with font loading and layout.
+It now waits for the load to finish and the main thread to go quiet. It also
+holds off while the tab is in the background and labels any run that happened
+there — browsers throttle background tabs, and while that did not visibly move
+the numbers here, a reader should be told which conditions produced them rather
+than having to trust that they were good.
+
+One thing the number is *not*: the cost of the demo updating on screen. That is
+dominated by writing text into the DOM and is roughly a thousand times larger.
+
 ## Possible next steps
 
 - Add polynomial features to capture non-linear relationships

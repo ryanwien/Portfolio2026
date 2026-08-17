@@ -221,7 +221,7 @@
     <p class="caption">Each dot is a test home the model never saw during training. The grey diagonal is a perfect prediction, so the tighter the cloud hugs it, the better the fit. Here it explains <b>94%</b> of the variance in price. The coloured line tracks the home you configured above: it has no actual sale price to plot against, so it sits on the predicted axis and moves as you drag.</p>
   </div>
 
-  <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways, gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>), then evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. The dataset is synthetic, 2,000 generated houses; no real sales data is involved. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
+  <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways, gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>), then evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. The dataset is synthetic, 2,000 generated houses; no real sales data is involved. To see how long one of those predictions takes on your own machine, <a href="bench.html">run the inference benchmark</a>. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
 
 </main>
 
