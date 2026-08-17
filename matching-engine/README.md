@@ -141,22 +141,41 @@ cpp/build/reference_trace.exe reference_scenario.txt > cpp.txt
 diff py.txt cpp.txt        # no output
 ```
 
-**Latency**, averaged over 256-operation batches. Measured on an AMD Ryzen 9 7940HS
-running Windows 11, built with MSVC `/std:c++20 /O2` (what `build.bat` produces),
-against a book holding ~1,400 resting orders across 46 price levels:
+**Latency**, averaged over 256-operation batches, reported as the median of twelve
+consecutive runs on an AMD Ryzen 9 7940HS running Windows 11, built with MSVC
+`/std:c++20 /O2` (what `build.bat` produces), against a book holding ~1,400
+resting orders across 46 price levels:
 
-| operation | mean | p50 | p99 | p99.9 |
-|-----------|-----:|----:|----:|------:|
-| submit | 286 ns | 272 ns | 568 ns | 936 ns |
-| cancel | 48 ns | 44 ns | 115 ns | 169 ns |
-| best bid + ask | 5.4 ns | 5.1 ns | 9.8 ns | 17.2 ns |
+| operation | mean | p50 | p99 | p99.9 | mean, run to run |
+|-----------|-----:|----:|----:|------:|-----------------:|
+| submit | 227 ns | 199 ns | 435 ns | 796 ns | 212 – 250 ns |
+| cancel | 38 ns | 34 ns | 80 ns | 171 ns | 34 – 44 ns |
+| best bid + ask | 4.4 ns | 3.5 ns | 7.0 ns | 15.6 ns | 3.9 – 4.9 ns |
 
-Absolute numbers move with the machine and the build. Adding whole-program
-optimization (`/GL /LTCG`) so the engine can inline into the caller takes submit
-to 197 ns and the top-of-book read to 1.6 ns at p50, because `best_bid` collapses
-to a load once it can be inlined. Quote the ratios rather than the constants: what
-travels between machines is that cancel is roughly six times cheaper than submit,
-and a top-of-book read is two orders of magnitude cheaper than either.
+That last column is the point of the table. An earlier version of this file quoted a
+single run, 286 ns submit and 48 ns cancel, and a clean rebuild does not reproduce
+those: twelve consecutive runs all came in faster, the slowest of them still beating
+the published figure. Load explains part of the gap and not the rest, since six busy
+cores move submit from roughly 210 ns to 240 ns, nowhere near 286. Later the same
+afternoon the same binary was turning in 170 ns. On a laptop the constants are a
+property of the machine on the day, so the spread is reported rather than averaged
+away.
+
+That is also where the previous build comparison went wrong. This README used to
+credit whole-program optimization (`/GL /LTCG`) with taking submit from 272 ns to
+197 ns. Run the two builds alternately in a single session and they are
+indistinguishable: 170 ns against 171 ns at p50, the difference well inside the
+run-to-run noise above. The apparent win was a warm `/O2` measurement compared
+against a cool `/LTCG` one, which is the same mistake as quoting one run. What does
+survive the controlled comparison is the top-of-book read, 3.1 ns against 1.6 ns,
+because `best_bid` collapses to a load once it can inline into the caller. That one
+reproduces on every alternation.
+
+Quote the ratios rather than the constants: what travels between machines is that
+cancel is roughly six times cheaper than submit, and a top-of-book read is another
+order of magnitude cheaper than cancel. Those two ratios hold in every run above and
+in the figures this table used to carry, which is more than can be said for any of
+the constants.
 
 The gap between cancel and submit is the entire argument for the data
 structure. Cancel never searches: the id map holds a pointer straight to the
