@@ -112,7 +112,7 @@
   <b>demo.html</b> at load, so this measures the same weights the demo predicts with and cannot drift
   from them. Numbers below are produced on <b>your</b> machine, right now.</p>
 
-  <h2 class="section-label"><span>Method</span><span aria-hidden="true">Three ways this could lie</span></h2>
+  <h2 class="section-label"><span>Method</span><span aria-hidden="true">Four ways this could lie</span></h2>
   <div class="site-how">
     <div class="site-card">
       <div class="site-card-n">01</div>
@@ -135,6 +135,15 @@
       <p>Iterating and mutating the input costs something too, and charging it to the model would
       overstate the result. The same loop runs a second time without the prediction, and both figures
       are reported, so the cost of the model alone is the difference.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">04</div>
+      <h3>The machine does not hold still</h3>
+      <p>Press <b>Run again</b> a dozen times and watch the figure climb. On the laptop this was
+      written on it went from 244&nbsp;ns on the first pass to 321&nbsp;ns by the twelfth, same code
+      and same page, because the benchmark is heating the core it is timing. Leave it idle half a
+      minute and it drops back. Any single run is a snapshot of one clock speed, which is why the
+      site quotes a range rather than a figure.</p>
     </div>
   </div>
 

@@ -158,12 +158,16 @@ python export_model.py    # rewrites the model block in demo.html
 out of `demo.html` at load rather than keeping its own copy, so the benchmark and
 the demo cannot disagree about what is being measured — the same reason the model
 block is generated rather than pasted. On a Ryzen 9 7940HS in Chrome a prediction
-costs **somewhere between 140 ns and 250 ns**, or four to seven million a second.
-That spread is real and is worth stating rather than hiding behind an average:
-repeated runs on an otherwise idle machine land anywhere in it, which is what
-clock speed scaling looks like from inside a browser.
+costs **a few hundred nanoseconds** — every run measured landed between 140 ns and
+320 ns, three to seven million a second. The homepage says "a few hundred
+nanoseconds" rather than a figure because that spread is not noise to be averaged
+away: it is the clock speed moving, and it moves *because the benchmark is running*.
+Twelve runs back to back climbed steadily from 244 ns to 321 ns on an otherwise idle
+machine, and after thirty seconds of doing nothing the next run came back at 247 ns.
+A benchmark that reported one number would be reporting the temperature of the laptop
+as much as the cost of the model.
 
-That is harder to measure than it sounds, and the page is built around three ways
+That is harder to measure than it sounds, and the page is built around four ways
 it could lie:
 
 - **The clock is deliberately blunt.** `performance.now()` is coarsened against
@@ -178,6 +182,10 @@ it could lie:
 - **The loop is not free.** Iterating and mutating the input costs something, and
   charging it to the model would overstate the result. The same loop runs a
   second time without the prediction, and the quoted figure is the difference.
+- **The machine does not hold still.** Sustained measurement heats the core being
+  measured, so the benchmark slows itself down as it goes. The page says so and
+  invites you to press *Run again* and watch it happen, rather than presenting the
+  first run as a constant.
 
 The first version ran as soon as the page loaded and reported 566 ns, well above
 anything measured since, because it was competing with font loading and layout.
