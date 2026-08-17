@@ -141,13 +141,22 @@ cpp/build/reference_trace.exe reference_scenario.txt > cpp.txt
 diff py.txt cpp.txt        # no output
 ```
 
-**Latency**, averaged over 256-operation batches, release build:
+**Latency**, averaged over 256-operation batches. Measured on an AMD Ryzen 9 7940HS
+running Windows 11, built with MSVC `/std:c++20 /O2` (what `build.bat` produces),
+against a book holding ~1,400 resting orders across 46 price levels:
 
 | operation | mean | p50 | p99 | p99.9 |
 |-----------|-----:|----:|----:|------:|
-| submit | 115 ns | 113 ns | 163 ns | 302 ns |
-| cancel | 19 ns | 19 ns | 34 ns | 44 ns |
-| best bid + ask | 1.3 ns | 1.2 ns | 1.6 ns | 2.0 ns |
+| submit | 286 ns | 272 ns | 568 ns | 936 ns |
+| cancel | 48 ns | 44 ns | 115 ns | 169 ns |
+| best bid + ask | 5.4 ns | 5.1 ns | 9.8 ns | 17.2 ns |
+
+Absolute numbers move with the machine and the build. Adding whole-program
+optimization (`/GL /LTCG`) so the engine can inline into the caller takes submit
+to 197 ns and the top-of-book read to 1.6 ns at p50, because `best_bid` collapses
+to a load once it can be inlined. Quote the ratios rather than the constants: what
+travels between machines is that cancel is roughly six times cheaper than submit,
+and a top-of-book read is two orders of magnitude cheaper than either.
 
 The gap between cancel and submit is the entire argument for the data
 structure. Cancel never searches: the id map holds a pointer straight to the
@@ -156,12 +165,16 @@ and only touches the ordered map when a level empties. Submit pays `O(log P)`
 to locate its level. With a heap, cancel would be the `O(n)` operation, and
 cancels outnumber fills in real order flow.
 
-Two measurement details, because a benchmark that flatters itself is worthless.
+Three measurement details, because a benchmark that flatters itself is worthless.
 Operations are timed in batches: `steady_clock` on Windows ticks at ~100 ns, so
 timing a single ~100 ns operation reports 0, 100 or 200 ns and nothing between:
-precise-looking noise. And cancels are gated on a depth floor, because flow that
+precise-looking noise. Cancels are gated on a depth floor, because flow that
 cancels as fast as it adds drains the book, and an empty book makes every
-operation look fast for the wrong reason.
+operation look fast for the wrong reason. And the submit figure is an upper
+bound rather than a clean engine measurement: the timed region calls the harness's
+order generator, so two RNG draws and a `push_back` are counted against every
+submit. Cancel and top-of-book are measured clean, with all their setup hoisted
+out of the timed region.
 
 One deliberate difference from a production engine: prices are `double` here to
 stay faithful to the Python reference. A real venue uses integer ticks, because

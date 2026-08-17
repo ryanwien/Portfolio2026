@@ -162,7 +162,7 @@
   <div class="eyebrow">Machine learning</div>
   <div class="site-model site-model-head" data-emblem="dome" role="img" aria-label="Stylized 3D habitat dome"></div>
   <h1>House Price Prediction</h1>
-  <p class="lead">A supervised <b>linear-regression</b> model trained on 2,000 homes to predict sale price from six features. This page runs the <b>real trained model</b>, the exact learned weights, right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b>.</p>
+  <p class="lead">A supervised <b>linear-regression</b> model trained on 1,600 homes to predict sale price from six features. This page runs the <b>real trained model</b>, the exact learned weights, right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b> on the 400 homes it never saw.</p>
   <div class="site-chips">
     <span class="site-chip">C++</span>
     <span class="site-chip">scikit-learn</span>
@@ -221,7 +221,7 @@
     <p class="caption">Each dot is a test home the model never saw during training. The grey diagonal is a perfect prediction, so the tighter the cloud hugs it, the better the fit. Here it explains <b>94%</b> of the variance in price. The coloured line tracks the home you configured above: it has no actual sale price to plot against, so it sits on the predicted axis and moves as you drag.</p>
   </div>
 
-  <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways, gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>), then evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
+  <p class="note"><b>How it works:</b> features are standardized, then a linear regression is fit two ways, gradient descent (<code>SGDRegressor</code>) and the closed-form normal equation (<code>LinearRegression</code>), then evaluated on a held-out 20% test set. This demo uses the trained weights directly, so every prediction above is the genuine model output, not an approximation. The dataset is synthetic, 2,000 generated houses; no real sales data is involved. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source and write-up</a>.</p>
 
 </main>
 
