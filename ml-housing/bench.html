@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Inference Benchmark · House Price Prediction</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<meta name="description" content="Times the trained linear-regression model in your browser, with the clock resolution measured rather than assumed." />
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+<link rel="stylesheet" href="../assets/site.css" />
+<style>
+  :root{
+    --site-w:960px;
+    --bg:#070B15; --surface:#0E1524; --sunken:#0A101C; --ink:#E9EEF8; --muted:#94A1B7;
+    --line:#1D2839; --line-strong:#2B3A52; --accent:#6E86FF; --accent-ink:#070B15;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
+    --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--body); color:var(--ink); line-height:1.5; -webkit-font-smoothing:antialiased}
+  /* site.css makes body a flex column, so this is a flex item. Left to size
+     itself it takes the results table's min-content width and pushes the whole
+     page sideways; width:100% pins it to the viewport so the table scrolls
+     inside its own container instead of scrolling the document. */
+  .wrap{max-width:var(--site-w); margin:0 auto; width:100%; min-width:0;
+    padding:clamp(1.5rem,4vw,2.75rem) var(--site-pad) 1rem}
+
+  .eyebrow{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); display:flex; gap:.6rem; align-items:center}
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--line-strong)}
+  .eyebrow a{color:var(--muted); text-decoration:none; border-bottom:1px solid transparent}
+  .eyebrow a:hover{color:var(--ink); border-bottom-color:var(--accent)}
+  h1{font-family:var(--display); font-weight:700; line-height:1.03;
+    font-size:clamp(2rem,6vw,3rem); letter-spacing:-.02em; margin:.6rem 0 .4rem}
+  .lead{font-size:clamp(.95rem,2.4vw,1.08rem); color:var(--muted); max-width:54em}
+  .lead b{color:var(--ink); font-weight:600}
+
+  .section-label{font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted); margin:2.2rem 0 .9rem; padding-bottom:.55rem; border-bottom:1px solid var(--line-strong);
+    display:flex; justify-content:space-between; align-items:baseline; gap:1rem}
+
+  /* results table */
+  .tablewrap{background:var(--surface); border:1px solid var(--line); border-radius:10px; overflow-x:auto}
+  table{border-collapse:collapse; width:100%; min-width:560px}
+  caption{text-align:left; font-family:var(--mono); font-size:.72rem; color:var(--muted);
+    padding:.9rem 1.1rem .2rem; letter-spacing:.04em}
+  th,td{padding:.62rem 1.1rem; text-align:right; font-family:var(--mono); font-size:.86rem;
+    border-bottom:1px solid var(--line)}
+  th{color:var(--muted); font-weight:500; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase}
+  th:first-child,td:first-child{text-align:left}
+  tbody tr:last-child td{border-bottom:0}
+  td.op{color:var(--ink)}
+  td.headline{color:var(--accent); font-weight:600}
+  tr.net td{color:var(--ink)}
+  tr.baseline td{color:var(--muted)}
+
+  .status{font-family:var(--mono); font-size:.8rem; color:var(--muted); margin:.9rem 0 0;
+    display:flex; align-items:center; gap:.7rem; flex-wrap:wrap}
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--accent); flex:none}
+  .dot.idle{background:var(--muted)}
+  .dot.bad{background:#FB8C5E}
+
+  .btn{font-family:var(--mono); font-size:.78rem; letter-spacing:.06em; text-transform:uppercase;
+    background:var(--accent); color:var(--accent-ink); border:0; border-radius:999px;
+    padding:.6rem 1.2rem; cursor:pointer; font-weight:600}
+  .btn:disabled{opacity:.45; cursor:default}
+  .btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+
+  .env{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:.75rem}
+  .tile{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:.85rem 1rem}
+  .tile .m{font-family:var(--display); font-weight:700; font-size:1.35rem; letter-spacing:-.01em; word-break:break-word}
+  .tile .k{font-family:var(--mono); font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:.2rem}
+
+  .site-how{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:.9rem}
+  .site-card{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:1rem 1.1rem}
+  .site-card h3{font-family:var(--display); font-size:1rem; font-weight:600; margin:.35rem 0 .4rem}
+  .site-card p{font-size:.86rem; color:var(--muted)}
+  .site-card-n{font-family:var(--mono); font-size:.7rem; color:var(--accent)}
+
+  .note{font-size:.85rem; color:var(--muted); margin:1.6rem 0 2.4rem; max-width:60em}
+  .note a{color:var(--accent)}
+  .note code{font-family:var(--mono); font-size:.9em; color:var(--ink)}
+
+  @media (max-width:560px){
+    th,td{padding:.55rem .7rem; font-size:.78rem}
+  }
+</style>
+</head>
+<body>
+<nav class="site-nav" aria-label="Site">
+  <div class="site-nav-inner">
+    <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
+    <div class="site-links">
+      <a class="site-link" href="../task-tracker/demo.html">Tasks</a>
+      <a class="site-link" href="../matching-engine/orderbook_terminal.html">Order Book</a>
+      <a class="site-link" href="../ml-housing/demo.html">ML</a>
+      <a class="site-link" href="../file-organizer/demo.html">Files</a>
+      <a class="site-link" href="../security-log-analyzer/demo.html">Security</a>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div class="eyebrow"><a href="demo.html">← House Price Prediction</a></div>
+  <h1>Inference benchmark</h1>
+  <p class="lead">How long one prediction actually takes in your browser. The model is read out of
+  <b>demo.html</b> at load, so this measures the same weights the demo predicts with and cannot drift
+  from them. Numbers below are produced on <b>your</b> machine, right now.</p>
+
+  <h2 class="section-label"><span>Method</span><span aria-hidden="true">Three ways this could lie</span></h2>
+  <div class="site-how">
+    <div class="site-card">
+      <div class="site-card-n">01</div>
+      <h3>The clock is blunt</h3>
+      <p><code>performance.now()</code> is deliberately coarsened against timing attacks, typically to
+      100&nbsp;µs unless the page is cross-origin isolated. One prediction is roughly a thousand times
+      shorter than that, so timing it alone reports 0 or one whole tick and nothing between. This page
+      measures the real resolution first, then sizes each batch to clear it by 200&times;.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">02</div>
+      <h3>The JIT deletes dead work</h3>
+      <p>A prediction whose result is never read is work the optimiser is free to remove, and a loop
+      whose inputs never change can be computed once and hoisted out. Every prediction here is summed
+      into a running total that gets printed, and the square footage changes on every iteration.</p>
+    </div>
+    <div class="site-card">
+      <div class="site-card-n">03</div>
+      <h3>The loop is not free</h3>
+      <p>Iterating and mutating the input costs something too, and charging it to the model would
+      overstate the result. The same loop runs a second time without the prediction, and both figures
+      are reported, so the cost of the model alone is the difference.</p>
+    </div>
+  </div>
+
+  <h2 class="section-label"><span>Results</span><span aria-hidden="true">nanoseconds per prediction</span></h2>
+  <div class="tablewrap">
+    <table>
+      <caption id="cap">Waiting to run.</caption>
+      <thead>
+        <tr>
+          <th scope="col">operation</th>
+          <th scope="col">min</th>
+          <th scope="col">mean</th>
+          <th scope="col">p50</th>
+          <th scope="col">p99</th>
+          <th scope="col">batches</th>
+        </tr>
+      </thead>
+      <tbody id="rows">
+        <tr><td class="op">predict()</td><td colspan="5">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="status"><span class="dot idle" id="dot" aria-hidden="true"></span><span id="status" role="status">Loading the model from demo.html…</span></p>
+  <p class="status"><button class="btn" id="run" disabled>Run again</button></p>
+
+  <h2 class="section-label"><span>Environment</span><span aria-hidden="true">what produced the numbers</span></h2>
+  <div class="env" id="env"></div>
+
+  <p class="note"><b>Reading it:</b> <code>predict()</code> is the figure that matters, and it is the
+  line the site quotes. It is one evaluation of the model: six multiplies and six adds over weights
+  already in raw units, so no scaling happens at prediction time. It is <em>not</em> the cost of the
+  demo updating on screen, which is dominated by writing text into the DOM and is roughly a thousand
+  times larger. See the <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">source
+  and write-up</a>.</p>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var TARGET_TICKS = 200;   // a batch must last this many clock ticks
+  var SAMPLES = 120;        // timed batches per operation
+  var MAX_BATCH = 1 << 24;  // stop growing the batch past this
+
+  var dot = document.getElementById("dot");
+  var statusEl = document.getElementById("status");
+  var runBtn = document.getElementById("run");
+  var rowsEl = document.getElementById("rows");
+  var capEl = document.getElementById("cap");
+  var envEl = document.getElementById("env");
+
+  function say(text, kind){
+    statusEl.textContent = text;
+    dot.className = "dot" + (kind ? " " + kind : "");
+  }
+
+  function yieldToPaint(){
+    return new Promise(function(resolve){ setTimeout(resolve, 0); });
+  }
+
+  // ---- the model, read from the demo so the two cannot drift apart ----------
+
+  function loadModel(){
+    return fetch("demo.html", { cache: "no-cache" }).then(function(r){
+      if (!r.ok) throw new Error("demo.html returned " + r.status);
+      return r.text();
+    }).then(function(text){
+      var m = text.match(/var M = (\{[\s\S]*?\});/);
+      if (!m) throw new Error("could not find the model block in demo.html");
+      return JSON.parse(m[1]);
+    });
+  }
+
+  // Identical to demo.html's predict(): intercept + the sum of weight x feature.
+  function predict(M, state){
+    var p = M.intercept;
+    M.features.forEach(function(f){ p += M.coef[f] * state[f]; });
+    return p;
+  }
+
+  // ---- the two loops -------------------------------------------------------
+  // Both mutate sqft the same way. The only difference is the prediction, so
+  // subtracting one from the other leaves the cost of the model.
+
+  function loopPredict(M, state, n){
+    var sink = 0;
+    for (var i = 0; i < n; i++){
+      state.sqft = 1200 + (i & 1023);
+      sink += predict(M, state);
+    }
+    return sink;
+  }
+
+  function loopBaseline(M, state, n){
+    var sink = 0;
+    for (var i = 0; i < n; i++){
+      state.sqft = 1200 + (i & 1023);
+      sink += state.sqft;
+    }
+    return sink;
+  }
+
+  // ---- measurement ---------------------------------------------------------
+
+  // The smallest non-zero gap between two reads is the clock's real resolution.
+  function clockResolutionMs(){
+    var smallest = Infinity;
+    var prev = performance.now();
+    for (var i = 0; i < 300000; i++){
+      var now = performance.now();
+      var delta = now - prev;
+      if (delta > 0 && delta < smallest) smallest = delta;
+      prev = now;
+    }
+    return smallest === Infinity ? 0 : smallest;
+  }
+
+  // Grow the batch until it lasts long enough for the clock to resolve it.
+  function calibrate(fn, M, state, targetMs){
+    var n = 512;
+    for (;;){
+      var t0 = performance.now();
+      fn(M, state, n);
+      var dt = performance.now() - t0;
+      if (dt >= targetMs || n >= MAX_BATCH) return n;
+      // Jump straight to the size the measurement implies, but always at least
+      // double, so a batch that timed as 0 still makes progress.
+      var implied = dt > 0 ? Math.ceil(n * (targetMs / dt) * 1.2) : n * 4;
+      n = Math.min(MAX_BATCH, Math.max(n * 2, implied));
+    }
+  }
+
+  function summarize(perOpNs){
+    var sorted = perOpNs.slice().sort(function(a, b){ return a - b; });
+    var at = function(q){ return sorted[Math.floor(q * (sorted.length - 1))]; };
+    var total = 0;
+    for (var i = 0; i < sorted.length; i++) total += sorted[i];
+    return {
+      min: sorted[0],
+      mean: total / sorted.length,
+      p50: at(0.50),
+      p99: at(0.99),
+      batches: sorted.length
+    };
+  }
+
+  function measure(fn, M, state, batch, sink){
+    return (function step(samples){
+      if (samples.length >= SAMPLES) return Promise.resolve(samples);
+      // Run a few batches per turn, then yield so the page stays responsive.
+      for (var k = 0; k < 8 && samples.length < SAMPLES; k++){
+        var t0 = performance.now();
+        sink.value += fn(M, state, batch);
+        var dt = performance.now() - t0;
+        samples.push((dt * 1e6) / batch);   // ms for the batch -> ns per op
+      }
+      say("Measuring… " + samples.length + " / " + SAMPLES + " batches");
+      return yieldToPaint().then(function(){ return step(samples); });
+    })([]);
+  }
+
+  // ---- rendering -----------------------------------------------------------
+
+  function fmt(ns){
+    return ns >= 100 ? ns.toFixed(0) : ns >= 10 ? ns.toFixed(1) : ns.toFixed(2);
+  }
+
+  function row(label, stats, cls){
+    return "<tr class=\"" + (cls || "") + "\">" +
+      "<td class=\"op\">" + label + "</td>" +
+      "<td>" + fmt(stats.min) + "</td>" +
+      "<td>" + fmt(stats.mean) + "</td>" +
+      "<td" + (cls === "net" ? " class=\"headline\"" : "") + ">" + fmt(stats.p50) + "</td>" +
+      "<td>" + fmt(stats.p99) + "</td>" +
+      "<td>" + stats.batches + "</td>" +
+      "</tr>";
+  }
+
+  function tile(value, key){
+    return "<div class=\"tile\"><div class=\"m\">" + value + "</div><div class=\"k\">" + key + "</div></div>";
+  }
+
+  // ---- the run ------------------------------------------------------------
+
+  var model = null;
+
+  function run(){
+    runBtn.disabled = true;
+    var hidden = document.visibilityState !== "visible";
+    var state = {};
+    model.features.forEach(function(f){ state[f] = model.featStats[f].mean; });
+    var sink = { value: 0 };
+
+    say("Measuring the clock…");
+
+    return yieldToPaint().then(function(){
+      var resMs = clockResolutionMs();
+      var targetMs = Math.max(resMs, 0.001) * TARGET_TICKS;
+
+      say("Calibrating the batch size…");
+      return yieldToPaint().then(function(){
+        // Warm the JIT before anything is timed.
+        loopPredict(model, state, 200000);
+        loopBaseline(model, state, 200000);
+
+        var batch = calibrate(loopPredict, model, state, targetMs);
+
+        return measure(loopPredict, model, state, batch, sink).then(function(predSamples){
+          return measure(loopBaseline, model, state, batch, sink).then(function(baseSamples){
+            var pred = summarize(predSamples);
+            var base = summarize(baseSamples);
+            var net = summarize(predSamples.map(function(v, i){
+              return Math.max(0, v - baseSamples[i]);
+            }));
+
+            rowsEl.innerHTML =
+              row("predict() + loop", pred, "") +
+              row("loop only", base, "baseline") +
+              row("predict(), net", net, "net");
+
+            capEl.textContent =
+              "Nanoseconds per prediction, averaged over " + batch.toLocaleString() +
+              "-prediction batches.";
+
+            var perSec = net.p50 > 0 ? Math.round(1e9 / net.p50) : 0;
+            var batchMs = (net.p50 + base.p50) * batch / 1e6;
+
+            envEl.innerHTML =
+              tile(perSec.toLocaleString(), "predictions / second") +
+              tile(fmt(net.p50) + " ns", "per prediction, p50") +
+              tile((resMs * 1000).toFixed(0) + " µs", "measured clock resolution") +
+              tile(Math.round(batchMs / resMs) + "×", "batch length vs. resolution") +
+              tile(batch.toLocaleString(), "predictions per batch") +
+              tile((SAMPLES * 2 * batch).toLocaleString(), "predictions timed") +
+              tile(model.features.length + " features", "6 multiplies, 6 adds") +
+              tile(self.crossOriginIsolated ? "yes" : "no", "cross-origin isolated") +
+              tile(hidden ? "background" : "foreground", "tab during the run");
+
+            say((hidden
+                  ? "Done, but this tab was in the background, and browsers throttle those. Re-run it in the foreground before quoting anything. "
+                  : "Done. ")
+                + "Checksum " + sink.value.toExponential(4)
+                + " (printed so the work cannot be optimised away).",
+                hidden ? "bad" : "");
+            runBtn.disabled = false;
+          });
+        });
+      });
+    });
+  }
+
+  runBtn.addEventListener("click", function(){ run(); });
+
+  // Timing anything while the page is still fetching fonts and laying itself
+  // out measures the page load as much as the model, so wait for the load to
+  // finish and then let the main thread go quiet. setTimeout is the settle
+  // signal rather than requestIdleCallback or a frame callback, because
+  // background tabs never fire those and the page would sit here forever.
+  function whenSettled(fn){
+    var start = function(){ setTimeout(fn, 300); };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+  }
+
+  loadModel().then(function(M){
+    model = M;
+    runBtn.disabled = false;
+    // Opening this in a background tab is the normal case for a link, so wait
+    // for the tab to come forward rather than measuring a throttled machine.
+    if (document.visibilityState !== "visible"){
+      say("Ready, waiting for this tab to come to the front. Browsers throttle "
+        + "background tabs, which can inflate everything below.");
+      document.addEventListener("visibilitychange", function onShow(){
+        if (document.visibilityState !== "visible") return;
+        document.removeEventListener("visibilitychange", onShow);
+        say("Ready. Waiting for the page to settle…");
+        whenSettled(function(){ run(); });
+      });
+      return;
+    }
+    say("Ready. Waiting for the page to settle…");
+    whenSettled(function(){ run(); });
+  }).catch(function(err){
+    say("Could not load the model: " + err.message +
+        (location.protocol === "file:" ? " — this page needs to be served over http, not opened from disk." : ""), "bad");
+    capEl.textContent = "No run.";
+  });
+})();
+</script>
+</body>
+</html>
