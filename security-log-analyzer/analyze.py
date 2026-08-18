@@ -310,11 +310,39 @@ def main():
                         help="JSON Lines log to analyze (defaults to bundled sample)")
     parser.add_argument("--format", choices=["text", "json"], default="text",
                         help="output format")
+    # Every threshold the engine has is reachable from the command line. They
+    # are the difference between a detection and a false positive, so leaving
+    # them as constants in the source would make the tool untunable in the one
+    # situation that matters, which is someone else's log.
     parser.add_argument("--bf-threshold", type=int, default=DEFAULTS["bf_threshold"],
                         help="failed logins from one IP to flag brute force")
+    parser.add_argument("--bf-window", type=int, default=DEFAULTS["bf_window"],
+                        help="seconds those failures must fall within")
+    parser.add_argument("--spray-users", type=int, default=DEFAULTS["spray_users"],
+                        help="distinct users one IP fails against to flag spraying")
+    parser.add_argument("--scan-ports", type=int, default=DEFAULTS["scan_ports"],
+                        help="distinct ports one IP probes to flag a scan")
+    parser.add_argument("--scan-window", type=int, default=DEFAULTS["scan_window"],
+                        help="seconds those probes must fall within")
+    parser.add_argument("--travel-kmh", type=float, default=DEFAULTS["travel_kmh"],
+                        help="implied speed above which travel is impossible")
+    parser.add_argument("--work-start", type=int, default=DEFAULTS["work_start"],
+                        help="business hours start (UTC) for off-hours detection")
+    parser.add_argument("--work-end", type=int, default=DEFAULTS["work_end"],
+                        help="business hours end (UTC) for off-hours detection")
     args = parser.parse_args()
 
-    cfg = dict(DEFAULTS, bf_threshold=args.bf_threshold)
+    cfg = dict(
+        DEFAULTS,
+        bf_threshold=args.bf_threshold,
+        bf_window=args.bf_window,
+        spray_users=args.spray_users,
+        scan_ports=args.scan_ports,
+        scan_window=args.scan_window,
+        travel_kmh=args.travel_kmh,
+        work_start=args.work_start,
+        work_end=args.work_end,
+    )
     events = load_events(args.logfile)
     alerts = analyze(events, cfg)
 
