@@ -390,10 +390,13 @@
 <script>
 /* ============================================================
    Matching engine — price-time priority (ported from Python)
-   Levels: sorted price array + Map<price,{queue,totalQty}>.
-   byId map gives cancel lookup. (Front-end cancel splices the
-   queue in O(k); the Python version uses an intrusive DLL for
-   true O(1) — same design, this is the readable variant.)
+   Levels: sorted price array + Map<price,{head,tail,totalQty}>.
+   Each level's queue is an intrusive doubly-linked list: the
+   prev/next pointers live on the order itself, so the byId map
+   leads straight to a node and a cancel unlinks it without
+   walking the queue. Same structure as book.py, and
+   js_reference_trace.js replays the shared scenario through
+   this engine to check the two still agree.
    ============================================================ */
 class Levels{
   constructor(side){ this.side=side; this.map=new Map(); this.prices=[]; }
@@ -402,14 +405,17 @@ class Levels{
   _bsearch(price){ let lo=0,hi=this.prices.length; while(lo<hi){const m=(lo+hi)>>1; if(this.prices[m]<price)lo=m+1; else hi=m;} return lo; }
   add(o){
     let l=this.map.get(o.price);
-    if(!l){ l={price:o.price,queue:[],totalQty:0}; this.map.set(o.price,l); this.prices.splice(this._bsearch(o.price),0,o.price); }
-    l.queue.push(o); l.totalQty+=o.qty;
+    if(!l){ l={price:o.price,head:null,tail:null,totalQty:0}; this.map.set(o.price,l); this.prices.splice(this._bsearch(o.price),0,o.price); }
+    o.prev=l.tail; o.next=null;                       // append at the tail: time priority
+    if(l.tail) l.tail.next=o; else l.head=o;
+    l.tail=o; l.totalQty+=o.qty;
   }
   remove(o){
     const l=this.map.get(o.price); if(!l) return;
-    const i=l.queue.indexOf(o);
-    if(i>=0){ l.queue.splice(i,1); l.totalQty-=o.qty; }
-    if(l.queue.length===0) this.removeLevel(o.price);
+    if(o.prev) o.prev.next=o.next; else l.head=o.next; // unlink in place, no search
+    if(o.next) o.next.prev=o.prev; else l.tail=o.prev;
+    o.prev=o.next=null; l.totalQty-=o.qty;
+    if(!l.head) this.removeLevel(o.price);
   }
   removeLevel(p){ this.map.delete(p); const i=this._bsearch(p); if(this.prices[i]===p) this.prices.splice(i,1); }
   topN(n){
@@ -430,15 +436,17 @@ class Book{
     while(o.qty>0 && match.size>0){
       const b=match.best();
       if(o.type==='limit'){ if(buy && b.price>o.price) break; if(!buy && b.price<o.price) break; }
-      const q=b.queue;
-      while(q.length && o.qty>0){
-        const m=q[0];
+      while(b.head && o.qty>0){
+        const m=b.head;                                // oldest at this price
         const f=Math.min(o.qty,m.qty);
         trades.push({price:b.price, qty:f, side:o.side, makerId:m.id, takerId:o.id});
         o.qty-=f; m.qty-=f; b.totalQty-=f; this.last=b.price;
-        if(m.qty===0){ q.shift(); this.byId.delete(m.id); } else break;
+        if(m.qty===0){
+          b.head=m.next; if(b.head) b.head.prev=null; else b.tail=null;
+          m.prev=m.next=null; this.byId.delete(m.id);
+        } else break;                                  // partially filled maker keeps its place
       }
-      if(q.length===0) match.removeLevel(b.price);
+      if(!b.head) match.removeLevel(b.price);
     }
     if(o.qty>0 && o.type==='limit'){ rest.add(o); this.byId.set(o.id,o); }
     return trades;
