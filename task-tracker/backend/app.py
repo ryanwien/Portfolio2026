@@ -124,18 +124,35 @@ def create_task():
     Required field: title
     Optional fields: description, priority
     """
-    data = request.get_json()
+    data = request.get_json(silent=True)
 
-    # Basic input validation — title is required.
-    if not data or not data.get("title"):
+    # This mirrors the C# handler field for field, because "the same validation
+    # in both" is a claim the parity test checks rather than a comment.
+    # A title of "   " is not a title, and a title that is not a string is a
+    # 400 rather than an AttributeError on .strip().
+    if not isinstance(data, dict):
         return jsonify({"error": "Title is required"}), 400
 
-    title = data["title"].strip()
-    description = data.get("description", "").strip()
-    priority = data.get("priority", "medium")
+    title = data.get("title")
+    if not isinstance(title, str) or not title.strip():
+        return jsonify({"error": "Title is required"}), 400
 
+    description = data.get("description")
+    if description is None:
+        description = ""
+    if not isinstance(description, str):
+        return jsonify({"error": "Description must be a string"}), 400
+
+    # An explicit null means "not supplied", the same as C#'s
+    # `request.Priority ?? Priorities.Medium`.
+    priority = data.get("priority")
+    if priority is None:
+        priority = "medium"
     if priority not in ("low", "medium", "high"):
         return jsonify({"error": "Priority must be low, medium, or high"}), 400
+
+    title = title.strip()
+    description = description.strip()
 
     created_at = datetime.utcnow().isoformat()
 
@@ -164,8 +181,8 @@ def update_task(task_id):
 
     Any subset of fields can be sent; only the provided ones change.
     """
-    data = request.get_json()
-    if not data:
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
         return jsonify({"error": "No data provided"}), 400
 
     conn = get_db_connection()
@@ -177,12 +194,32 @@ def update_task(task_id):
         conn.close()
         return jsonify({"error": "Task not found"}), 404
 
-    # Use the new value if provided, otherwise keep the existing one.
-    title = data.get("title", existing["title"])
-    description = data.get("description", existing["description"])
-    priority = data.get("priority", existing["priority"])
-    completed = data.get("completed", bool(existing["completed"]))
+    # Absent and explicit-null both mean "leave this field alone", matching
+    # `if (request.Title is not null)` on the C# side.
+    title = existing["title"]
+    if data.get("title") is not None:
+        if not isinstance(data["title"], str) or not data["title"].strip():
+            conn.close()
+            return jsonify({"error": "Title is required"}), 400
+        title = data["title"].strip()
 
+    description = existing["description"]
+    if data.get("description") is not None:
+        if not isinstance(data["description"], str):
+            conn.close()
+            return jsonify({"error": "Description must be a string"}), 400
+        description = data["description"].strip()
+
+    completed = bool(existing["completed"])
+    if data.get("completed") is not None:
+        if not isinstance(data["completed"], bool):
+            conn.close()
+            return jsonify({"error": "Completed must be a boolean"}), 400
+        completed = data["completed"]
+
+    priority = data.get("priority")
+    if priority is None:
+        priority = existing["priority"]
     if priority not in ("low", "medium", "high"):
         conn.close()
         return jsonify({"error": "Priority must be low, medium, or high"}), 400

@@ -125,11 +125,33 @@ model binding and EF Core rather than a stand-in. They cover CRUD, the
 validation rules, 404s, and stats staying self-consistent, plus two
 SQL-injection payloads that must round-trip as ordinary text.
 
-Two things are tightened relative to the Flask version. Listing orders by
+One thing is tightened relative to the Flask version: listing orders by
 `created_at` **and then by id**, because two tasks created in the same instant
 would otherwise come back in an order SQLite doesn't guarantee between runs.
-And `PUT` rejects a blank title instead of accepting it, which the Flask
-version allows: it validates the title on create but not on update.
+
+### Checking that the two really do agree
+
+[`parity_test.py`](parity_test.py) fires the same 21 request bodies at both
+backends and compares the status codes. It exists because "same validation in
+both" turned out to be false when someone finally checked: **twelve of the
+twenty-one cases diverged.** Flask accepted a whitespace-only title and stored
+it, let a `PUT` blank out a title entirely, rejected an explicit `null` priority
+that the C# side defaulted to `medium`, and returned a 500 rather than a 400 for
+six inputs, because a non-string field reached `.strip()` and raised
+`AttributeError`. The Flask handlers now mirror the C# ones field for field.
+
+Only status codes are compared. The bodies differ by design, since the typed C#
+side phrases some binding failures differently, but the accept-or-reject decision
+is what a caller depends on and that has to be identical.
+
+```bash
+python backend/app.py                                     # :5000
+ASPNETCORE_URLS=http://localhost:5058   dotnet run --project csharp/src/TaskTracker.Api         # :5058
+python parity_test.py http://localhost:5000 http://localhost:5058
+```
+
+The two backends both default to port 5000, so the C# one needs an explicit port
+before they can run side by side.
 
 ## Tech stack
 
