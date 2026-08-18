@@ -109,6 +109,77 @@ public sealed class ApiTests : IClassFixture<ApiFactory>
         Assert.Equal("Priority must be low, medium, or high", error!.Error);
     }
 
+    // The demo page tells readers the server rejects titles over 120
+    // characters and that the browser's check is only for quicker feedback.
+    // For a while that was backwards: `maxlength="120"` in the markup was the
+    // only limit anywhere, and both servers stored whatever they were sent.
+
+    [Fact]
+    public async Task ATitleAtTheLimitIsAccepted()
+    {
+        var response = await _client.PostAsJsonAsync("/api/tasks",
+            new CreateTaskRequest { Title = new string('a', Titles.MaxLength) });
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ATitleOverTheLimitIsRejected()
+    {
+        var response = await _client.PostAsJsonAsync("/api/tasks",
+            new CreateTaskRequest { Title = new string('a', Titles.MaxLength + 1) });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+        Assert.Equal(Titles.TooLong, error!.Error);
+    }
+
+    [Fact]
+    public async Task TheLimitAppliesToTheTrimmedTitle()
+    {
+        // Padding is stripped before the count, so a title that fits once the
+        // whitespace is gone still fits.
+        var response = await _client.PostAsJsonAsync("/api/tasks",
+            new CreateTaskRequest { Title = "   " + new string('a', Titles.MaxLength) + "   " });
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var created = await response.Content.ReadFromJsonAsync<TaskResponse>();
+        Assert.Equal(Titles.MaxLength, created!.Title.Length);
+    }
+
+    [Fact]
+    public async Task AnOverLongTitleIsAlsoRejectedOnUpdate()
+    {
+        var created = await CreateAsync("Short enough");
+
+        var response = await _client.PutAsJsonAsync($"/api/tasks/{created.Id}",
+            new UpdateTaskRequest { Title = new string('a', Titles.MaxLength + 1) });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+        Assert.Equal(Titles.TooLong, error!.Error);
+
+        var unchanged = await _client.GetFromJsonAsync<TaskResponse>($"/api/tasks/{created.Id}");
+        Assert.Equal("Short enough", unchanged!.Title);
+    }
+
+    [Fact]
+    public async Task ABodyWrongInTwoWaysBlamesTheTitleFirst()
+    {
+        // Both fields are invalid; the field checked first decides the message.
+        // Flask answers "Title is required" here, so this one has to as well —
+        // two APIs that reject the same bodies but disagree about why are not
+        // the same API. parity_test.py checks the pair; this pins this side.
+        var created = await CreateAsync("Two problems");
+
+        var response = await _client.PutAsJsonAsync($"/api/tasks/{created.Id}",
+            new UpdateTaskRequest { Title = "", Priority = "urgent" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+        Assert.Equal("Title is required", error!.Error);
+    }
+
     // ---- read ------------------------------------------------------------
 
     [Fact]

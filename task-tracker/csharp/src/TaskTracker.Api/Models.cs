@@ -26,6 +26,18 @@ public static class Priorities
     public static bool IsValid(string? value) => value is not null && All.Contains(value);
 }
 
+public static class Titles
+{
+    /// <summary>
+    /// Matches <c>maxlength="120"</c> on the front end's title field. The
+    /// browser attribute is a convenience, not a control — one devtools edit
+    /// or one curl call and it is gone — so the server enforces it too.
+    /// </summary>
+    public const int MaxLength = 120;
+
+    public const string TooLong = "Title must be 120 characters or less";
+}
+
 /// <summary>
 /// Wire shape of a task. Property names are snake_case to stay byte-compatible
 /// with the Flask API, so the same front end can talk to either backend.

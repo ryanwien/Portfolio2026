@@ -16,9 +16,13 @@ Start both, then run this:
 Both default to port 5000, so the C# side needs an explicit port to sit
 alongside the Flask one.
 
-Only status codes are compared. The bodies differ by design (the C# side is
-typed and phrases some binding failures differently) but the accept/reject
-decision has to be identical, and that is what a caller actually depends on.
+Status codes are always compared. Error messages are compared too whenever both
+sides produced one of this API's own `{"error": ...}` bodies — a C# model-binding
+failure answers with RFC 7807 problem details instead, and those are not meant to
+match. Comparing the message matters because a body can be wrong in more than one
+way at once: the two servers used to validate PUT in different orders, so
+`{"title": "", "priority": "urgent"}` was a 400 on both while Flask blamed the
+title and C# blamed the priority.
 """
 
 import json
@@ -26,8 +30,14 @@ import sys
 import urllib.error
 import urllib.request
 
-# (label, method, body) — POST cases run against the collection, PUT cases
-# against a task seeded for each backend.
+# The front end caps the title field at 120 characters; the server has to cap it
+# at the same place, so the boundary is checked from both sides.
+MAX = 120
+LONG = "a" * (MAX + 1)
+EXACT = "a" * MAX
+
+# (label, body) — POST cases run against the collection, PUT cases against a
+# task seeded for each backend.
 POST_CASES = [
     ("valid task",              {"title": "real task"}),
     ("title missing",           {}),
@@ -36,6 +46,10 @@ POST_CASES = [
     ("title null",              {"title": None}),
     ("title is a number",       {"title": 123}),
     ("title is an object",      {"title": {"a": 1}}),
+    ("title exactly 120",       {"title": EXACT}),
+    ("title 121",               {"title": LONG}),
+    ("title 120 plus padding",  {"title": "  " + EXACT + "  "}),
+    ("title 121 and bad prio",  {"title": LONG, "priority": "urgent"}),
     ("priority invalid",        {"title": "x", "priority": "urgent"}),
     ("priority uppercase",      {"title": "x", "priority": "HIGH"}),
     ("priority explicit null",  {"title": "x", "priority": None}),
@@ -49,6 +63,11 @@ PUT_CASES = [
     ("title empty",             {"title": ""}),
     ("title null keeps it",     {"title": None}),
     ("title is a number",       {"title": 123}),
+    ("title exactly 120",       {"title": EXACT}),
+    ("title 121",               {"title": LONG}),
+    ("title 120 plus padding",  {"title": "  " + EXACT + "  "}),
+    ("title 121 and bad prio",  {"title": LONG, "priority": "urgent"}),
+    ("empty title and bad prio", {"title": "", "priority": "urgent"}),
     ("priority invalid",        {"priority": "urgent"}),
     ("priority null keeps it",  {"priority": None}),
     ("completed as string",     {"completed": "yes"}),
@@ -57,7 +76,12 @@ PUT_CASES = [
 
 
 def call(method, url, body):
-    """Return the status code, treating 4xx/5xx as data rather than errors."""
+    """Return (status, error message), treating 4xx/5xx as data not exceptions.
+
+    The message is None unless the response is one of this API's own
+    `{"error": ...}` bodies, so problem-details responses compare on status
+    alone rather than on wording nobody promised to share.
+    """
     data = json.dumps(body).encode()
     req = urllib.request.Request(
         url, data=data, method=method,
@@ -65,9 +89,17 @@ def call(method, url, body):
     )
     try:
         with urllib.request.urlopen(req) as resp:
-            return resp.status
+            return resp.status, error_of(resp.read())
     except urllib.error.HTTPError as exc:
-        return exc.code
+        return exc.code, error_of(exc.read())
+
+
+def error_of(raw):
+    try:
+        body = json.loads(raw)
+    except ValueError:
+        return None
+    return body.get("error") if isinstance(body, dict) else None
 
 
 def seed(base):
@@ -81,34 +113,40 @@ def seed(base):
         return json.loads(resp.read())["id"]
 
 
+def compare(method, label, f, c, failures):
+    """Statuses must always match; messages only when both sides sent one."""
+    (fs, fe), (cs, ce) = f, c
+    same = fs == cs and (fe is None or ce is None or fe == ce)
+    if not same:
+        failures.append((method, label, f, c))
+    note = "" if fe is None or ce is None else (" msg ok" if fe == ce else " MSG DIFFERS")
+    print("  %-5s %-24s flask=%s csharp=%s  %s%s"
+          % (method, label, fs, cs, "ok" if same else "DIVERGES", note))
+
+
 def main(flask_base, csharp_base):
     failures = []
     checked = 0
 
     for label, body in POST_CASES:
-        f = call("POST", flask_base + "/api/tasks", body)
-        c = call("POST", csharp_base + "/api/tasks", body)
+        compare("POST", label,
+                call("POST", flask_base + "/api/tasks", body),
+                call("POST", csharp_base + "/api/tasks", body), failures)
         checked += 1
-        status = "ok" if f == c else "DIVERGES"
-        if f != c:
-            failures.append(("POST", label, f, c))
-        print("  POST  %-24s flask=%s csharp=%s  %s" % (label, f, c, status))
 
     fid, cid = seed(flask_base), seed(csharp_base)
     for label, body in PUT_CASES:
-        f = call("PUT", "%s/api/tasks/%d" % (flask_base, fid), body)
-        c = call("PUT", "%s/api/tasks/%d" % (csharp_base, cid), body)
+        compare("PUT", label,
+                call("PUT", "%s/api/tasks/%d" % (flask_base, fid), body),
+                call("PUT", "%s/api/tasks/%d" % (csharp_base, cid), body), failures)
         checked += 1
-        status = "ok" if f == c else "DIVERGES"
-        if f != c:
-            failures.append(("PUT", label, f, c))
-        print("  PUT   %-24s flask=%s csharp=%s  %s" % (label, f, c, status))
 
     print()
     if failures:
         print("%d of %d cases diverge:" % (len(failures), checked))
         for method, label, f, c in failures:
-            print("  %s %s: flask %s, csharp %s" % (method, label, f, c))
+            print("  %s %s: flask %s %r, csharp %s %r"
+                  % (method, label, f[0], f[1], c[0], c[1]))
         return 1
     print("All %d cases agree." % checked)
     return 0
