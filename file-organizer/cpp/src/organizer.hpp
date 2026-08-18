@@ -58,4 +58,17 @@ std::string to_json(const std::vector<Move>& moves);
 /// Parse a log written by to_json (or by organize.py).
 std::vector<Move> from_json(const std::string& json);
 
+/// The destination folders that do not exist yet. Call before apply_moves, so
+/// undo can remove the folders this run brought into existence and leave alone
+/// any the user already had.
+std::vector<std::filesystem::path> pending_dirs(const std::vector<Move>& moves);
+
+/// Log format that records those folders alongside the moves.
+std::string to_json(const std::vector<Move>& moves,
+                    const std::vector<std::filesystem::path>& created);
+
+/// The created-folder list from a log. Empty for logs written before this
+/// existed, which is what keeps those logs undoable.
+std::vector<std::filesystem::path> created_dirs_from_json(const std::string& json);
+
 }  // namespace organizer
