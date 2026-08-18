@@ -277,4 +277,52 @@ std::vector<Move> from_json(const std::string& json) {
     return moves;
 }
 
+std::vector<fs::path> pending_dirs(const std::vector<Move>& moves) {
+    std::vector<fs::path> dirs;
+    for (const auto& move : moves) {
+        const auto parent = move.destination.parent_path();
+        if (fs::exists(parent)) continue;
+        if (std::find(dirs.begin(), dirs.end(), parent) == dirs.end())
+            dirs.push_back(parent);
+    }
+    return dirs;
+}
+
+std::string to_json(const std::vector<Move>& moves,
+                    const std::vector<fs::path>& created) {
+    std::ostringstream out;
+    out << "{\n  \"moves\": [\n";
+    for (size_t i = 0; i < moves.size(); ++i) {
+        out << "    {\n"
+            << "      \"from\": \"" << json_escape(path_to_utf8(moves[i].source)) << "\",\n"
+            << "      \"to\": \"" << json_escape(path_to_utf8(moves[i].destination)) << "\"\n"
+            << "    }" << (i + 1 < moves.size() ? "," : "") << "\n";
+    }
+    out << "  ],\n  \"created_dirs\": [\n";
+    for (size_t i = 0; i < created.size(); ++i) {
+        out << "    \"" << json_escape(path_to_utf8(created[i])) << "\""
+            << (i + 1 < created.size() ? "," : "") << "\n";
+    }
+    out << "  ]\n}";
+    return out.str();
+}
+
+std::vector<fs::path> created_dirs_from_json(const std::string& json) {
+    std::vector<fs::path> dirs;
+    const auto key = json.find("\"created_dirs\"");
+    if (key == std::string::npos) return dirs;
+
+    auto p = json.find('[', key);
+    if (p == std::string::npos) return dirs;
+    ++p;
+
+    while (p < json.size()) {
+        while (p < json.size() &&
+               (std::isspace(static_cast<unsigned char>(json[p])) || json[p] == ',')) ++p;
+        if (p >= json.size() || json[p] != '"') break;
+        dirs.push_back(utf8_to_path(read_json_string(json, p)));
+    }
+    return dirs;
+}
+
 }  // namespace organizer

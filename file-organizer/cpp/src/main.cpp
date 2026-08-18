@@ -67,7 +67,12 @@ int run_organize(const fs::path& folder, bool dry_run) {
                   << " -> " << category << "/\n";
     }
 
-    if (!dry_run) organizer::apply_moves(moves);
+    std::vector<fs::path> created;
+    if (!dry_run) {
+        // Worked out before the moves, while the folders still do not exist.
+        created = organizer::pending_dirs(moves);
+        organizer::apply_moves(moves);
+    }
 
     std::cout << std::string(60, '-') << "\n" << "Summary:\n";
     for (const auto& [category, count] : summary)  // std::map iterates sorted
@@ -77,7 +82,7 @@ int run_organize(const fs::path& folder, bool dry_run) {
     if (!dry_run) {
         const auto log_name = "organize_log_" + timestamp_now() + ".json";
         std::ofstream log(resolved / log_name, std::ios::binary);
-        log << organizer::to_json(moves);
+        log << organizer::to_json(moves, created);
         std::cout << "\nLog saved to: " << log_name << "\n"
                   << "To undo: organize " << utf8(resolved) << " --undo " << log_name << "\n";
     }
@@ -110,7 +115,21 @@ int run_undo(const fs::path& folder, const std::string& log_file) {
     for (const auto& move : organizer::undo_moves(moves))
         std::cout << "  " << utf8(move.source.filename()) << " -> back to original location\n";
 
-    std::cout << std::string(60, '-') << "\nUndo complete.\n";
+    // Put the folder itself back too, not just the files in it.
+    int removed = 0;
+    for (const auto& dir : organizer::created_dirs_from_json(json)) {
+        std::error_code ec;
+        if (fs::is_directory(dir, ec) && fs::is_empty(dir, ec) && !ec && fs::remove(dir, ec))
+            ++removed;
+    }
+
+    std::cout << std::string(60, '-') << "\n";
+    if (removed > 0)
+        std::cout << "Undo complete. Removed " << removed
+                  << " empty folder(s) this run created.\n";
+    else
+        std::cout << "Undo complete.\n";
+    std::cout << "The log itself is left in place: " << log_file << "\n";
     return 0;
 }
 

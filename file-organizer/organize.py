@@ -114,12 +114,17 @@ def organize(folder, dry_run=False):
     print("-" * 60)
 
     summary = {}
+    created_dirs = []
     for source, destination in moves:
         category = destination.parent.name
         summary[category] = summary.get(category, 0) + 1
         print(f"  {source.name:40s} -> {category}/")
 
         if not dry_run:
+            # Remember only the folders this run brings into existence, so undo
+            # can remove those and leave any the user already had.
+            if not destination.parent.exists():
+                created_dirs.append(str(destination.parent))
             destination.parent.mkdir(exist_ok=True)
             shutil.move(str(source), str(destination))
 
@@ -132,10 +137,10 @@ def organize(folder, dry_run=False):
 
     # Save a log so the operation can be undone later.
     if not dry_run:
-        log = [
-            {"from": str(src), "to": str(dst)}
-            for src, dst in moves
-        ]
+        log = {
+            "moves": [{"from": str(src), "to": str(dst)} for src, dst in moves],
+            "created_dirs": created_dirs,
+        }
         log_path = folder / f"organize_log_{datetime.now():%Y%m%d_%H%M%S}.json"
         log_path.write_text(json.dumps(log, indent=2))
         print(f"\nLog saved to: {log_path.name}")
@@ -153,11 +158,17 @@ def undo(folder, log_file):
         print(f"Error: log file '{log_path}' not found.")
         sys.exit(1)
 
-    log = json.loads(log_path.read_text())
-    print(f"Undoing {len(log)} move(s)...")
+    data = json.loads(log_path.read_text())
+    # Logs written before undo learned to clean up are a bare list of moves.
+    if isinstance(data, list):
+        moves, created_dirs = data, []
+    else:
+        moves, created_dirs = data["moves"], data.get("created_dirs", [])
+
+    print(f"Undoing {len(moves)} move(s)...")
     print("-" * 60)
 
-    for entry in log:
+    for entry in moves:
         source = Path(entry["to"])      # where the file is now
         destination = Path(entry["from"])  # where it came from
         if source.exists():
@@ -165,8 +176,22 @@ def undo(folder, log_file):
             shutil.move(str(source), str(destination))
             print(f"  {source.name} -> back to original location")
 
+    # Put the folder itself back too, not just the files in it. Only the
+    # category folders this run created are considered, and only while empty,
+    # so anything the user put there survives.
+    removed = 0
+    for dir_path in created_dirs:
+        candidate = Path(dir_path)
+        if candidate.is_dir() and not any(candidate.iterdir()):
+            candidate.rmdir()
+            removed += 1
+
     print("-" * 60)
-    print("Undo complete.")
+    if removed:
+        print(f"Undo complete. Removed {removed} empty folder(s) this run created.")
+    else:
+        print("Undo complete.")
+    print(f"The log itself is left in place: {log_path.name}")
 
 
 def main():

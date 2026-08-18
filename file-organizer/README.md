@@ -33,7 +33,11 @@ Downloads/                      Downloads/
 - **Safe collision handling:** if a file with the same name already exists, the
   tool renames the new one (`report_1.pdf`) instead of overwriting.
 - **Undo:** every run writes a log file, and you can fully reverse it with one
-  command.
+  command. Undo puts the folders back too, not just the files: the log records
+  which category folders the run created, and undo removes those again once
+  they are empty. Folders you already had are left alone even when they are
+  empty, which is why the log records what was created rather than deleting
+  anything that merely looks like output.
 - **Configurable rules:** categories and extensions are defined in one place
   and easy to extend.
 - **Zero dependencies:** uses only the Python standard library.
@@ -92,6 +96,14 @@ Both implementations were run over identical folders (including a
 pre-existing `Documents/notes.md` to force a collision, and a `screenshot.PNG`
 to exercise case-insensitive matching) and produced **identical directory
 trees**, `notes_1.md` included.
+
+The logs are interchangeable, which is worth stating because it is easy to
+break. All four combinations were checked: organize with either tool, undo with
+either tool. Each restores every file to its original path with identical
+contents, removes the folders that run created, and leaves a pre-existing
+`Documents/` holding the user's own file untouched. A log written before undo
+learned to clean up folders is still readable by both, and simply skips that
+step.
 
 Planning is separated from execution, so a dry run and a real run share one
 code path and can't disagree about what would happen. Entries are sorted before

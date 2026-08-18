@@ -2,16 +2,27 @@
 REM Build with MSVC directly, no CMake required.
 REM Run from a Developer Command Prompt, or let this script locate vcvars64.
 
-if "%VSCMD_ARG_TGT_ARCH%"=="" (
-  set "VCVARS=%ProgramFiles%\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
-  if not exist "%VCVARS%" set "VCVARS=%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-  if not exist "%VCVARS%" (
-    echo Could not find vcvars64.bat. Run this from a Developer Command Prompt.
-    exit /b 1
-  )
-  call "%VCVARS%" >nul
-)
+REM Already inside a Developer Command Prompt, so cl is on PATH.
+if not "%VSCMD_ARG_TGT_ARCH%"=="" goto :build
 
+REM Each candidate is tested on its own line: inside a parenthesised block cmd
+REM expands %VCVARS% when it parses the block, before the set above has run.
+set "VCVARS=%ProgramFiles%\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+if exist "%VCVARS%" goto :vcvars
+set "VCVARS=%ProgramFiles%\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat"
+if exist "%VCVARS%" goto :vcvars
+set "VCVARS=%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+if exist "%VCVARS%" goto :vcvars
+set "VCVARS=%ProgramFiles%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+if exist "%VCVARS%" goto :vcvars
+
+echo Could not find vcvars64.bat. Run this from a Developer Command Prompt.
+exit /b 1
+
+:vcvars
+call "%VCVARS%" >nul
+
+:build
 if not exist "%~dp0build" mkdir "%~dp0build"
 pushd "%~dp0build"
 
