@@ -57,6 +57,9 @@ python analyze.py path/to/events.jsonl   # analyze your own log
 python analyze.py --format json          # machine-readable alerts (for a SIEM/SOAR)
 python analyze.py --bf-threshold 5       # tune brute-force sensitivity
 python analyze.py --help                 # every threshold has a flag
+
+python export_sample.py --check          # is demo.html's inline log still in step?
+python export_sample.py                  # regenerate it from data/auth_events.jsonl
 ```
 
 No installation needed: Python standard library only.
@@ -182,8 +185,12 @@ JSON Lines (one event per line):
   incident first.
 - **Synthetic data, self-contained:** the sample log is generated, so nothing
   sensitive is involved and the tool (and its browser demo) run anywhere.
-- **One engine, two front-ends:** the browser demo re-implements the exact same
-  rules the Python CLI runs, over the exact same sample log.
+- **One engine, two front-ends:** the browser demo runs the same rules as the
+  Python CLI over the same sample log, and raises the same six alerts on the
+  same entities with the same event counts and windows — only the wording
+  differs. `export_sample.py` regenerates the demo's inline copy of the log
+  from `data/auth_events.jsonl`, because the hand-pasted copy it replaced had
+  drifted on 160 of its 221 events.
 
 ## What this demonstrates
 
