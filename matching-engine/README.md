@@ -10,8 +10,9 @@ choices below are the point.
 ![Order book trading terminal](screenshot.png)
 
 **Implementations:** C++20 (`cpp/`) · Python (`book.py`) · JavaScript (the terminal).
-The C++ and Python engines replay a shared scenario and produce identical trades.
-See [C++ implementation](#c-implementation) for the equivalence check and latency figures.
+All three replay a shared scenario and produce identical trades, the browser one
+included — it is checked, not asserted. See [C++ implementation](#c-implementation)
+for the equivalence check and latency figures.
 
 
 ## Quick start
@@ -94,7 +95,9 @@ Three ideas working together:
 - `order.py`: `Order` (also a list node), `Trade`, enums
 - `book.py`: `PriceLevel` and the `OrderBook` engine
 - `demo.py`: annotated end-to-end scenario
-- `reference_trace.py` / `reference_scenario.txt`: shared scenario both engines replay
+- `reference_trace.py` / `js_reference_trace.js` / `reference_scenario.txt`:
+  the shared scenario, and the runners that replay it through the Python and
+  browser engines
 - `cpp/`: the C++20 implementation, tests, and latency benchmark
 - `orderbook_terminal.html`: live browser front end (see below)
 
@@ -111,8 +114,11 @@ into a running market:
 - **Symbol basket** (AAPL, MSFT, NVDA, AMZN, GOOGL, META, TSLA, JPM) with
   realistic seed prices, illustrative starting points rather than a live feed
 
-The matching logic is the same price-time-priority design as the Python
-engine, ported to JavaScript, so one design is shown in two languages.
+The matching logic is the same price-time-priority design as the Python engine,
+ported to JavaScript, down to the intrusive doubly-linked list that lets a cancel
+unlink an order without walking its queue. `node js_reference_trace.js` replays
+the shared scenario through it and matches the Python and C++ traces line for
+line, so "one design in three languages" is a claim with a check behind it.
 
 ## C++ implementation
 
@@ -129,17 +135,22 @@ build\tests.exe             # 56 assertions
 build\benchmark.exe         # latency distribution
 ```
 
-**Proving the two agree.** Both engines replay
+**Proving they agree.** All three engines replay
 [`reference_scenario.txt`](reference_scenario.txt), a fixed sequence covering
 time priority at equal prices, partial fills, sweeps across levels, market
 orders, cancels, and an order that rests untouched. Each prints every trade and
-the final book, and the two outputs are **identical**:
+the final book, and the three outputs are **identical**:
 
 ```bash
 python reference_trace.py > py.txt
 cpp/build/reference_trace.exe reference_scenario.txt > cpp.txt
-diff py.txt cpp.txt        # no output
+node js_reference_trace.js > js.txt
+diff py.txt cpp.txt && diff cpp.txt js.txt        # no output
 ```
+
+`js_reference_trace.js` lifts the engine out of `orderbook_terminal.html` as
+shipped rather than keeping a second copy of it, so the file this checks is the
+file the browser runs.
 
 **Latency**, averaged over 256-operation batches, reported as the median of twelve
 consecutive runs on an AMD Ryzen 9 7940HS running Windows 11, built with MSVC
