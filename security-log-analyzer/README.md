@@ -56,6 +56,7 @@ python analyze.py                        # analyze the bundled sample log
 python analyze.py path/to/events.jsonl   # analyze your own log
 python analyze.py --format json          # machine-readable alerts (for a SIEM/SOAR)
 python analyze.py --bf-threshold 5       # tune brute-force sensitivity
+python analyze.py --help                 # every threshold has a flag
 ```
 
 No installation needed: Python standard library only.
@@ -112,7 +113,16 @@ dotnet test tests/SecurityLogAnalyzer.Tests        # 30 tests
 ```
 
 It is a port of the rules, not a rewrite of the idea, and that is the point:
-run both against the same log and the output is **byte-for-byte identical**.
+run both against the same log and the output is **byte-for-byte identical**,
+in both `--format text` and `--format json`, and under every threshold flag.
+
+That claim used to hold only for text. `System.Text.Json` escapes an apostrophe
+as `\u0027` by default, in case the output is being written into HTML, and most
+alert details read like `'admin' logged in`, so every one of them differed from
+the Python output. The bytes decoded to the same string, which is exactly why
+nobody noticed: the alerts were identical and the files were not. The C# side
+now serialises with `JavaScriptEncoder.UnsafeRelaxedJsonEscaping`, which is the
+right choice for output going to stdout rather than into a page.
 
 ```bash
 python analyze.py > py.txt
