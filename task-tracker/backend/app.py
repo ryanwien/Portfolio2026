@@ -23,6 +23,11 @@ CORS(app)  # Allow the frontend (served separately) to call this API
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "tasks.db")
 
+# Matches `maxlength="120"` on the front end's title field. The browser
+# attribute is a convenience, not a control: it is one devtools edit or one
+# curl away from being gone, so the server enforces the same limit.
+MAX_TITLE_LENGTH = 120
+
 
 # ---------------------------------------------------------------------------
 # Database setup
@@ -137,6 +142,10 @@ def create_task():
     if not isinstance(title, str) or not title.strip():
         return jsonify({"error": "Title is required"}), 400
 
+    title = title.strip()
+    if len(title) > MAX_TITLE_LENGTH:
+        return jsonify({"error": f"Title must be {MAX_TITLE_LENGTH} characters or less"}), 400
+
     description = data.get("description")
     if description is None:
         description = ""
@@ -151,7 +160,6 @@ def create_task():
     if priority not in ("low", "medium", "high"):
         return jsonify({"error": "Priority must be low, medium, or high"}), 400
 
-    title = title.strip()
     description = description.strip()
 
     created_at = datetime.utcnow().isoformat()
@@ -202,6 +210,9 @@ def update_task(task_id):
             conn.close()
             return jsonify({"error": "Title is required"}), 400
         title = data["title"].strip()
+        if len(title) > MAX_TITLE_LENGTH:
+            conn.close()
+            return jsonify({"error": f"Title must be {MAX_TITLE_LENGTH} characters or less"}), 400
 
     description = existing["description"]
     if data.get("description") is not None:

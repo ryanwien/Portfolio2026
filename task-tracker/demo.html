@@ -155,7 +155,7 @@
         <div class="eyebrow">Full-stack</div>
         <div class="site-model site-model-head" data-emblem="console" role="img" aria-label="Stylized 3D mission console with a glowing checkmark screen"></div>
         <h1>Task Tracker</h1>
-        <p class="lead">A task manager with <b>priority ranking</b>, filtering, and live counts. This demo keeps its tasks in memory; the full version stores them in <b>SQLite</b> behind a Flask REST API.</p>
+        <p class="lead">A task manager with <b>priority levels</b>, filtering, and live counts. This demo keeps its tasks in memory; the full version stores them in <b>SQLite</b> behind a Flask REST API.</p>
         <div class="site-chips">
           <span class="site-chip">C# / ASP.NET Core</span>
           <span class="site-chip">Flask</span>
@@ -262,6 +262,9 @@
         ];
         let nextId = 4;
         let currentFilter = "all";
+        // Mirrors MAX_TITLE_LENGTH in backend/app.py and Titles.MaxLength in
+        // the C# API, and the maxlength on the title field above.
+        const MAX_TITLE_LENGTH = 120;
         // Rebuilding the list with innerHTML drops keyboard focus, so handlers
         // note which task should hold it and render() restores it afterwards.
         // A task id means "focus that row's checkbox"; anything missing (deleted,
@@ -349,6 +352,13 @@
             const priorityInput = document.getElementById("task-priority");
             const title = titleInput.value.trim();
             if (!title) { alert("Please enter a task title."); return; }
+            // The same two rules the Flask and ASP.NET Core handlers apply, so
+            // this stand-in accepts exactly what the real API would. maxlength
+            // covers typing; it does nothing for a value set from a console.
+            if (title.length > MAX_TITLE_LENGTH) {
+                alert(`Title must be ${MAX_TITLE_LENGTH} characters or less.`);
+                return;
+            }
             tasks.unshift({
                 id: nextId++, title: title,
                 description: descInput.value.trim(),

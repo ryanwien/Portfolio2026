@@ -69,13 +69,17 @@ tasks.MapPost("/", async (TaskDbContext db, CreateTaskRequest? request) =>
     if (request is null || string.IsNullOrWhiteSpace(request.Title))
         return Results.BadRequest(new ErrorResponse("Title is required"));
 
+    var title = request.Title.Trim();
+    if (title.Length > Titles.MaxLength)
+        return Results.BadRequest(new ErrorResponse(Titles.TooLong));
+
     var priority = request.Priority ?? Priorities.Medium;
     if (!Priorities.IsValid(priority))
         return Results.BadRequest(new ErrorResponse("Priority must be low, medium, or high"));
 
     var task = new TaskItem
     {
-        Title = request.Title.Trim(),
+        Title = title,
         Description = (request.Description ?? "").Trim(),
         Priority = priority,
         Completed = false,
@@ -96,20 +100,29 @@ tasks.MapPut("/{id:int}", async (TaskDbContext db, int id, UpdateTaskRequest? re
     var task = await db.Tasks.FindAsync(id);
     if (task is null) return Results.NotFound(new ErrorResponse("Task not found"));
 
-    var priority = request.Priority ?? task.Priority;
-    if (!Priorities.IsValid(priority))
-        return Results.BadRequest(new ErrorResponse("Priority must be low, medium, or high"));
-
+    // Validated in the same order as the Flask handler — title, description,
+    // completed, then priority. Two servers that reject the same bodies but
+    // disagree about which error comes first are not the same API, and a body
+    // can be wrong in more than one way at once.
     if (request.Title is not null)
     {
         if (string.IsNullOrWhiteSpace(request.Title))
             return Results.BadRequest(new ErrorResponse("Title is required"));
-        task.Title = request.Title.Trim();
+
+        var title = request.Title.Trim();
+        if (title.Length > Titles.MaxLength)
+            return Results.BadRequest(new ErrorResponse(Titles.TooLong));
+
+        task.Title = title;
     }
 
     if (request.Description is not null) task.Description = request.Description.Trim();
-    task.Priority = priority;
     if (request.Completed is not null) task.Completed = request.Completed.Value;
+
+    var priority = request.Priority ?? task.Priority;
+    if (!Priorities.IsValid(priority))
+        return Results.BadRequest(new ErrorResponse("Priority must be low, medium, or high"));
+    task.Priority = priority;
 
     await db.SaveChangesAsync();
     return Results.Ok(TaskResponse.From(task));
