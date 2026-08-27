@@ -359,7 +359,7 @@
   </div>
 
   <div class="engine-note">
-    <b>Design</b> · ordered price levels + FIFO queues + id→order map · O(1) best quote, O(log P) insert, O(1) cancel.<br>
+    <b>Design</b> · ordered price levels + FIFO queues + id→order map · O(1) best quote, O(1) cancel, O(log P) to find a price level. Levels live in a sorted array here, so opening or closing one also shifts it; the Python and C++ engines use an ordered map.<br>
     Trades print at the resting order's price, so price improvement accrues to the aggressor. Client-side port of the Python engine.<br>
     Symbol prices are illustrative starting seeds, not a live quote feed. The simulator drives movement from there.
   </div>
