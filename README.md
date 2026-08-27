@@ -47,8 +47,9 @@ flowchart LR
 ## ✅ How this repo is verified
 
 Several projects exist in more than one language. Rather than claim the
-implementations agree, each pair is **tested against the other**, because a port
-that silently diverges is worse than no port at all.
+implementations agree, each one is **tested against the others**, because a port
+that silently diverges is worse than no port at all. That includes the browser
+ports, which are the easiest to let drift because nothing compiles them.
 
 ```mermaid
 flowchart TD
@@ -65,10 +66,10 @@ flowchart TD
 
 | Project | Equivalence check | Tests |
 |---|---|---|
-| Security Log Analyzer | Both engines read the same 221-event log; their reports are **byte-for-byte identical** | 30 |
-| Order Book | Both replay a shared [`reference_scenario.txt`](matching-engine/reference_scenario.txt); every trade and the final book **match exactly** | 56 |
+| Security Log Analyzer | Both engines read the same 221-event log; their reports are **byte-for-byte identical**, and the demo's inline copy of that log is generated from it rather than pasted | 30 |
+| Order Book | All three engines replay a shared [`reference_scenario.txt`](matching-engine/reference_scenario.txt), the browser one included; every trade and the final book **match exactly** | 56 |
 | File Organizer | Both run over identical folders and produce **identical directory trees**, collision renames included | 45 |
-| Task Tracker | The C# API implements the Flask contract exactly: same routes, same JSON field names, same error strings | 22 |
+| Task Tracker | Both APIs are fired the same 30 valid and malformed bodies and have to agree on **status code and error message**, not just on the happy path | 27 |
 | House Prices | Both train on a **frozen train/test split** and agree on every coefficient to four decimals, R² to nine | 46 |
 
 Holding those equivalences honest surfaced details that are easy to get wrong:
