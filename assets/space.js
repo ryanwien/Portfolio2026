@@ -75,6 +75,32 @@
        10s mark auditors sample at — the hero entrance must be DONE by then. */
     var DURATION = 1400;
     var t0 = performance.now();
+
+    /* One exit, safe to call twice. The counter runs on rAF, so a main thread
+       busy with something else stalls it, and the head guard's timeout does
+       not help here: it removes .launching, which controls scrolling and the
+       hero animations, not this overlay. Only .site-launch-done dismisses it.
+       So the wall clock gets a vote too, and the visitor cannot be left
+       looking at a frozen count. */
+    var finished = false;
+    var hardStop = setTimeout(finish, 2600);
+
+    function finish() {
+      if (finished) return;
+      finished = true;
+      clearInterval(wordTimer);
+      clearTimeout(hardStop);
+      countEl.textContent = '100';               /* never exit mid-count    */
+      barEl.style.transform = 'scaleX(1)';
+      try { sessionStorage.setItem('rw-launch-seen', '1'); } catch (e) {}
+      covered.forEach(function (el) { el.inert = false; });
+      root.classList.remove('launching');        /* hero entrance starts    */
+      overlay.classList.add('site-launch-done'); /* ...as the overlay fades  */
+      overlay.addEventListener('transitionend', function () { overlay.remove(); });
+      setTimeout(function () { if (overlay.parentNode) overlay.remove(); }, 1200);
+      document.dispatchEvent(new CustomEvent('rw:launch-done'));
+    }
+
     function frame(now) {
       var p = Math.min(1, (now - t0) / DURATION);
       var eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
@@ -82,16 +108,7 @@
       countEl.textContent = ('00' + count).slice(-3);
       barEl.style.transform = 'scaleX(' + count / 100 + ')';
       if (p < 1) { requestAnimationFrame(frame); return; }
-
-      clearInterval(wordTimer);
-      setTimeout(function () {
-        try { sessionStorage.setItem('rw-launch-seen', '1'); } catch (e) {}
-        covered.forEach(function (el) { el.inert = false; });
-        root.classList.remove('launching');        /* hero entrance starts   */
-        overlay.classList.add('site-launch-done'); /* ...as the overlay fades */
-        overlay.addEventListener('transitionend', function () { overlay.remove(); });
-        setTimeout(function () { if (overlay.parentNode) overlay.remove(); }, 1200);
-      }, 200);
+      setTimeout(finish, 200);
     }
     requestAnimationFrame(frame);
   }
@@ -454,6 +471,9 @@
   document.addEventListener('DOMContentLoaded', function () {
     if (motionQuery.matches) {
       document.documentElement.classList.remove('launching');
+      /* Anything waiting for the launch to end has to hear about it even when
+         there was no launch, or it waits for its own timeout instead. */
+      document.dispatchEvent(new CustomEvent('rw:launch-done'));
       return; /* no reveals, no rotator, no launch — the page simply appears */
     }
 
