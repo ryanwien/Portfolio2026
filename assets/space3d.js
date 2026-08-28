@@ -242,7 +242,14 @@ const scenes = [];
 
 function init(el) {
   const build = EMBLEMS[el.dataset.emblem];
-  if (!build) return;
+  if (!build) {
+    /* A name with no builder is a typo in the markup, not an absent feature.
+       Returning quietly leaves the host showing its backdrop and nothing
+       else, which reads as a load that never finished. */
+    console.warn(`[emblem] no scene named "${el.dataset.emblem}" — check data-emblem in the markup`);
+    el.dataset.emblemFailed = '';
+    return;
+  }
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -369,10 +376,25 @@ const loadThree = () =>
     .then((m) => { THREE = m; }));
 
 async function wake(el) {
-  await loadThree();
-  init(el);
-  startShared();
-  visIO.observe(el);
+  try {
+    await loadThree();
+    init(el);
+    startShared();
+    visIO.observe(el);
+  } catch (err) {
+    /* Nothing awaits this call, so without a catch every failure here — the
+       CDN import, a WebGL context that will not allocate, a builder that
+       throws — is an unhandled rejection, and the host simply keeps its glow
+       backdrop. On screen that is indistinguishable from a slow load, which
+       is the worst way for this to break: it looks like waiting. Name the
+       emblem and the reason instead. */
+    console.error(`[emblem] "${el.dataset.emblem || '?'}" failed to start:`, err);
+    el.dataset.emblemFailed = '';
+    /* A failed import stays cached in threeReady as a rejected promise, so
+       every later emblem would inherit this one's failure. Clear it and let
+       the next emblem that comes into view try again. */
+    if (!THREE) threeReady = null;
+  }
 }
 
 function boot() {
