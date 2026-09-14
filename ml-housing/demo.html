@@ -4,33 +4,31 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>House Price Prediction · Live Demo</title>
-<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="../assets/favicon-orange-v2.svg" type="image/svg+xml" />
 <meta name="description" content="The real trained linear-regression model (R2 = 0.94) running in your browser. Drag any feature and the prediction updates live." />
 <meta property="og:title" content="House Price Prediction · Ryan Wien" />
 <meta property="og:description" content="The real trained linear-regression model (R2 = 0.94) running in your browser. Drag any feature and the prediction updates live." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://ryanwien.github.io/Portfolio2026/ml-housing/demo.html" />
-<meta property="og:image" content="https://ryanwien.github.io/Portfolio2026/assets/og-image.png" />
+<meta property="og:image" content="https://d2ol7oe51mr4n9.cloudfront.net/user_3G9lXC7gQ7mSVuYcxgNu8TqqiHk/e79b00b7-b7d2-419f-883a-424586673869.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:image" content="https://ryanwien.github.io/Portfolio2026/assets/og-image.png" />
+<meta name="twitter:image" content="https://d2ol7oe51mr4n9.cloudfront.net/user_3G9lXC7gQ7mSVuYcxgNu8TqqiHk/e79b00b7-b7d2-419f-883a-424586673869.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-<noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
 <link rel="stylesheet" href="../assets/site.css" />
-<script src="../assets/space.js" defer></script>
-<script type="module" src="../assets/space3d.js"></script>
 <style>
   :root{
-    --site-w:960px;
-    --bg:#070B15; --surface:#0E1524; --sunken:#0A101C; --ink:#E9EEF8; --muted:#94A1B7;
-    --line:#1D2839; --line-strong:#2B3A52; --accent:#6E86FF; --accent-soft:rgba(110,134,255,.18); --accent-ink:#070B15;
-    --pos:#6E86FF; --neg:#FB8C5E;
-    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
-    --display:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;
+    --site-w:1120px;
+    --bg:#0b0c0e; --surface:#131416; --sunken:#0f1012; --ink:#f5f2ec; --muted:#aaa8a3;
+    --line:#303134; --line-strong:#45464a; --accent:#ff8a36; --accent-soft:rgba(255,138,54,.18); --accent-ink:#0b0c0e;
+    --pos:#ff8a36; --neg:#FB8C5E;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --display:'Outfit',system-ui,-apple-system,sans-serif;
     --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -143,11 +141,87 @@
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<style id="portfolio-theme">
+/* Ryan Wien portfolio theme: charcoal, warm paper, and orange wayfinding. */
+:root {
+  color-scheme:dark;
+  --site-bg:var(--bg); --site-surface:var(--surface); --site-ink:var(--ink);
+  --site-muted:var(--muted); --site-line:var(--line); --site-line-strong:var(--line-strong);
+  --site-accent:var(--accent); --site-accent-ink:var(--accent-ink);
+  --site-nebula:var(--accent); --site-grad:linear-gradient(var(--accent),var(--accent));
+  --site-display:var(--display); --site-mono:var(--mono); --site-body:var(--body);
+  --site-pad:clamp(1rem,3vw,2rem);
+}
+html,body { background:var(--bg); }
+body::before,body::after { content:none; }
+::selection { background:var(--accent); color:var(--accent-ink); }
+.site-nav { padding:.75rem var(--site-pad); background:var(--bg); border-bottom:1px solid var(--line); }
+.site-nav::after { content:none; }
+.site-nav-inner { padding:.25rem 0; border:0; border-radius:0; background:var(--bg); box-shadow:none; backdrop-filter:none; }
+.site-brand { font-size:1.05rem; gap:.65rem; }
+.site-brand .site-mark { width:32px; height:32px; border-radius:6px; font-size:.68rem; }
+.site-brand:hover .site-mark { transform:none; }
+.site-link { min-height:40px; display:flex; align-items:center; border-radius:4px; }
+.site-link[aria-current="page"] { background:color-mix(in srgb,var(--accent) 10%,transparent); }
+.wrap,.container { width:100%; padding-top:2.5rem; padding-bottom:3rem; }
+h1 { font-weight:600; font-size:clamp(2.5rem,5vw,4rem); letter-spacing:-.045em; margin:.65rem 0 .75rem; }
+.eyebrow { color:var(--accent); }
+.lead { font-size:1.05rem; line-height:1.65; }
+.site-chip { border-radius:4px; }
+.site-card { background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:none; }
+.site-card::after { content:none; }
+.site-card:hover { transform:none; border-color:var(--line-strong); }
+.site-card p { font-size:.92rem; }
+.section-label { letter-spacing:.09em; }
+.stat-card,.tile { background:var(--surface); border-radius:6px; border-color:var(--line); }
+.stat-number,.tile .m { font-weight:500; font-variant-numeric:tabular-nums; }
+.task-form { border-radius:8px; }
+.task-form input[type="text"],.task-form select { font-size:1rem; min-height:44px; }
+.task-form button,.chipbtn,.filter-btn { min-height:44px; }
+.filter-btn { border-radius:5px; }
+.task-item { border-radius:6px; }
+.task-title { font-size:1.05rem; }
+.task-title,.task-desc { overflow-wrap:anywhere; }
+.task-check { width:20px; height:20px; }
+.delete-btn { min-width:36px; min-height:36px; border-radius:4px; }
+.delete-btn:hover { background:var(--line); }
+.stream { border-radius:6px; top:6.5rem; }
+.tune { border-radius:6px; }
+.alert { border-radius:5px; }
+.alert-title { font-size:1rem; }
+.source { border-radius:8px; }
+.site-footer { background:var(--surface); border-top:1px solid var(--line); }
+.site-footer-name { font-family:var(--display); }
+.site-footer-note { color:var(--muted); }
+@media(max-width:640px) {
+ .site-nav-inner { flex-wrap:wrap; gap:.35rem; }
+ .site-links { width:100%; margin-left:0; }
+ .site-link { flex:none; padding-inline:.7rem; }
+ .wrap,.container { padding-top:1.75rem; }
+ .section-label { gap:.5rem; flex-wrap:wrap; }
+ .task-item { gap:.55rem; padding:.8rem .7rem; }
+ .task-check { width:24px; height:24px; }
+ .delete-btn { min-width:40px; min-height:40px; }
+}
+
+.panel,.term,.predict,.infl,.scatter-wrap { border-radius:6px; }
+.btn { min-height:44px; }
+.btn-pick { background:var(--surface);color:var(--ink);border-color:var(--line-strong); }
+.btn-pick:hover { border-color:var(--accent); }
+.toggle { min-height:44px; }
+.switch { background:var(--muted); }
+.term-body { font-size:.8rem; }
+.result { background:var(--sunken);color:var(--ink);border-left:1px solid var(--line);padding:1.5rem; }
+.result .price { color:var(--accent);font-weight:500; }
+.result .rlabel,.result .range,.result .vs,.result .eqn { opacity:1;color:var(--muted); }
+.result .vs { border-color:var(--line); }
+@media(max-width:640px) { .result { border-left:0;border-top:1px solid var(--line); } }
+</style>
 </head>
 <body>
 <nav class="site-nav" aria-label="Site">
   <div class="site-nav-inner">
-    <a class="site-brand" href="../index.html"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
+    <a class="site-brand" href="https://ryan-wien.higgsfield.app"><span class="site-mark">RW</span><span>Ryan Wien</span></a>
     <div class="site-links">
       <a class="site-link" href="../task-tracker/demo.html">Tasks</a>
       <a class="site-link" href="../matching-engine/orderbook_terminal.html">Order Book</a>
@@ -160,7 +234,6 @@
 
 <main class="wrap">
   <div class="eyebrow">Machine learning</div>
-  <div class="site-model site-model-head" data-emblem="dome" role="img" aria-label="Stylized 3D habitat dome"></div>
   <h1>House Price Prediction</h1>
   <p class="lead">A supervised <b>linear-regression</b> model trained on 1,600 homes to predict sale price from six features. This page runs the <b>real trained model</b>, the exact learned weights, right in your browser. Drag any feature and the prediction updates live. Test-set accuracy: <b>R² = 0.94</b> on the 400 homes it never saw.</p>
   <div class="site-chips">
@@ -234,7 +307,7 @@
     <div class="site-footer-col">
       <div class="site-footer-h">This project</div>
       <a href="https://github.com/ryanwien/Portfolio2026/tree/main/ml-housing">Source &amp; write-up</a>
-      <a href="../index.html">All projects</a>
+      <a href="https://ryan-wien.higgsfield.app">All projects</a>
     </div>
     <div class="site-footer-col">
       <div class="site-footer-h">Contact</div>
