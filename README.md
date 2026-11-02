@@ -111,5 +111,5 @@ only condition is that the copyright notice travels with it.
 
 ## 📫 Reach me
 
-- LinkedIn: [linkedin.com/in/ryanwien3d](https://www.linkedin.com/in/ryanwien3d)
-- LinkedIn: [linkedin.com/in/ryanwien3d](https://www.linkedin.com/in/ryanwien3d)
+- LinkedIn: [linkedin.com/in/ryan-wien](https://www.linkedin.com/in/ryan-wien)
+- LinkedIn: [linkedin.com/in/ryan-wien](https://www.linkedin.com/in/ryan-wien)
