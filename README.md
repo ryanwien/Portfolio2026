@@ -6,6 +6,12 @@ data-driven programs, and I care about writing clean, well-documented code.
 
 🌐 **[Live portfolio & demos → ryanwien.github.io/Portfolio2026](https://ryanwien.github.io/Portfolio2026/)**. Every project below runs live in your browser, with no backend.
 
+[![The portfolio home page, with five projects that run live in the browser](docs/media/home.png)](https://ryanwien.github.io/Portfolio2026/)
+
+The matching engine demo is a live order book, matching with price-time priority right in the page:
+
+[![Animated order book terminal: bids, asks, spread and trade tape updating live](docs/media/orderbook-terminal.gif)](https://ryanwien.github.io/Portfolio2026/matching-engine/orderbook_terminal.html)
+
 🔭 **Currently:** working through the **Microsoft Cybersecurity Analyst**
 certificate, and building out the projects below.
 
